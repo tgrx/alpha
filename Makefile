@@ -1,10 +1,4 @@
-include ./Makefile.my.mk
-
-
-.PHONY: setup
-setup:
-	$(call log, setting up everything)
-	$(PYTHON) $(DIR_SCRIPTS)/setup_pycharm.py
+include ./Makefile.in.mk
 
 
 .PHONY: format
@@ -25,13 +19,13 @@ test:
 .PHONY: run
 run:
 	$(call log, starting local web server)
-	$(RUN_WEB_SERVER_LOCAL)
+	$(PYTHON) -m app
 
 
 .PHONY: run-prod
 run-prod:
 	$(call log, starting local web server)
-	$(RUN_WEB_SERVER_PROD)
+	$(RUN) gunicorn --config="$(DIR_SCRIPTS)/gunicorn.conf.py" framework.wsgi:application
 
 
 .PHONY: sh
@@ -50,4 +44,20 @@ venv:
 venv-dev:
 	$(call log, installing development packages)
 	$(PIPENV_INSTALL) --dev
+
+
+.PHONY: pycharm
+pycharm:
+	$(call log, setting pycharm up)
+	$(PYTHON) $(DIR_SCRIPTS)/setup_pycharm.py
+
+
+.PHONY: db
+db:
+	$(call log, setting db up)
+
+
+.PHONY: data
+data:
+	$(call log, preparing data)
 

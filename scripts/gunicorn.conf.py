@@ -11,8 +11,8 @@ DIR_SRC = (DIR_REPO / "src").resolve()
 RELOAD = True
 NR_WORKERS = multiprocessing.cpu_count() * 2 + 1  # XXX hahaha classic
 
-PORT = getenv("PORT", settings.get("PORT", 8000))
-assert PORT and PORT.isdecimal(), f"invalid port: `{PORT!r}`"
+PORT = getenv("PORT", settings.get("PORT", "8000"))
+assert PORT and (isinstance(PORT, int) or PORT.isdecimal()), f"invalid port: `{PORT!r}`"
 PORT = int(PORT)
 
 if "heroku" in settings.ENV_FOR_DYNACONF:

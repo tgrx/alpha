@@ -63,12 +63,12 @@ jobs:
       - run:
           name: Preparing DB
           command: |
-            make migrate
+            make db
 
       - run:
-          name: Preparing static
+          name: Preparing data
           command: |
-            make static
+            make data
 
       - run:
           name: (Running Selenium)
