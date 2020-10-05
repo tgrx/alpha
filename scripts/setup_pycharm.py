@@ -6,12 +6,9 @@ from typing import Optional
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
+from consts import DIR_IDEA
 from dynaconf import settings
 
-_this_file = Path(__file__).resolve()
-DIR_SCRIPTS = _this_file.parent.resolve()
-DIR_REPO = DIR_SCRIPTS.parent.resolve()
-DIR_IDEA = (DIR_REPO / ".idea").resolve()
 assert (
     DIR_IDEA.is_dir()
 ), f"unable to set up PyCharm: config dir `{DIR_IDEA.as_posix()}` not found"

@@ -1,33 +1,27 @@
-import multiprocessing
-from os import getenv
-from pathlib import Path
+from multiprocessing import cpu_count
 
-from dynaconf import settings
+try:
+    from pathlib import Path
 
-DIR_SCRIPTS = Path(__file__).parent.resolve()
-DIR_REPO = DIR_SCRIPTS.parent.resolve()
-DIR_SRC = (DIR_REPO / "src").resolve()
+    _this_dir = Path(__file__).parent.resolve().as_posix()
+    import sys
 
-RELOAD = True
-NR_WORKERS = multiprocessing.cpu_count() * 2 + 1  # XXX hahaha classic
+    sys.path.append(_this_dir)
 
-PORT = getenv("PORT", settings.get("PORT", "8000"))
-assert PORT and (isinstance(PORT, int) or PORT.isdecimal()), f"invalid port: `{PORT!r}`"
-PORT = int(PORT)
+    from consts import DIR_SRC
+    from utils import get_setting
+finally:
+    print("[done] reading Gunicorn config")
 
-if "heroku" in settings.ENV_FOR_DYNACONF:
-    RELOAD = False
+# --------------------------------------------
 
-    NR_WORKERS = getenv("WEB_CONCURRENCY", "2")
-    assert NR_WORKERS and NR_WORKERS.isdecimal(), f"invalid workers nr: `{PORT!r}`"
-    NR_WORKERS = int(NR_WORKERS)
-
-bind = f"0.0.0.0:{PORT}"
+_port = get_setting("PORT", 8000, convert=int)
+bind = f"0.0.0.0:{_port}"
 chdir = DIR_SRC.as_posix()
 graceful_timeout = 10
 max_requests = 200
 max_requests_jitter = 20
 pythonpath = DIR_SRC.as_posix()
-reload = RELOAD
+reload = False
 timeout = 30
-workers = NR_WORKERS
+workers = get_setting("WEB_CONCURRENCY", cpu_count() * 2 + 1, convert=int)
