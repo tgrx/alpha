@@ -1,0 +1,85 @@
+version: 2.1
+
+workflows:
+  main:
+    jobs:
+      - build-and-test:
+          context:
+            - docker-hub-creds
+
+jobs:
+  build-and-test:
+    environment:
+      PIPENV_VENV_IN_PROJECT: 1
+      PYTHONPATH: src
+
+    docker:
+      - image: circleci/python:3.8.5-browsers
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+
+      - image: circleci/postgres:9.6.9-alpine
+        environment:
+          POSTGRES_DB: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_USER: ci
+
+    steps:
+      - checkout
+
+      - run:
+          name: (Waiting for Postgres to be ready)
+          command: |
+            scripts/wait_for_postgresql.sh || exit 1
+
+      - restore_cache:
+          keys:
+            - cc-venv-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: Setting up virtualenv
+          command: |
+            sudo pip install pipenv
+            make venv-dev
+      - save_cache:
+          key: cc-venv-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ./.venv/
+
+      - restore_cache:
+          keys:
+            - cc-selenium-{{ checksum "./.circleci/selenium.link" }}
+      - run:
+          name: Setting up Selenium
+          command: |
+            test -f selenium.jar || curl -O $(cat ./.circleci/selenium.link)
+            mv selenium-*.jar selenium.jar || exit 0
+            test -f selenium.jar
+      - save_cache:
+          key: cc-selenium-{{ checksum "./.circleci/selenium.link" }}
+          paths:
+            - ./selenium.jar
+
+      - run:
+          name: Preparing DB
+          command: |
+            make db
+
+      - run:
+          name: Preparing data
+          command: |
+            make data
+
+      - run:
+          name: (Running Selenium)
+          command: java -jar selenium.jar -log tests/functional/artifacts/selenium.log
+          background: true
+      - run:
+          name: (Running Production Web Server)
+          command: make run-prod
+          background: true
+
+      - run:
+          name: Performing Tests
+          command: |
+            make test

@@ -1,0 +1,31 @@
+default:
+  ALLOWED_HOSTS: [ ]
+  DATABASE_URL: ""
+  DIRS_EXCLUDED:
+    - .idea
+    - .pytest_cache
+    - .tests_artifacts
+  DIRS_RESOURCES:
+    - config
+    - scripts
+  DIRS_SOURCES:
+    - src
+  DIRS_TEMPLATES: [ ]
+  MODE_DEBUG: true
+  MODE_PROFILING: false
+  PORT: -1
+  PROJECT_NAME: ""
+  TEMPLATE_ENGINE: "Django"
+  VENV_SYNTHETIC: false
+  WEB_CONCURRENCY: 0
+
+
+development:
+  PORT: 8000
+
+
+ci:
+  DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
+  PORT: 8000
+  SECRET_KEY: "1"
+  WEB_CONCURRENCY: 2
