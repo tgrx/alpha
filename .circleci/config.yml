@@ -75,8 +75,8 @@ jobs:
           command: java -jar selenium.jar -log tests/functional/artifacts/selenium.log
           background: true
       - run:
-          name: (Running Local Web Server)
-          command: make run
+          name: (Running Production Web Server)
+          command: make run-prod
           background: true
 
       - run:
