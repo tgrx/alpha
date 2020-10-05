@@ -9,7 +9,6 @@
 .venv
 __pycache__/
 db.sqlite3
-Makefile.my.mk
 tests/**/*.html
 tests/**/*.png
 venv/
