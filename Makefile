@@ -65,7 +65,6 @@ data: static
 .PHONY: static
 static:
 	$(call log, collecting static)
-	$(PYTHON) src/manage.py collectstatic --no-input
 
 
 .PHONY: resetdb
