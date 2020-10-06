@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  postgres: onehq/postgres@1.1.0
+
 workflows:
   main:
     jobs:
@@ -10,6 +13,8 @@ workflows:
 jobs:
   build-and-test:
     environment:
+      ENV_FOR_DYNACONF: ci
+      PGPASSWORD: ci
       PIPENV_VENV_IN_PROJECT: 1
       PYTHONPATH: src
 
@@ -20,10 +25,13 @@ jobs:
           password: $DOCKERHUB_PASSWORD
 
       - image: circleci/postgres:9.6.9-alpine
+        auth:
+          username: $(DOCKERHUB_USERNAME)
+          password: $(DOCKERHUB_PASSWORD)
         environment:
-          POSTGRES_DB: ci
-          POSTGRES_PASSWORD: ci
-          POSTGRES_USER: ci
+          POSTGRES_DB: $(PGPASSWORD)
+          POSTGRES_PASSWORD: $(PGPASSWORD)
+          POSTGRES_USER: $(PGPASSWORD)
 
     steps:
       - checkout
@@ -32,6 +40,8 @@ jobs:
           name: (Waiting for Postgres to be ready)
           command: |
             scripts/wait_for_postgresql.sh || exit 1
+
+      - postgres/install_postgres_client
 
       - restore_cache:
           keys:
