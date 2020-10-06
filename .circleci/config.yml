@@ -13,6 +13,7 @@ workflows:
 jobs:
   build-and-test:
     environment:
+      DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
       ENV_FOR_DYNACONF: ci
       PGPASSWORD: ci
       PIPENV_VENV_IN_PROJECT: 1
@@ -29,9 +30,9 @@ jobs:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
         environment:
-          POSTGRES_DB: $PGPASSWORD
-          POSTGRES_PASSWORD: $PGPASSWORD
-          POSTGRES_USER: $PGPASSWORD
+          POSTGRES_DB: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_USER: ci
 
     steps:
       - checkout
