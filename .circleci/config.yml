@@ -26,12 +26,12 @@ jobs:
 
       - image: circleci/postgres:9.6.9-alpine
         auth:
-          username: $(DOCKERHUB_USERNAME)
-          password: $(DOCKERHUB_PASSWORD)
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
         environment:
-          POSTGRES_DB: $(PGPASSWORD)
-          POSTGRES_PASSWORD: $(PGPASSWORD)
-          POSTGRES_USER: $(PGPASSWORD)
+          POSTGRES_DB: $PGPASSWORD
+          POSTGRES_PASSWORD: $PGPASSWORD
+          POSTGRES_USER: $PGPASSWORD
 
     steps:
       - checkout
