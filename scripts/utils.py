@@ -33,6 +33,15 @@ def get_db_name():
     return name
 
 
+def get_db_username():
+    url = get_setting("DATABASE_URL")
+    if not url:
+        return "--- no database configured ---"
+
+    url = urlsplit(url)
+    return url.username
+
+
 def _discover_venv_by_prefix():
     compat_prefix = _get_base_prefix_compat()
     return compat_prefix != sys.prefix

@@ -53,11 +53,55 @@ pycharm:
 
 
 .PHONY: db
-db:
+db: resetdb
 	$(call log, setting db up)
 
 
 .PHONY: data
-data:
+data: static
 	$(call log, preparing data)
+
+
+.PHONY: static
+static:
+	$(call log, collecting static)
+
+
+.PHONY: resetdb
+resetdb:  dropdb createdb migrations migrate
+	$(call log, resetting db to initial state)
+
+
+.PHONY: dropdb
+dropdb:
+	$(call log, dropping database)
+	psql \
+		--echo-all \
+		--username=$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_user.py) \
+		--no-password \
+		--host=localhost \
+		--dbname=postgres \
+		--command="DROP DATABASE IF EXISTS \"$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_name.py)\";"
+
+
+.PHONY: createdb
+createdb:
+	$(call log, creating database)
+	psql \
+		--echo-all \
+		--username=$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_user.py) \
+		--no-password \
+		--host=localhost \
+		--dbname=postgres \
+		--command="CREATE DATABASE \"$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_name.py)\";"
+
+
+.PHONY: migrations
+migrations:
+	$(call log, generating migrations)
+
+
+.PHONY: migrate
+migrate:
+	$(call log, applying migrations)
 
