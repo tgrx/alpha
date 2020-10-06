@@ -96,3 +96,13 @@ createdb:
 		--dbname=postgres \
 		--command="CREATE DATABASE \"$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_name.py)\";"
 
+
+.PHONY: migrations
+migrations:
+	$(call log, generating migrations)
+
+
+.PHONY: migrate
+migrate:
+	$(call log, applying migrations)
+
