@@ -20,12 +20,12 @@ jobs:
       PYTHONPATH: src
 
     docker:
-      - image: circleci/python:3.8.5-browsers
+      - image: circleci/python:3.9.0-browsers
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
 
-      - image: circleci/postgres:9.6.9-alpine
+      - image: circleci/postgres:12.1-alpine
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -72,14 +72,9 @@ jobs:
             - ./selenium.jar
 
       - run:
-          name: Preparing DB
+          name: Performing release steps
           command: |
-            make db
-
-      - run:
-          name: Preparing data
-          command: |
-            make data
+            make release
 
       - run:
           name: (Running Selenium)

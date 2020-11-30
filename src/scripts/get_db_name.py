@@ -1,4 +1,4 @@
-from utils import get_db_name
+from framework.util.db import get_db_name
 
 
 def main():

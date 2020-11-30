@@ -1,8 +1,17 @@
 from wsgiref.simple_server import make_server
 
-from framework import settings
-from framework import wsgi
-from framework.consts import SERVER_RUNNING_BANNER
+from . import settings
+from . import wsgi
+
+SERVER_RUNNING_BANNER = """
++----------------------------------------+
+|             SERVER WORKS!              |
++----------------------------------------+
+
+Visit http://{host}:{port}
+
+..........................................
+"""
 
 
 def run():
