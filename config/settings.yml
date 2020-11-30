@@ -9,6 +9,8 @@ default:
   DIRS_SOURCES:
     - src
   DIRS_TEMPLATES: [ ]
+  HEROKU_API_APP_ID: ""
+  HEROKU_API_TOKEN: ""
   HOST: ""
   MODE_DEBUG: true
   MODE_PROFILING: false
@@ -33,4 +35,5 @@ ci:
 
 
 heroku:
+  MODE_DEBUG: false
   VENV_SYNTHETIC: 1

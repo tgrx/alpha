@@ -1,3 +1,15 @@
+.PHONY: run
+run:
+	$(call log, starting local web server)
+	$(LOCAL_RUN)
+
+
+.PHONY: run-prod
+run-prod:
+	$(call log, starting local web server)
+	$(RUN) gunicorn --config="$(DIR_SCRIPTS)/gunicorn.conf.py" $(WSGI_APPLICATION)
+
+
 .PHONY: format
 format:
 	$(call log, reorganizing imports & formatting code)
@@ -16,18 +28,6 @@ test:
 .PHONY: release
 release: db data
 	$(call log, performing release steps)
-
-
-.PHONY: run
-run:
-	$(call log, starting local web server)
-	$(LOCAL_RUN)
-
-
-.PHONY: run-prod
-run-prod:
-	$(call log, starting local web server)
-	$(RUN) gunicorn --config="$(DIR_SCRIPTS)/gunicorn.conf.py" $(WSGI_APPLICATION)
 
 
 .PHONY: sh
@@ -58,6 +58,12 @@ upgrade-venv:
 pycharm:
 	$(call log, setting PyCharm up)
 	$(PYTHON) $(DIR_SCRIPTS)/setup_pycharm.py
+
+
+.PHONY: heroku
+heroku:
+	$(call log, configuring the Heroku instance)
+	$(PYTHON) $(DIR_SCRIPTS)/configure_heroku.py
 
 
 .PHONY: db
