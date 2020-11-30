@@ -48,6 +48,12 @@ venv-dev:
 	$(PIPENV_INSTALL) --dev
 
 
+.PHONY: upgrade-venv
+upgrade-venv:
+	$(call log, upgrading all packages in virtualenv)
+	$(PYTHON) $(DIR_SCRIPTS)/upgrade_packages.py
+
+
 .PHONY: pycharm
 pycharm:
 	$(call log, setting PyCharm up)
