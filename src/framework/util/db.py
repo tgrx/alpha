@@ -1,3 +1,8 @@
+from urllib.parse import urlsplit
+
+from framework.util.settings import get_setting
+
+
 def get_db_name():
     url = get_setting("DATABASE_URL")
     if not url:
