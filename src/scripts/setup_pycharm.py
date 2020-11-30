@@ -91,7 +91,7 @@ def get_root(tree: ElementTree) -> Element:
 
     root_tag = "module"
     assert (
-            root.tag == root_tag
+        root.tag == root_tag
     ), f"unsupported IML file: malformed structure: root tag != <{root_tag}>"
 
     return root
@@ -144,7 +144,7 @@ def save_tree(tree: ElementTree, destination: Path) -> None:
 
 
 def get_component(
-        root: Element, component_name: str, must_exist: bool
+    root: Element, component_name: str, must_exist: bool
 ) -> Optional[Element]:
     component = root.find(f"./component[@name='{component_name}']")
 
@@ -156,10 +156,10 @@ def get_component(
 
 
 def get_or_create_tag(
-        parent: Element,
-        tag_name: str,
-        attrs: Optional[Dict] = None,
-        clear: bool = False,
+    parent: Element,
+    tag_name: str,
+    attrs: Optional[Dict] = None,
+    clear: bool = False,
 ) -> Element:
     attrs = attrs or {}
     xpath_attrs = []
