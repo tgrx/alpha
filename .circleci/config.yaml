@@ -40,7 +40,7 @@ jobs:
       - run:
           name: (Waiting for Postgres to be ready)
           command: |
-            scripts/wait_for_postgresql.sh || exit 1
+            make wait-for-db
 
       - postgres/install_postgres_client
 
@@ -74,7 +74,7 @@ jobs:
       - run:
           name: Performing release steps
           command: |
-            make release
+            make initdb release
 
       - run:
           name: (Running Selenium)

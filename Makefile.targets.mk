@@ -59,6 +59,12 @@ db: migrate
 	$(call log, setting DB up)
 
 
+.PHONY: wait-for-db
+wait-for-db:
+	$(call log, waiting for DB up)
+	$(RUN) $(DIR_SCRIPTS)/wait_for_postgresql.sh
+
+
 .PHONY: initdb
 initdb: resetdb migrate
 	$(call log, initializing the DB)
