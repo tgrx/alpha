@@ -37,3 +37,7 @@ ci:
 heroku:
   MODE_DEBUG: false
   VENV_SYNTHETIC: 1
+
+
+docker:
+  MODE_DEBUG: false

@@ -1,6 +1,5 @@
-import os
+from framework.util.settings import get_setting
 
-from dynaconf import settings as _ds
-
-HOST = "localhost"
-PORT = int(os.getenv("PORT", _ds.get("PORT", 8000)))
+HOST = get_setting("HOST", "localhost")
+PORT = get_setting("PORT", 8000, convert=int)
+DATABASE_URL = get_setting("DATABASE_URL")
