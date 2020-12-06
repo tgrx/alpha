@@ -1,0 +1,35 @@
+version: "3.3"
+services:
+  alpha-web:
+    build: ./
+    container_name: alpha-web
+    depends_on:
+      - alpha-db
+    entrypoint: ["make", "wait-for-db", "run-prod"]
+    environment:
+      PORT: 80
+      DATABASE_URL: "postgresql://alpha:alpha@alpha-db:5432/alpha"
+    image: alpha-web
+    ports:
+      - "8888:80"
+  alpha-db:
+    container_name: alpha-db
+    environment:
+      POSTGRES_USER: alpha
+      POSTGRES_PASSWORD: alpha
+      POSTGRES_DB: alpha
+    image: postgres:13.1-alpine
+    ports:
+      - "5555:5432"
+    restart: always
+  alpha-dba:
+    container_name: alpha-dba
+    image: adminer
+    restart: always
+    ports:
+      - 5556:8080
+    volumes:
+      - db-data:/var/lib/postgresql/data
+volumes:
+  db-data:
+

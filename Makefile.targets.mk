@@ -48,6 +48,12 @@ venv-dev:
 	$(PIPENV_INSTALL) --dev
 
 
+.PHONY: venv-prod
+venv-prod:
+	$(call log, installing development packages for production)
+	$(PIPENV_INSTALL) --deploy
+
+
 .PHONY: upgrade-venv
 upgrade-venv:
 	$(call log, upgrading all packages in virtualenv)
@@ -74,7 +80,9 @@ db: migrate
 .PHONY: wait-for-db
 wait-for-db:
 	$(call log, waiting for DB up)
-	$(DIR_SCRIPTS)/wait_for_postgresql.sh
+	$(DIR_SCRIPTS)/wait_for_postgresql.sh \
+		$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_host.py) \
+		$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_port.py) \
 
 
 .PHONY: initdb
@@ -130,3 +138,20 @@ data: static
 static:
 	$(call log, collecting static)
 
+
+.PHONY: docker
+docker:
+	docker-compose build
+
+
+.PHONY: docker-run
+docker-run:
+	docker-compose up
+
+
+.PHONY: docker-clean
+docker-clean:
+	docker-compose stop || true
+	docker-compose down || true
+	docker-compose rm --force || true
+	docker system prune --force
