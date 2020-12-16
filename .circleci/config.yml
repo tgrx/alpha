@@ -37,13 +37,6 @@ jobs:
     steps:
       - checkout
 
-      - run:
-          name: (Waiting for Postgres to be ready)
-          command: |
-            make wait-for-db
-
-      - postgres/install_postgres_client
-
       - restore_cache:
           keys:
             - cc-venv-{{ checksum "Pipfile.lock" }}
@@ -51,11 +44,18 @@ jobs:
           name: Setting up virtualenv
           command: |
             sudo pip install pipenv
-            make venv-dev
+            make venv venv-dev
       - save_cache:
           key: cc-venv-{{ checksum "Pipfile.lock" }}
           paths:
             - ./.venv/
+
+      - postgres/install_postgres_client
+
+      - run:
+          name: (Waiting for Postgres to be ready)
+          command: |
+            make wait-for-db
 
       - restore_cache:
           keys:

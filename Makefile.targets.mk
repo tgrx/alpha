@@ -39,6 +39,7 @@ sh:
 .PHONY: venv
 venv:
 	$(call log, installing packages)
+	test -d .venv || mkdir .venv
 	$(PIPENV_INSTALL)
 
 

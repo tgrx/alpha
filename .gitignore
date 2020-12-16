@@ -6,7 +6,7 @@
 .pytest_cache/
 .secrets.*
 .tests_artifacts/
-.venv
+.venv/
 __pycache__/
 db.sqlite3
 tests/**/*.html
