@@ -4,6 +4,7 @@
 .gitattributes
 .gitignore
 .isort.cfg
+.venv/
 docker-compose.yml
 Dockerfile
 LICENSE
@@ -12,3 +13,4 @@ pytest.ini
 README.md
 runtime.txt
 tests/
+venv/

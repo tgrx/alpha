@@ -6,8 +6,8 @@ run:
 
 .PHONY: run-prod
 run-prod:
-	$(call log, starting local web server)
-	$(RUN) gunicorn --config="$(DIR_SCRIPTS)/gunicorn.conf.py" $(WSGI_APPLICATION)
+	$(call log, starting production web server)
+	$(RUN) gunicorn --config="$(DIR_SCRIPTS)/gunicorn.conf.py" $(APPLICATION)
 
 
 .PHONY: format

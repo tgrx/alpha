@@ -45,7 +45,6 @@ endif
 
 DIR_SRC := $(abspath $(DIR_REPO)/src)
 DIR_TESTS := $(abspath $(DIR_REPO)/tests)
-
 DIR_SCRIPTS = $(abspath $(DIR_SRC)/scripts)
 
 
