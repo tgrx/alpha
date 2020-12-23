@@ -11,8 +11,16 @@ include ./Makefile.in.mk
 # [  TARGETS  ]
 # override to whatever works on your system
 
-WSGI_APPLICATION := main.wsgi:application
-LOCAL_RUN := $(PYTHON) -m main.app
+APPLICATION := main.asgi:application
+LOCAL_RUN := $(RUN) uvicorn \
+			--host 0.0.0.0 \
+			--lifespan off \
+			--log-level debug \
+			--port 8000 \
+			--reload \
+			--workers 1 \
+			--ws none \
+			$(APPLICATION)
 
 include ./Makefile.targets.mk
 
