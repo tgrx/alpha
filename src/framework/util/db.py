@@ -1,10 +1,10 @@
 from urllib.parse import urlsplit
 
-from framework.util.settings import get_setting
+from framework import config
 
 
 def get_db_host():
-    url = get_setting("DATABASE_URL")
+    url = config.DATABASE_URL
     if not url:
         return "--- no database configured ---"
 
@@ -14,7 +14,7 @@ def get_db_host():
 
 
 def get_db_port():
-    url = get_setting("DATABASE_URL")
+    url = config.DATABASE_URL
     if not url:
         return "--- no database configured ---"
 
@@ -24,7 +24,7 @@ def get_db_port():
 
 
 def get_db_name():
-    url = get_setting("DATABASE_URL")
+    url = config.DATABASE_URL
     if not url:
         return "--- no database configured ---"
 
@@ -34,7 +34,7 @@ def get_db_name():
 
 
 def get_db_username():
-    url = get_setting("DATABASE_URL")
+    url = config.DATABASE_URL
     if not url:
         return "--- no database configured ---"
 

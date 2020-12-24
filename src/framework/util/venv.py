@@ -6,12 +6,11 @@ import sys
 
 def in_virtualenv():
     try:
-        from framework.util.settings import get_setting
+        from framework.config import VENV_SYNTHETIC
     except ImportError:
-        # noinspection PyUnresolvedReferences
-        from settings import get_setting
+        VENV_SYNTHETIC = False
 
-    synth_venv = get_setting("VENV_SYNTHETIC", False, convert=bool)
+    synth_venv = VENV_SYNTHETIC
     actual_venv = _discover_venv_by_prefix()
     return synth_venv or actual_venv
 
