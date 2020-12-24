@@ -1,7 +1,21 @@
 .PHONY: run
 run:
-	$(call log, starting local web server)
-	$(LOCAL_RUN)
+	$(call log, starting application)
+	$(ENTRYPOINT)
+
+
+.PHONY: run-dev
+run-dev:
+	$(call log, starting development web server)
+	$(RUN) uvicorn \
+		--host 0.0.0.0 \
+		--lifespan off \
+		--log-level debug \
+		--port 8000 \
+		--reload \
+		--workers 1 \
+		--ws none \
+		$(APPLICATION)
 
 
 .PHONY: run-prod

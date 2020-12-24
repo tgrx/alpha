@@ -1,14 +1,14 @@
 import requests
 
-from framework.util.settings import get_setting
+from framework import config
 
 API = "https://api.heroku.com/apps"
 
 
 def set_config_vars():
-    token = get_setting("HEROKU_API_TOKEN")
-    app_id = get_setting("HEROKU_API_APP_ID")
-    sentry_dsn = get_setting("SENTRY_DSN")
+    token = config.HEROKU_API_TOKEN
+    app_id = config.HEROKU_API_APP_ID
+    sentry_dsn = config.SENTRY_DSN
 
     url = f"{API}/{app_id}/config-vars"
 
