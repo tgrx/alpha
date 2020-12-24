@@ -78,7 +78,9 @@ jobs:
 
       - run:
           name: (Running Selenium)
-          command: java -jar selenium.jar -log tests/functional/artifacts/selenium.log
+          command: |
+            test -d .test_artifacts || mkdir .test_artifacts
+            java -jar selenium.jar -log .test_artifacts/selenium.log
           background: true
       - run:
           name: (Running Production Web Server)
