@@ -1,6 +1,7 @@
 import uvicorn
 
 from framework import config
+from framework.logging import get_logger
 from main.asgi import application
 
 SERVER_RUNNING_BANNER = """
@@ -13,16 +14,19 @@ Visit http://{host}:{port}
 ..........................................
 """
 
+logger = get_logger("app")
+
 
 def run():
     banner = SERVER_RUNNING_BANNER.format(host=config.HOST, port=config.PORT)
-    print(banner)
+    logger.info(banner)
+
     try:
         uvicorn.run(application, host="0.0.0.0", port=config.PORT)
     except KeyboardInterrupt:
-        print("\n! stopping server\n")
+        logger.debug("stopping server")
     finally:
-        print("\n--- server has been shut down ---\n\n")
+        logger.info("server has been shut down")
 
 
 if __name__ == "__main__":
