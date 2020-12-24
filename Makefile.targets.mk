@@ -1,7 +1,21 @@
 .PHONY: run
 run:
-	$(call log, starting local web server)
-	$(LOCAL_RUN)
+	$(call log, starting application)
+	$(ENTRYPOINT)
+
+
+.PHONY: run-dev
+run-dev:
+	$(call log, starting development web server)
+	$(RUN) uvicorn \
+		--host 0.0.0.0 \
+		--lifespan off \
+		--log-level debug \
+		--port 8000 \
+		--reload \
+		--workers 1 \
+		--ws none \
+		$(APPLICATION)
 
 
 .PHONY: run-prod
@@ -36,27 +50,32 @@ sh:
 	$(RUN) ipython
 
 
-.PHONY: venv
-venv:
-	$(call log, installing packages)
+.PHONY: venv-dir
+venv-dir:
+	$(call log, initializing venv directory)
 	test -d .venv || mkdir .venv
+
+
+.PHONY: venv
+venv: venv-dir
+	$(call log, installing packages)
 	$(PIPENV_INSTALL)
 
 
 .PHONY: venv-dev
-venv-dev:
+venv-dev: venv-dir
 	$(call log, installing development packages)
 	$(PIPENV_INSTALL) --dev
 
 
 .PHONY: venv-prod
-venv-prod:
+venv-prod: venv-dir
 	$(call log, installing development packages for production)
 	$(PIPENV_INSTALL) --deploy
 
 
 .PHONY: upgrade-venv
-upgrade-venv:
+upgrade-venv: venv-dir
 	$(call log, upgrading all packages in virtualenv)
 	$(PYTHON) $(DIR_SCRIPTS)/upgrade_packages.py
 

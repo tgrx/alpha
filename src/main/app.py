@@ -1,7 +1,7 @@
-from wsgiref.simple_server import make_server
+import uvicorn
 
-from . import settings
-from . import wsgi
+from framework import config
+from main.asgi import application
 
 SERVER_RUNNING_BANNER = """
 +----------------------------------------+
@@ -15,16 +15,14 @@ Visit http://{host}:{port}
 
 
 def run():
-    banner = SERVER_RUNNING_BANNER.format(host=settings.HOST, port=settings.PORT)
-    with make_server(settings.HOST, settings.PORT, wsgi.application) as httpd:
-        print(banner)
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            print("\n! stopping server\n")
-        finally:
-            httpd.shutdown()
-            print("\n--- server has been shut down ---\n\n")
+    banner = SERVER_RUNNING_BANNER.format(host=config.HOST, port=config.PORT)
+    print(banner)
+    try:
+        uvicorn.run(application, host="0.0.0.0", port=config.PORT)
+    except KeyboardInterrupt:
+        print("\n! stopping server\n")
+    finally:
+        print("\n--- server has been shut down ---\n\n")
 
 
 if __name__ == "__main__":

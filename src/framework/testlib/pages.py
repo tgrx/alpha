@@ -1,30 +1,9 @@
 from typing import Union
 
-from selenium.webdriver.android.webdriver import WebDriver as AndroidWebDriver
-from selenium.webdriver.blackberry.webdriver import WebDriver as BlackberryWebDriver
-from selenium.webdriver.chrome.webdriver import WebDriver as ChromeWebDriver
-from selenium.webdriver.edge.webdriver import WebDriver as EdgeWebDriver
-from selenium.webdriver.firefox.webdriver import WebDriver as FirefoxWebDriver
-from selenium.webdriver.ie.webdriver import WebDriver as IeWebDriver
-from selenium.webdriver.opera.webdriver import WebDriver as OperaWebDriver
-from selenium.webdriver.phantomjs.webdriver import WebDriver as PhantomJsWebDriver
-from selenium.webdriver.remote.webdriver import WebDriver as RemoteWebDriver
-from selenium.webdriver.safari.webdriver import WebDriver as SafariWebDriver
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
-WebDriverT = Union[
-    AndroidWebDriver,
-    BlackberryWebDriver,
-    ChromeWebDriver,
-    EdgeWebDriver,
-    FirefoxWebDriver,
-    IeWebDriver,
-    OperaWebDriver,
-    PhantomJsWebDriver,
-    RemoteWebDriver,
-    SafariWebDriver,
-]
+from framework.testlib.typing import WebDriverT
 
 
 class PageObject:
@@ -46,7 +25,9 @@ class PageObject:
         return self.browser.title
 
 
-class PageElement:
+class _AbstractPageElement:
+    _multiple = False
+
     def __init__(self, by, value):
         self._by = by
         self._value = value
@@ -55,7 +36,24 @@ class PageElement:
         if not page_object:
             return self
 
-        return page_object.browser.find_element(self._by, self._value)
+        finder = {
+            True: page_object.browser.find_elements,
+            False: page_object.browser.find_element,
+        }[self._multiple]
+
+        return finder(self._by, self._value)
+
+    def __set__(self, instance, value):
+        element = self.__get__(instance, type(instance))
+        element.send_keys(value)
+
+
+class PageElement(_AbstractPageElement):
+    pass
+
+
+class PageElements(_AbstractPageElement):
+    _multiple = True
 
 
 class PageResource:

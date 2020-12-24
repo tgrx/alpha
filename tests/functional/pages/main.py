@@ -1,7 +1,7 @@
 from selenium.webdriver.common.by import By
 
-from .abstract import PageElement
-from .abstract import PageObject
+from framework.testlib.pages import PageElement
+from framework.testlib.pages import PageObject
 
 
 class MainPage(PageObject):
