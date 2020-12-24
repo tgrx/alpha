@@ -1,4 +1,5 @@
 import os
+import sys
 from multiprocessing import cpu_count
 
 
@@ -24,7 +25,19 @@ def get_setting(setting_name, default=None, convert=lambda _value: _value or Non
             pass
 
     value = value if value is not None else default
-    return convert(value)
+    try:
+        value = convert(value)
+    except Exception:
+        msg = (
+            f"CONFIG ERROR:"
+            f" cannot convert {setting_name}={value!r}"
+            f" with {convert.__name__},"
+            f" using None"
+        )
+        value = None
+        print(msg, file=sys.stderr)
+
+    return value
 
 
 DATABASE_URL = get_setting("DATABASE_URL")
