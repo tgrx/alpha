@@ -20,12 +20,12 @@ jobs:
       PYTHONPATH: src
 
     docker:
-      - image: circleci/python:3.9.0-browsers
+      - image: circleci/python:3.9.1-browsers
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
 
-      - image: circleci/postgres:12.1-alpine
+      - image: circleci/postgres:13.1-ram
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
