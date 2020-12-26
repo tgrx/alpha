@@ -3,14 +3,14 @@ from contextlib import closing
 
 import psycopg2
 
-from main import settings
+from framework import config
 
 
 def main():
-    if not settings.DATABASE_URL:
+    if not config.DATABASE_URL:
         return {}
 
-    with closing(psycopg2.connect(settings.DATABASE_URL)) as connection:
+    with closing(psycopg2.connect(config.DATABASE_URL)) as connection:
         cursor = connection.cursor()
         cursor.execute("SELECT * FROM pg_config;")
         result = dict(cursor.fetchall())
