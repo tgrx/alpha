@@ -25,7 +25,7 @@ jobs:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
 
-      - image: circleci/postgres:13.1-alpine
+      - image: circleci/postgres:13.1-ram
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
