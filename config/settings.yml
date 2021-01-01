@@ -1,14 +1,5 @@
 default:
   DATABASE_URL: ""
-  DIRS_EXCLUDED:
-    - .idea
-    - .pytest_cache
-    - .tests_artifacts
-  DIRS_RESOURCES:
-    - config
-  DIRS_SOURCES:
-    - src
-  DIRS_TEMPLATES: []
   HEROKU_API_APP_ID: ""
   HEROKU_API_TOKEN: ""
   HEROKU_APP_NAME: ""
@@ -16,10 +7,8 @@ default:
   MODE_DEBUG: true
   MODE_PROFILING: false
   PORT: -1
-  PROJECT_NAME: ""
-  REQUEST_TTL: 0
+  REQUEST_TIMEOUT: 0
   SENTRY_DSN: ""
-  TEMPLATE_ENGINE: "Django"
   TEST_BROWSER: ""
   TEST_BROWSER_HEADLESS: true
   VENV_SYNTHETIC: false
@@ -29,14 +18,14 @@ default:
 development:
   HOST: "localhost"
   PORT: 8000
-  REQUEST_TTL: 300
+  REQUEST_TIMEOUT: 300
   WEB_CONCURRENCY: 1
 
 
 ci:
   HOST: "localhost"
   PORT: 8000
-  REQUEST_TTL: 100
+  REQUEST_TIMEOUT: 100
   SECRET_KEY: "1"
   TEST_BROWSER: "firefox"
   WEB_CONCURRENCY: 2
@@ -44,10 +33,10 @@ ci:
 
 heroku:
   MODE_DEBUG: false
-  REQUEST_TTL: 10
+  REQUEST_TIMEOUT: 10
   VENV_SYNTHETIC: 1
 
 
 docker:
   MODE_DEBUG: false
-  REQUEST_TTL: 10
+  REQUEST_TIMEOUT: 10

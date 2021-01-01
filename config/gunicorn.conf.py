@@ -3,7 +3,7 @@ from framework.dirs import DIR_SRC
 
 bind = f"0.0.0.0:{conf.PORT}"
 chdir = DIR_SRC.as_posix()
-graceful_timeout = conf.REQUEST_TTL
+graceful_timeout = conf.REQUEST_TIMEOUT
 max_requests = 200
 max_requests_jitter = 20
 pythonpath = DIR_SRC.as_posix()

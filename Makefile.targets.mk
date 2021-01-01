@@ -100,12 +100,6 @@ upgrade-venv: venv-dir
 	$(MANAGEMENT) upgrade-packages
 
 
-.PHONY: pycharm
-pycharm:
-	$(call log, setting PyCharm up)
-	$(MANAGEMENT) setup-pycharm
-
-
 .PHONY: heroku
 heroku:
 	$(call log, configuring the Heroku instance)
