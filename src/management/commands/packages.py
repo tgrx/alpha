@@ -10,26 +10,30 @@ from typing import Dict
 import toml
 
 from framework.dirs import DIR_REPO
+from management.commands.abstract import ManagementCommand
 
 PACKAGES_SECTIONS = {"packages", "dev-packages"}
 PIPFILE = (DIR_REPO / "Pipfile").resolve()
 assert PIPFILE.is_file, f"can not open {PIPFILE.as_posix()} to read"
 
 
-def main():
-    backup = backup_pipfile()
-    try:
-        original = load_pipfile()
-        relaxed = relax_packages_versions(original)
-        save_pipfile(relaxed)
-        upgrade_packages()
-        installed_packages = get_installed_packages()
-        fixed = fix_packages_versions(relaxed, installed_packages)
-        save_pipfile(fixed)
-        upgrade_packages()
-    except:
-        restore_pipfile_from_backup(backup)
-        raise
+class UpgradePackagesCommand(ManagementCommand):
+    name = "upgrade-packages"
+
+    def __call__(self):
+        backup = backup_pipfile()
+        try:
+            original = load_pipfile()
+            relaxed = relax_packages_versions(original)
+            save_pipfile(relaxed)
+            upgrade_packages()
+            installed_packages = get_installed_packages()
+            fixed = fix_packages_versions(relaxed, installed_packages)
+            save_pipfile(fixed)
+            upgrade_packages()
+        except:
+            restore_pipfile_from_backup(backup)
+            raise
 
 
 def backup_pipfile() -> Path:
@@ -127,7 +131,3 @@ def _set_packages_versions(pipfile: Dict, version_func) -> Dict:
                 packages[package_name] = package_params
 
     return versioned
-
-
-if __name__ == "__main__":
-    main()

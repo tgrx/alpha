@@ -23,19 +23,15 @@ endif
 # -----------------------------------------------
 # independent variables
 
-DIR_VENV := $(shell $(PIPENV) --venv 2>/dev/null)
 DIR_REPO := $(realpath ./)
+DIR_VENV := $(shell $(PIPENV) --venv 2>/dev/null)
 
 # -----------------------------------------------
 # OS-depend variables
 
 ifeq ($(OS), Windows_NT)
 
-DIR_REPO := $(abspath $(shell cd))
-
 else
-
-DIR_REPO := $(abspath $(shell pwd))
 
 endif
 
@@ -43,15 +39,16 @@ endif
 # -----------------------------------------------
 # Paths
 
+DIR_CONFIG = $(abspath $(DIR_REPO)/config)
+DIR_SCRIPTS = $(abspath $(DIR_REPO)/scripts)
 DIR_SRC := $(abspath $(DIR_REPO)/src)
 DIR_TESTS := $(abspath $(DIR_REPO)/tests)
-DIR_SCRIPTS = $(abspath $(DIR_SRC)/scripts)
 
 
 # -----------------------------------------------
 # Virtualenv-depend variables
 
-ifeq ($(shell python "$(DIR_SRC)/framework/util/venv.py"), True)
+ifeq ($(shell "$(DIR_SCRIPTS)/in_venv.py"), True)
 
 IN_VENV := True
 RUN :=
@@ -70,3 +67,4 @@ endif
 # calculated variables
 
 PYTHON := $(RUN) python
+MANAGEMENT := $(PYTHON) -m management.kb

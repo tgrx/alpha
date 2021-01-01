@@ -30,7 +30,10 @@ COPY ./ ./
 
 RUN pipenv --three
 
-RUN make venv-prod release
+RUN make \
+        venv-prod \
+        release \
+    || exit 1
 
 EXPOSE 80
 

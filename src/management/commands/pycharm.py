@@ -9,6 +9,7 @@ from xml.etree.ElementTree import Element
 from dynaconf import settings
 
 from framework.dirs import DIR_IDEA
+from management.commands.abstract import ManagementCommand
 
 assert (
     DIR_IDEA.is_dir()
@@ -64,16 +65,19 @@ PROJECT_FOLDERS = list(
 )
 
 
-def main():
-    assert (
-        settings.PROJECT_NAME
-    ), "project name is not configured - look through config/"
-    iml = DIR_IDEA / f"{settings.PROJECT_NAME}.iml"
-    tree = build_tree(iml)
-    root = get_root(tree)
-    setup_new_module_root_manager(root)
-    setup_template_service(root)
-    save_tree(tree, iml)
+class SetupPycharmCommand(ManagementCommand):
+    name = "setup-pycharm"
+
+    def __call__(self):
+        assert (
+            settings.PROJECT_NAME
+        ), "project name is not configured - look through config/"
+        iml = DIR_IDEA / f"{settings.PROJECT_NAME}.iml"
+        tree = build_tree(iml)
+        root = get_root(tree)
+        setup_new_module_root_manager(root)
+        setup_template_service(root)
+        save_tree(tree, iml)
 
 
 def build_tree(path: Path) -> ElementTree:

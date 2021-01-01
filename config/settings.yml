@@ -11,6 +11,7 @@ default:
   DIRS_TEMPLATES: []
   HEROKU_API_APP_ID: ""
   HEROKU_API_TOKEN: ""
+  HEROKU_APP_NAME: ""
   HOST: ""
   MODE_DEBUG: true
   MODE_PROFILING: false

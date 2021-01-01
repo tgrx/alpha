@@ -43,6 +43,7 @@ def get_setting(setting_name, default=None, convert=lambda _value: _value or Non
 DATABASE_URL = get_setting("DATABASE_URL")
 HEROKU_API_APP_ID = get_setting("HEROKU_API_APP_ID")
 HEROKU_API_TOKEN = get_setting("HEROKU_API_TOKEN")
+HEROKU_APP_NAME = get_setting("HEROKU_APP_NAME")
 HOST = get_setting("HOST")
 MODE_DEBUG = get_setting("MODE_DEBUG", True, convert=bool)
 PORT = get_setting("PORT", 8000, convert=int)
