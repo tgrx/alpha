@@ -1,13 +1,14 @@
 import json
+from typing import Dict
+from typing import Optional
 
 import requests
+from requests import Response
 
 from framework.config import settings
 from management.commands.abstract import ManagementCommand
 
-assert settings.HEROKU_APP_NAME, "Heroku app name is not configured"
-
-HEROKU_API_URL = f"https://api.heroku.com/apps/{settings.HEROKU_APP_NAME}"
+HEROKU_API_URL = "https://api.heroku.com/apps"
 
 
 class HerokuCommand(ManagementCommand):
@@ -24,61 +25,64 @@ class HerokuCommand(ManagementCommand):
         ),
     }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        assert settings.HEROKU_APP_NAME, "Heroku app name is not configured"
+        assert (
+            settings.HEROKU_API_TOKEN
+        ), "Heroku API token is not set: see https://help.heroku.com/PBGP6IDE/"
+
     def __call__(self):
         if self.option_is_active("--configure"):
             self._configure()
         else:
             self._get_config()
 
-    @staticmethod
-    def _get_config():
-        app_name = settings.HEROKU_APP_NAME
-        assert app_name, "unable to get info about Heroku app: name is not set"
-
-        token = settings.HEROKU_API_TOKEN
-        assert (
-            token
-        ), "Heroku API token is not set: see https://help.heroku.com/PBGP6IDE/"
-
-        headers = {
-            "Accept": "application/vnd.heroku+json; version=3",
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-        }
-
-        response = requests.get(HEROKU_API_URL, headers=headers)
-        if response.status_code == 403:
-            raise AssertionError(f"invalid Heroku API token: {response.json()}")
-
-        assert (
-            response.status_code == 200
-        ), f"unable to get app info: {response.status_code}\n{response.content}"
-
+    @classmethod
+    def _get_config(cls):
+        response = cls._api_call()
         payload = response.json()
         print(json.dumps(payload, sort_keys=True, indent=4))
 
-    @staticmethod
-    def _configure():
-        token = settings.HEROKU_API_TOKEN
-
-        url = f"{HEROKU_API_URL}/config-vars"
-
-        headers = {
-            "Accept": "application/vnd.heroku+json; version=3",
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-        }
-
+    @classmethod
+    def _configure(cls):
         payload = {
             "ALPHA_ENV": "heroku",
             "PYTHONPATH": "src",
             "SENTRY_DSN": settings.SENTRY_DSN,
         }
 
-        resp = requests.patch(url, headers=headers, json=payload)
-        assert (
-            resp.status_code == 200
-        ), f"unable to get app info: {resp.status_code}\n{resp.content}"
-
-        payload = resp.json()
+        response = cls._api_call(path="config-vars", payload=payload)
+        payload = response.json()
         print(json.dumps(payload, sort_keys=True, indent=4))
+
+    @staticmethod
+    def _api_call(
+        *,
+        method: str = "get",
+        path: str = "",
+        payload: Optional[Dict] = None,
+    ) -> Response:
+        headers = {
+            "Accept": "application/vnd.heroku+json; version=3",
+            "Authorization": f"Bearer {settings.HEROKU_API_TOKEN}",
+            "Content-Type": "application/json",
+        }
+
+        url = f"{HEROKU_API_URL}/{settings.HEROKU_APP_NAME}/{path}"
+
+        meth = getattr(requests, method.lower())
+
+        meth_kwargs = {
+            "headers": headers,
+        }
+        if payload:
+            meth_kwargs["json"] = payload
+
+        response = meth(url, **meth_kwargs)
+        assert (
+            response.status_code == 200
+        ), f"unable to get app info: {response.status_code}\n{response.content}"
+
+        return response
