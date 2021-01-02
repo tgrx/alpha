@@ -2,10 +2,12 @@ import json
 
 import requests
 
-from framework import config
+from framework.config import settings
 from management.commands.abstract import ManagementCommand
 
-HEROKU_APPS_API = "https://api.heroku.com/apps"
+assert settings.HEROKU_APP_NAME, "Heroku app name is not configured"
+
+HEROKU_API_URL = f"https://api.heroku.com/apps/{settings.HEROKU_APP_NAME}"
 
 
 class HerokuCommand(ManagementCommand):
@@ -30,22 +32,21 @@ class HerokuCommand(ManagementCommand):
 
     @staticmethod
     def _get_config():
-        app_name = config.HEROKU_APP_NAME
+        app_name = settings.HEROKU_APP_NAME
         assert app_name, "unable to get info about Heroku app: name is not set"
 
-        token = config.HEROKU_API_TOKEN
+        token = settings.HEROKU_API_TOKEN
         assert (
             token
         ), "Heroku API token is not set: see https://help.heroku.com/PBGP6IDE/"
 
-        url = f"{HEROKU_APPS_API}/{app_name}"
         headers = {
             "Accept": "application/vnd.heroku+json; version=3",
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
         }
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(HEROKU_API_URL, headers=headers)
         if response.status_code == 403:
             raise AssertionError(f"invalid Heroku API token: {response.json()}")
 
@@ -58,11 +59,9 @@ class HerokuCommand(ManagementCommand):
 
     @staticmethod
     def _configure():
-        token = config.HEROKU_API_TOKEN
-        app_id = config.HEROKU_API_APP_ID
-        sentry_dsn = config.SENTRY_DSN
+        token = settings.HEROKU_API_TOKEN
 
-        url = f"{HEROKU_APPS_API}/{app_id}/config-vars"
+        url = f"{HEROKU_API_URL}/config-vars"
 
         headers = {
             "Accept": "application/vnd.heroku+json; version=3",
@@ -71,9 +70,9 @@ class HerokuCommand(ManagementCommand):
         }
 
         payload = {
-            "DYNACONF_SENTRY_DSN": sentry_dsn,
-            "ENV_FOR_DYNACONF": "heroku",
+            "ALPHA_ENV": "heroku",
             "PYTHONPATH": "src",
+            "SENTRY_DSN": settings.SENTRY_DSN,
         }
 
         resp = requests.patch(url, headers=headers, json=payload)

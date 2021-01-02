@@ -1,6 +1,6 @@
 from urllib.parse import urlsplit
 
-from framework import config
+from framework.config import settings
 from management.commands.abstract import ManagementCommand
 
 
@@ -18,7 +18,7 @@ class DbConfigCommand(ManagementCommand):
     }
 
     def __call__(self):
-        url = config.DATABASE_URL
+        url = settings.DATABASE_URL
         if not url:
             raise RuntimeError("database is not configured")
 

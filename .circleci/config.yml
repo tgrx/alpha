@@ -13,8 +13,8 @@ workflows:
 jobs:
   build-and-test:
     environment:
+      ALPHA_ENV: ci
       DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
-      ENV_FOR_DYNACONF: ci
       PGPASSWORD: ci
       PIPENV_VENV_IN_PROJECT: 1
       PYTHONPATH: src

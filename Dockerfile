@@ -1,6 +1,6 @@
 FROM python:3.9-alpine
 
-ENV ENV_FOR_DYNACONF docker
+ENV ALPHA_ENV docker
 ENV PIPENV_CACHE_DIR /app/.pipenv_cache
 ENV PIPENV_COLORBLIND 1
 ENV PIPENV_HIDE_EMOJIS 1
@@ -26,17 +26,17 @@ RUN pip install \
 
 WORKDIR /app/
 
+COPY Pipfile* Makefile* ./
 COPY ./ ./
-
-RUN pipenv --three
+RUN chmod +x ./scripts/*
 
 RUN make \
         venv-prod \
         release \
-    || exit 1
+        || exit 1
+
+COPY ./ ./
 
 EXPOSE 80
-
-RUN chmod +x ./src/scripts/*.sh
 
 CMD ["make", "run-prod"]

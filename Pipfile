@@ -15,8 +15,6 @@ pudb = "==2020.1"
 pytest = "==6.2.1"
 pytest-mock = "==3.4.0"
 pytest-selenium = "==2.0.1"
-requests = "==2.25.1"
-toml = "==0.10.2"
 
 [packages]
 gunicorn = "==20.0.4"
