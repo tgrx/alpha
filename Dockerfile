@@ -27,7 +27,8 @@ RUN pip install \
 WORKDIR /app/
 
 COPY Pipfile* Makefile* ./
-COPY ./ ./
+COPY ./config/ ./config/
+COPY ./scripts/ ./scripts/
 RUN chmod +x ./scripts/*
 
 RUN make \
