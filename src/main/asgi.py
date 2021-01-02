@@ -3,10 +3,10 @@ from typing import Dict
 
 import sentry_sdk
 
-from framework import config
+from framework.config import settings
 from framework.logging import get_logger
 
-sentry_sdk.init(config.SENTRY_DSN, traces_sample_rate=1.0)
+sentry_sdk.init(settings.SENTRY_DSN, traces_sample_rate=1.0)
 
 HTML_CONTENT = """
 <!DOCTYPE html>

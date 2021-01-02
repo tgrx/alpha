@@ -1,6 +1,6 @@
 import logging
 
-from framework import config
+from framework.config import settings
 
 FORMATS = {
     False: "{asctime} | {name}.{levelname} | {module}.{funcName} | {message}",
@@ -14,7 +14,7 @@ LEVELS = {
 
 
 def get_logger(logger_name: str) -> logging.Logger:
-    debug = config.MODE_DEBUG
+    debug = settings.MODE_DEBUG
 
     lvl = LEVELS[debug]
     fmt = FORMATS[debug]

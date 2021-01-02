@@ -2,7 +2,7 @@ import abc
 
 from selenium import webdriver
 
-from framework import config
+from framework.config import settings
 
 _browser_factories = {}
 
@@ -25,7 +25,7 @@ class BrowserFactory(metaclass=_BrowserFactoryMeta):
 
     @classmethod
     def get_factory(cls) -> "BrowserFactory":
-        browser_name = config.TEST_BROWSER
+        browser_name = settings.TEST_BROWSER
         factory_cls = _browser_factories.get(browser_name)
         if not factory_cls:
             raise RuntimeError(
@@ -40,7 +40,7 @@ class _ChromeFactory(BrowserFactory):
 
     def build(self):
         options = webdriver.ChromeOptions()
-        if config.TEST_BROWSER_HEADLESS:
+        if settings.TEST_BROWSER_HEADLESS:
             options.add_argument("headless")
 
         browser = webdriver.Chrome(options=options)
@@ -54,7 +54,7 @@ class _FirefoxFactory(BrowserFactory):
 
     def build(self):
         options = webdriver.FirefoxOptions()
-        options.headless = config.TEST_BROWSER_HEADLESS
+        options.headless = settings.TEST_BROWSER_HEADLESS
 
         browser = webdriver.Firefox(options=options)
         browser.implicitly_wait(4)

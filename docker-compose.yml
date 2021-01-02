@@ -7,8 +7,8 @@ services:
       - alpha-db
     entrypoint: ["make", "wait-for-db", "run-prod"]
     environment:
-      PORT: 80
       DATABASE_URL: "postgresql://alpha:alpha@alpha-db:5432/alpha"
+      PORT: 80
     image: alpha-web
     ports:
       - "8888:80"
@@ -22,6 +22,8 @@ services:
     ports:
       - "5555:5432"
     restart: always
+    volumes:
+      - alpha-volume:/var/lib/postgresql/data
   alpha-dba:
     container_name: alpha-dba
     image: adminer
@@ -29,7 +31,12 @@ services:
     ports:
       - 5556:8080
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - alpha-volume:/var/lib/postgresql/data
 volumes:
-  db-data:
-
+  alpha-volume:
+    name: alpha-volume
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: size=100m

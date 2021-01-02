@@ -1,5 +1,10 @@
+#!/usr/bin/env python
 # XXX: Makefile.in.mk depends on the position of this file
 # XXX: Mac OS X still uses Python 2 as system python, so this code MUST work under Python 2
+
+"""
+Exits with 1 when called within active Python virtualenv
+"""
 
 import sys
 

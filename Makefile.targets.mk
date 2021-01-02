@@ -21,22 +21,42 @@ run-dev:
 .PHONY: run-prod
 run-prod:
 	$(call log, starting production web server)
-	$(RUN) gunicorn --config="$(DIR_SCRIPTS)/gunicorn.conf.py" $(APPLICATION)
+	$(RUN) gunicorn --config="$(DIR_CONFIG)/gunicorn.conf.py" $(APPLICATION)
 
 
 .PHONY: format
 format:
 	$(call log, reorganizing imports & formatting code)
-	$(RUN) isort --virtual-env="$(DIR_VENV)" "$(DIR_SRC)" "$(DIR_TESTS)"
-	$(RUN) black "$(DIR_SRC)" "$(DIR_TESTS)"
+	$(RUN) isort --virtual-env="$(DIR_VENV)" \
+		"$(DIR_SRC)" \
+		"$(DIR_TESTS)" \
+		"$(DIR_SCRIPTS)" \
+		"$(DIR_CONFIG)" \
+		|| exit 1
+	$(RUN) black \
+		"$(DIR_SRC)" \
+		"$(DIR_TESTS)" \
+		"$(DIR_SCRIPTS)" \
+		"$(DIR_CONFIG)" \
+		|| exit 1
 
 
 .PHONY: test
 test:
 	$(call log, running tests)
 	$(RUN) pytest
-	$(RUN) isort --virtual-env="$(DIR_VENV)" --check-only "$(DIR_SRC)" "$(DIR_TESTS)"
-	$(RUN) black --check "$(DIR_SRC)" "$(DIR_TESTS)"
+	$(RUN) isort --virtual-env="$(DIR_VENV)" --check-only \
+		"$(DIR_SRC)" \
+		"$(DIR_TESTS)" \
+		"$(DIR_SCRIPTS)" \
+		"$(DIR_CONFIG)" \
+		|| exit 1
+	$(RUN) black --check \
+		"$(DIR_SRC)" \
+		"$(DIR_TESTS)" \
+		"$(DIR_SCRIPTS)" \
+		"$(DIR_CONFIG)" \
+		|| exit 1
 
 
 .PHONY: release
@@ -77,19 +97,13 @@ venv-prod: venv-dir
 .PHONY: upgrade-venv
 upgrade-venv: venv-dir
 	$(call log, upgrading all packages in virtualenv)
-	$(PYTHON) $(DIR_SCRIPTS)/upgrade_packages.py
-
-
-.PHONY: pycharm
-pycharm:
-	$(call log, setting PyCharm up)
-	$(PYTHON) $(DIR_SCRIPTS)/setup_pycharm.py
+	$(MANAGEMENT) upgrade-packages
 
 
 .PHONY: heroku
 heroku:
 	$(call log, configuring the Heroku instance)
-	$(PYTHON) $(DIR_SCRIPTS)/configure_heroku.py
+	$(MANAGEMENT) heroku --configure
 
 
 .PHONY: db
@@ -101,8 +115,9 @@ db: migrate
 wait-for-db:
 	$(call log, waiting for DB up)
 	$(DIR_SCRIPTS)/wait_for_postgresql.sh \
-		$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_host.py) \
-		$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_port.py) \
+		$(shell $(MANAGEMENT) db-config --host) \
+		$(shell $(MANAGEMENT) db-config --port) \
+		|| exit 1
 
 
 .PHONY: initdb
@@ -118,25 +133,27 @@ resetdb:  dropdb createdb
 .PHONY: dropdb
 dropdb:
 	$(call log, dropping the DB)
-	psql \
-		--echo-all \
-		--username=$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_user.py) \
+	dropdb \
+		--echo \
+		--host=$(shell $(MANAGEMENT) db-config --host) \
+		--if-exists \
 		--no-password \
-		--host=localhost \
-		--dbname=postgres \
-		--command="DROP DATABASE IF EXISTS \"$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_name.py)\";"
+		--port=$(shell $(MANAGEMENT) db-config --port) \
+		--username=$(shell $(MANAGEMENT) db-config --username) \
+		$(shell $(MANAGEMENT) db-config --db-name)
 
 
 .PHONY: createdb
 createdb:
 	$(call log, creating the DB)
-	psql \
-		--echo-all \
-		--username=$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_user.py) \
+	createdb \
+		--echo \
+		--host=$(shell $(MANAGEMENT) db-config --host) \
 		--no-password \
-		--host=localhost \
-		--dbname=postgres \
-		--command="CREATE DATABASE \"$(shell $(PYTHON) $(DIR_SCRIPTS)/get_db_name.py)\";"
+		--owner=$(shell $(MANAGEMENT) db-config --username) \
+		--port=$(shell $(MANAGEMENT) db-config --port) \
+		--username=$(shell $(MANAGEMENT) db-config --username)\
+		$(shell $(MANAGEMENT) db-config --db-name)
 
 
 .PHONY: migrations
