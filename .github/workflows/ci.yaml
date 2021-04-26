@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  ALPHA_ENV: "ci"
+  DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
+  PIPENV_VENV_IN_PROJECT: "1"
+  PYTHONPATH: "src"
+  TEST_BROWSER: "firefox-remote"
+  TEST_SERVICE_URL: "http://localhost:8000"
+
+jobs:
+  full-build-and-qa:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_USER: ci
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-retries 5
+          --health-timeout 5s
+      hub:
+        image: selenium/hub:3.141.59-gold
+        ports:
+          - 4444:4444
+      firefox:
+        image: selenium/node-firefox:3.141.59-gold
+        env:
+          HUB_HOST: localhost
+          HUB_PORT: 4444
+    steps:
+      - name: pull code from repo
+        uses: actions/checkout@v2
+      - name: set up python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          architecture: 'x64'
+      - name: set up pipenv
+        run: pip install pipenv
+      - name: init virtualenv
+        run: |
+          mkdir -p .venv
+          pipenv --three
+      - name: cache packages
+        id: venv-packages-cache
+        uses: actions/cache@v2
+        with:
+          path: ./.venv/
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+      - name: install packages
+        if: ${{ !steps.venv-packages-cache.outputs.cache-hit }}
+        run: make venv-dev
+      - name: perform release steps
+        run: make initdb release
+      - name: run production web server
+        run: make run-prod &
+      - name: release
+        run: make release
+      - name: qa
+        run: make test
