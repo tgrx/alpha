@@ -66,9 +66,10 @@ jobs:
         if: ${{ !steps.venv-packages-cache.outputs.cache-hit }}
         run: make venv-dev
       - name: perform release steps
+        env:
+          PGPASSFILE: ~/.github/workflows/.pgpass
         run: |
-          echo "localhost:5432:ci:ci:postgres" > ~/.pgpass
-          chmod 0600 ~/.pgpass
+          chmod 0600 ~/.github/workflows/.pgpass
           make initdb release
       - name: run production web server
         run: make run-prod &
