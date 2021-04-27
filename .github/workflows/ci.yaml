@@ -23,7 +23,7 @@ jobs:
         ports:
           - 5432:5432
         env:
-          POSTGRES_DB: ci
+          POSTGRES_DB: postgres
           POSTGRES_PASSWORD: ci
           POSTGRES_USER: ci
         options: >-
@@ -67,7 +67,7 @@ jobs:
         run: make venv-dev
       - name: perform release steps
         run: |
-          echo "localhost:5432:ci:ci:ci" > ~/.pgpass
+          echo "localhost:5432:ci:ci:postgres" > ~/.pgpass
           chmod 0600 ~/.pgpass
           make initdb release
       - name: run production web server
