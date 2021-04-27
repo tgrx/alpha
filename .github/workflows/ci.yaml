@@ -67,9 +67,9 @@ jobs:
         run: make venv-dev
       - name: perform release steps
         env:
-          PGPASSFILE: ~/.github/workflows/.pgpass
+          PGPASSFILE: config/.pgpass
         run: |
-          chmod 0600 ~/.github/workflows/.pgpass
+          chmod 0600 config/.pgpass
           make initdb release
       - name: run production web server
         run: make run-prod &
