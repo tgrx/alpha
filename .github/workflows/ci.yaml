@@ -11,7 +11,7 @@ env:
   DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
   PIPENV_VENV_IN_PROJECT: "1"
   PYTHONPATH: "src"
-  TEST_BROWSER: "firefox-remote"
+  TEST_BROWSER: "firefox"
   TEST_SERVICE_URL: "http://localhost:8000"
 
 jobs:
@@ -31,15 +31,6 @@ jobs:
           --health-interval 10s
           --health-retries 5
           --health-timeout 5s
-      hub:
-        image: selenium/hub:3.141.59-gold
-        ports:
-          - 4444:4444
-      firefox:
-        image: selenium/node-firefox:3.141.59-gold
-        env:
-          HUB_HOST: localhost
-          HUB_PORT: 4444
     steps:
       - name: pull code from repo
         uses: actions/checkout@v2
@@ -65,6 +56,20 @@ jobs:
       - name: install packages
         if: ${{ !steps.venv-packages-cache.outputs.cache-hit }}
         run: make venv-dev
+      - name: cache selenium
+        id: selenium-cache
+        uses: actions/cache@v2
+        with:
+          path: ./.venv/
+          key: ${{ runner.os }}-selenium-${{ hashFiles('config/selenium.link') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-${{ hashFiles('config/selenium.link') }}
+      - name: install selenium
+        if: ${{ !steps.selenium-cache.outputs.cache-hit }}
+        run: |
+          test -f selenium.jar || curl -O $(cat config/selenium.link)
+          mv selenium-*.jar selenium.jar || exit 0
+          test -f selenium.jar
       - name: perform release steps
         env:
           PGPASSFILE: config/.pgpass
@@ -73,7 +78,11 @@ jobs:
           make initdb release
       - name: run production web server
         run: make run-prod &
+      - name: run selenium
+        run: |
+          test -d .test_artifacts || mkdir .test_artifacts
+          java -jar selenium.jar -log .test_artifacts/selenium.log &
       - name: release
         run: make release
-      - name: qa
+      - name: tests
         run: make test
