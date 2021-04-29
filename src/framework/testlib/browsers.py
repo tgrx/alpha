@@ -62,22 +62,6 @@ class _FirefoxFactory(BrowserFactory):
         return browser
 
 
-class _FirefoxRemoteFactory(BrowserFactory):
-    BROWSER = "firefox-remote"
-
-    def build(self):
-        options = webdriver.FirefoxOptions()
-        options.headless = True
-
-        browser = webdriver.Remote(
-            command_executor="http://localhost:4444",
-            options=options,
-        )
-        browser.implicitly_wait(4)
-
-        return browser
-
-
 __all__ = [
     BrowserFactory.__name__,
 ]

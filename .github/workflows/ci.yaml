@@ -23,7 +23,7 @@ jobs:
         ports:
           - 5432:5432
         env:
-          POSTGRES_DB: postgres
+          POSTGRES_DB: ci
           POSTGRES_PASSWORD: ci
           POSTGRES_USER: ci
         options: >-
@@ -34,38 +34,38 @@ jobs:
     steps:
       - name: pull code from repo
         uses: actions/checkout@v2
-      - name: set up python
+      - name: set up runtime
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
           architecture: 'x64'
-      - name: set up pipenv
+      - name: install system python packages
         run: pip install pipenv
       - name: init virtualenv
         run: |
           mkdir -p .venv
           pipenv --three
-      - name: cache packages
-        id: venv-packages-cache
+      - name: cache virtualenv packages
+        id: cache-venv
         uses: actions/cache@v2
         with:
-          path: ./.venv/
+          path: .venv/
           key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
-      - name: install packages
-        if: ${{ !steps.venv-packages-cache.outputs.cache-hit }}
+      - name: install virtualenv packages
+        if: ${{ !steps.cache-venv.outputs.cache-hit }}
         run: make venv-dev
       - name: cache selenium
-        id: selenium-cache
+        id: cache-selenium
         uses: actions/cache@v2
         with:
-          path: ./.venv/
+          path: selenium.jar
           key: ${{ runner.os }}-selenium-${{ hashFiles('config/selenium.link') }}
           restore-keys: |
             ${{ runner.os }}-pipenv-${{ hashFiles('config/selenium.link') }}
       - name: install selenium
-        if: ${{ !steps.selenium-cache.outputs.cache-hit }}
+        if: ${{ !steps.cache-selenium.outputs.cache-hit }}
         run: |
           test -f selenium.jar || curl -O $(cat config/selenium.link)
           mv selenium-*.jar selenium.jar || exit 0
@@ -82,7 +82,6 @@ jobs:
         run: |
           test -d .test_artifacts || mkdir .test_artifacts
           java -jar selenium.jar -log .test_artifacts/selenium.log &
-      - name: release
-        run: make release
-      - name: tests
+      - name: run tests
         run: make test
+
