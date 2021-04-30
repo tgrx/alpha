@@ -137,7 +137,7 @@ dropdb:
 		--echo \
 		--host=$(shell $(MANAGEMENT) db-config --host) \
 		--if-exists \
-		--no-password \
+		--maintenance-db=postgres\
 		--port=$(shell $(MANAGEMENT) db-config --port) \
 		--username=$(shell $(MANAGEMENT) db-config --username) \
 		$(shell $(MANAGEMENT) db-config --db-name)
@@ -149,7 +149,7 @@ createdb:
 	createdb \
 		--echo \
 		--host=$(shell $(MANAGEMENT) db-config --host) \
-		--no-password \
+		--maintenance-db=postgres\
 		--owner=$(shell $(MANAGEMENT) db-config --username) \
 		--port=$(shell $(MANAGEMENT) db-config --port) \
 		--username=$(shell $(MANAGEMENT) db-config --username)\

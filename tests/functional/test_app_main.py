@@ -1,15 +1,14 @@
 import pytest
 
+from framework.config import settings
 from framework.testlib.util import screenshot_on_failure
 from tests.functional.pages import MainPage
-
-url = "http://localhost:8000"
 
 
 @pytest.mark.functional
 @screenshot_on_failure
 def test(browser, request):
-    page = MainPage(browser, url)
+    page = MainPage(browser, settings.TEST_SERVICE_URL)
 
     validate_title(page)
     validate_content(page)

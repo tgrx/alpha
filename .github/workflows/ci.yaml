@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  ALPHA_ENV: "ci"
+  DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
+  PIPENV_VENV_IN_PROJECT: "1"
+  PYTHONPATH: "src"
+  TEST_BROWSER: "firefox"
+  TEST_SERVICE_URL: "http://localhost:8000"
+
+jobs:
+  full-build-and-qa:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_USER: ci
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-retries 5
+          --health-timeout 5s
+    steps:
+      - name: pull code from repo
+        uses: actions/checkout@v2
+      - name: set up runtime
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          architecture: 'x64'
+      - name: install system python packages
+        run: pip install pipenv
+      - name: init virtualenv
+        run: |
+          mkdir -p .venv
+          pipenv --three
+      - name: cache virtualenv packages
+        id: cache-venv
+        uses: actions/cache@v2
+        with:
+          path: .venv/
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+      - name: install virtualenv packages
+        if: ${{ !steps.cache-venv.outputs.cache-hit }}
+        run: make venv-dev
+      - name: cache selenium
+        id: cache-selenium
+        uses: actions/cache@v2
+        with:
+          path: selenium.jar
+          key: ${{ runner.os }}-selenium-${{ hashFiles('config/selenium.link') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-${{ hashFiles('config/selenium.link') }}
+      - name: install selenium
+        if: ${{ !steps.cache-selenium.outputs.cache-hit }}
+        run: |
+          test -f selenium.jar || curl -O $(cat config/selenium.link)
+          mv selenium-*.jar selenium.jar || exit 0
+          test -f selenium.jar
+      - name: perform release steps
+        env:
+          PGPASSFILE: config/.pgpass
+        run: |
+          chmod 0600 config/.pgpass
+          make initdb release
+      - name: run production web server
+        run: make run-prod &
+      - name: run selenium
+        run: |
+          test -d .test_artifacts || mkdir .test_artifacts
+          java -jar selenium.jar -log .test_artifacts/selenium.log &
+      - name: run tests
+        run: make test
+
