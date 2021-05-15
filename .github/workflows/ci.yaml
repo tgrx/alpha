@@ -51,9 +51,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .venv/
-          key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+          key: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
+            ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
       - name: install virtualenv packages
         if: ${{ !steps.cache-venv.outputs.cache-hit }}
         run: make venv-dev
@@ -64,7 +64,7 @@ jobs:
           path: selenium.jar
           key: ${{ runner.os }}-selenium-${{ hashFiles('config/selenium.link') }}
           restore-keys: |
-            ${{ runner.os }}-pipenv-${{ hashFiles('config/selenium.link') }}
+            ${{ runner.os }}-selenium-${{ hashFiles('config/selenium.link') }}
       - name: install selenium
         if: ${{ !steps.cache-selenium.outputs.cache-hit }}
         run: |
