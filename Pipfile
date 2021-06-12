@@ -7,7 +7,7 @@ verify_ssl = true
 python_version = "3.9"
 
 [dev-packages]
-black = "==20.8b1"
+black = "==21.6b0"
 coverage = { extras = ["toml"], version = "*" }
 flake8 = "*"
 flake8-builtins = "*"
@@ -26,6 +26,7 @@ pytest-selenium = "*"
 aiohttp = { extras = ["speedups"], version = "*" }
 asyncpg = "*"
 devtools = { extras = ["pygments"], version = "*" }
+dynaconf = {extras = [ "yaml",], version = "*"}
 gunicorn = "*"
 psycopg2-binary = "*"
 pydantic = "*"
@@ -33,11 +34,4 @@ python-dotenv = "*"
 requests = "*"
 sentry-sdk = "*"
 toml = "*"
-
-[packages.dynaconf]
-extras = [ "yaml",]
-version = "*"
-
-[packages.uvicorn]
-extras = [ "standard",]
-version = "*"
+uvicorn = {extras = [ "standard",], version = "*"}
