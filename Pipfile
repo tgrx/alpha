@@ -29,7 +29,7 @@ devtools = { extras = ["pygments"], version = "*" }
 dynaconf = {extras = [ "yaml",], version = "*"}
 gunicorn = "*"
 psycopg2-binary = "*"
-pydantic = "*"
+pydantic = {extras = ["dotenv"], version = "*"}
 python-dotenv = "*"
 requests = "*"
 sentry-sdk = "*"
