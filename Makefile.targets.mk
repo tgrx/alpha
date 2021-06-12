@@ -79,25 +79,25 @@ venv-dir:
 .PHONY: venv
 venv: venv-dir
 	$(call log, installing packages)
-	$(PIPENV_INSTALL)
+	pipenv install
 
 
 .PHONY: venv-dev
 venv-dev: venv-dir
 	$(call log, installing development packages)
-	$(PIPENV_INSTALL) --dev
+	pipenv install --dev
 
 
 .PHONY: venv-prod
 venv-prod: venv-dir
 	$(call log, installing development packages for production)
-	$(PIPENV_INSTALL) --deploy
+	pipenv install --deploy
 
 
 .PHONY: upgrade-venv
 upgrade-venv: venv-dir
 	$(call log, upgrading all packages in virtualenv)
-	$(MANAGEMENT) upgrade-packages
+	pipenv update --dev
 
 
 .PHONY: heroku
