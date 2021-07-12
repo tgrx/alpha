@@ -44,14 +44,15 @@ jobs:
         run: pip install pipenv
       - name: cache site packages
         id: cache-site-packages
-        uses: actions/cache@v2
-        with:
-          path: ${{ python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])' }}
-          key: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
+#        uses: actions/cache@v2
+#        with:
+#          path: ${{ python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])' }}
+#          key: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
+#          restore-keys: |
+#            ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
+        run: python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])'
       - name: deploy venv
-        if: ${{ !steps.cache-site-packages.outputs.cache-hit }}
+#        if: ${{ !steps.cache-site-packages.outputs.cache-hit }}
         run: make venv-deploy-all
       - name: perform release steps
         env:
