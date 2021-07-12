@@ -42,20 +42,16 @@ jobs:
           architecture: 'x64'
       - name: install system python packages
         run: pip install pipenv
-#      - name: init virtualenv
-#        run: |
-#          mkdir -p .venv
-#          pipenv --three
-#      - name: cache virtualenv packages
-#        id: cache-venv
-#        uses: actions/cache@v2
-#        with:
-#          path: .venv/
-#          key: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
-#          restore-keys: |
-#            ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
+      - name: cache site packages
+        id: cache-site-packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ python3 -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])' }}
+          key: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
       - name: deploy venv
-#        if: ${{ !steps.cache-venv.outputs.cache-hit }}
+        if: ${{ !steps.cache-site-packages.outputs.cache-hit }}
         run: make venv-deploy-all
       - name: perform release steps
         env:

@@ -1,5 +1,7 @@
 import json
+import os
 from multiprocessing import cpu_count
+from unittest import mock
 
 import pytest
 from pydantic import ValidationError
@@ -9,6 +11,7 @@ from framework.config import Settings
 
 
 @pytest.mark.unit
+@mock.patch.dict(os.environ, {}, clear=True)
 def test_default_settings():
     settings = Settings()
 
