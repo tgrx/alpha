@@ -35,24 +35,24 @@ jobs:
     steps:
       - name: pull code from repo
         uses: actions/checkout@v2
+      - name: cache runtime
+        id: cache-runtime
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
+          restore-keys: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
       - name: set up runtime
+        if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
           architecture: 'x64'
-      - name: install system python packages
+      - name: install pipenv
+        if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: pip install pipenv
-      - name: cache python
-        id: cache-python
-        uses: actions/cache@v2
-        with:
-          path: |
-            ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
-      - name: deploy packages
-        if: ${{ !steps.cache-python.outputs.cache-hit }}
+      - name: install python packages
+        if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: make venv-deploy-all
       - name: perform release steps
         env:
@@ -62,9 +62,5 @@ jobs:
           make initdb release
       - name: run production web server
         run: make run-prod &
-      - name: run selenium
-        run: |
-          test -d .test_artifacts || mkdir .test_artifacts
-          java -jar selenium.jar -log .test_artifacts/selenium.log &
       - name: run tests
         run: make test
