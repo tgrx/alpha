@@ -42,17 +42,17 @@ jobs:
           architecture: 'x64'
       - name: install system python packages
         run: pip install pipenv
-      - name: cache site packages
-        id: cache-site-packages
+      - name: cache python
+        id: cache-python
         uses: actions/cache@v2
         with:
           path: |
-            ~/.cache/pip
+            ${{ env.pythonLocation }}
           key: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
-      - name: deploy venv
-        if: ${{ !steps.cache-site-packages.outputs.cache-hit }}
+      - name: deploy packages
+        if: ${{ !steps.cache-python.outputs.cache-hit }}
         run: make venv-deploy-all
       - name: perform release steps
         env:
