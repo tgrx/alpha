@@ -7,7 +7,8 @@ from management.commands.abstract import ManagementCommand
 class DbConfigCommand(ManagementCommand):
     name = "db-config"
     help = (
-        "DB config command." " If called without arguments, displays the full DB config"
+        "DB config command."
+        " If called without arguments, displays the full DB config"
     )
     arguments = {
         "--db-name": "Prints the DB name",

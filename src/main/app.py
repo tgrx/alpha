@@ -18,7 +18,9 @@ logger = get_logger("app")
 
 
 def run():
-    banner = SERVER_RUNNING_BANNER.format(host=settings.HOST, port=settings.PORT)
+    banner = SERVER_RUNNING_BANNER.format(
+        host=settings.HOST, port=settings.PORT
+    )
     logger.info(banner)
 
     try:

@@ -36,4 +36,6 @@ def validate_redirect(page: PageObject, url: str):
         )
         assert redirected
     except TimeoutException as err:
-        raise AssertionError(f"no redirect: {page.browser.current_url}") from err
+        raise AssertionError(
+            f"no redirect: {page.browser.current_url}"
+        ) from err

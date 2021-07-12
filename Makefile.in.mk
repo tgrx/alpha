@@ -24,7 +24,7 @@ endif
 # independent variables
 
 DIR_REPO := $(realpath ./)
-DIR_VENV := $(shell $(PIPENV) --venv 2>/dev/null)
+DIR_VENV := $(shell pipenv --venv 2>/dev/null)
 
 # -----------------------------------------------
 # OS-depend variables
@@ -48,6 +48,6 @@ DIR_TESTS := $(abspath $(DIR_REPO)/tests)
 # -----------------------------------------------
 # calculated variables
 
-RUN :=
+#RUN :=
 PYTHON := $(RUN) python
 MANAGEMENT := $(PYTHON) -m management.kb

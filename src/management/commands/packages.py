@@ -125,7 +125,10 @@ def _set_packages_versions(pipfile: Dict, version_func) -> Dict:
             version = version_func(package_name, package_params)
             if isinstance(package_params, str):
                 packages[package_name] = version
-            elif isinstance(package_params, dict) and "version" in package_params:
+            elif (
+                isinstance(package_params, dict)
+                and "version" in package_params
+            ):
                 packages[package_name] = {**package_params, "version": version}
             else:
                 packages[package_name] = package_params
