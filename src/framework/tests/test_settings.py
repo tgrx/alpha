@@ -4,7 +4,8 @@ from multiprocessing import cpu_count
 import pytest
 from pydantic import ValidationError
 
-from framework.config import DatabaseSettings, Settings
+from framework.config import DatabaseSettings
+from framework.config import Settings
 
 
 @pytest.mark.unit
@@ -46,26 +47,26 @@ def test_database_url_from_db_components():
     ]
 
     assert (
-            Settings(
-                DB_DRIVER="postgresql+asyncpg",
-            ).database_url_from_db_components()
-            == "postgresql+asyncpg://"
+        Settings(
+            DB_DRIVER="postgresql+asyncpg",
+        ).database_url_from_db_components()
+        == "postgresql+asyncpg://"
     )
 
     assert (
-            Settings(
-                DB_DRIVER="sqlite",
-                DB_HOST="localhost",
-            ).database_url_from_db_components()
-            == "sqlite://localhost"
+        Settings(
+            DB_DRIVER="sqlite",
+            DB_HOST="localhost",
+        ).database_url_from_db_components()
+        == "sqlite://localhost"
     )
 
     assert (
-            Settings(
-                DB_DRIVER="sqlite",
-                DB_NAME=":memory:",
-            ).database_url_from_db_components()
-            == "sqlite:///:memory:"
+        Settings(
+            DB_DRIVER="sqlite",
+            DB_NAME=":memory:",
+        ).database_url_from_db_components()
+        == "sqlite:///:memory:"
     )
 
     with pytest.raises(ValidationError) as exc_info:

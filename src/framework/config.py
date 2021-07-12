@@ -1,8 +1,11 @@
 from multiprocessing import cpu_count
-from typing import NoReturn, Optional
+from typing import NoReturn
+from typing import Optional
 from urllib.parse import urlsplit
 
-from pydantic import BaseSettings, Field, ValidationError
+from pydantic import BaseSettings
+from pydantic import Field
+from pydantic import ValidationError
 from pydantic.error_wrappers import ErrorWrapper
 
 
