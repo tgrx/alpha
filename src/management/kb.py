@@ -18,13 +18,13 @@ def main():
             group = command_parser.add_mutually_exclusive_group(
                 required=command.required
             )
-            for key, help in command.arguments.items():
+            for key, help_ in command.arguments.items():
                 dest = command.dest(key)
                 group.add_argument(
                     key,
                     action="store_true",
                     dest=dest,
-                    help=help,
+                    help=help_,
                 )
 
     try:

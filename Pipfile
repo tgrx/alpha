@@ -21,7 +21,6 @@ pylint = "*"
 pytest = "*"
 pytest-asyncio = "*"
 pytest-mock = "*"
-pytest-selenium = "*"
 
 [packages]
 aiohttp = { extras = ["speedups"], version = "*" }
