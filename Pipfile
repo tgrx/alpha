@@ -23,13 +23,11 @@ pytest-asyncio = "*"
 pytest-mock = "*"
 
 [packages]
-aiohttp = { extras = ["speedups"], version = "*" }
 asyncpg = "*"
 gunicorn = "*"
+httpx = "*"
 psycopg2-binary = "*"
 pydantic = {extras = ["dotenv"], version = "*"}
 python-dotenv = "*"
-requests = "*"
 sentry-sdk = "*"
-toml = "*"
 uvicorn = {extras = [ "standard",], version = "*"}
