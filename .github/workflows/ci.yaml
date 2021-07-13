@@ -40,37 +40,19 @@ jobs:
         with:
           python-version: '3.9'
           architecture: 'x64'
-      - name: install system python packages
-        run: pip install pipenv
-      - name: init virtualenv
-        run: |
-          mkdir -p .venv
-          pipenv --three
-      - name: cache virtualenv packages
-        id: cache-venv
+      - name: cache runtime
+        id: cache-runtime
         uses: actions/cache@v2
         with:
-          path: .venv/
+          path: ${{ env.pythonLocation }}
           key: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
-      - name: install virtualenv packages
-        if: ${{ !steps.cache-venv.outputs.cache-hit }}
-        run: make venv-dev
-      - name: cache selenium
-        id: cache-selenium
-        uses: actions/cache@v2
-        with:
-          path: selenium.jar
-          key: ${{ runner.os }}-selenium-${{ hashFiles('config/selenium.link') }}
-          restore-keys: |
-            ${{ runner.os }}-selenium-${{ hashFiles('config/selenium.link') }}
-      - name: install selenium
-        if: ${{ !steps.cache-selenium.outputs.cache-hit }}
-        run: |
-          test -f selenium.jar || curl -O $(cat config/selenium.link)
-          mv selenium-*.jar selenium.jar || exit 0
-          test -f selenium.jar
+          restore-keys: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
+      - name: install pipenv
+        if: ${{ !steps.cache-runtime.outputs.cache-hit }}
+        run: pip install pipenv
+      - name: install python packages
+        if: ${{ !steps.cache-runtime.outputs.cache-hit }}
+        run: make venv-deploy-all
       - name: perform release steps
         env:
           PGPASSFILE: config/.pgpass
@@ -79,10 +61,5 @@ jobs:
           make initdb release
       - name: run production web server
         run: make run-prod &
-      - name: run selenium
-        run: |
-          test -d .test_artifacts || mkdir .test_artifacts
-          java -jar selenium.jar -log .test_artifacts/selenium.log &
       - name: run tests
         run: make test
-

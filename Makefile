@@ -2,8 +2,6 @@
 # [  INCLUDES  ]
 # override to whatever works on your system
 
-PIPENV := pipenv
-
 include ./Makefile.in.mk
 
 

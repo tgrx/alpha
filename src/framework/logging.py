@@ -25,7 +25,9 @@ def get_logger(logger_name: str) -> logging.Logger:
     handler = logging.StreamHandler()
     handler.setLevel(lvl)
 
-    formatter = logging.Formatter(fmt=fmt, datefmt="%Y-%m-%d %H:%M:%S", style="{")
+    formatter = logging.Formatter(
+        fmt=fmt, datefmt="%Y-%m-%d %H:%M:%S", style="{"
+    )
     handler.setFormatter(formatter)
 
     logger.addHandler(handler)

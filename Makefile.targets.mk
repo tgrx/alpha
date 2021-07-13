@@ -7,7 +7,7 @@ run:
 .PHONY: run-dev
 run-dev:
 	$(call log, starting development web server)
-	$(RUN) uvicorn \
+	uvicorn \
 		--host 0.0.0.0 \
 		--lifespan off \
 		--log-level debug \
@@ -21,19 +21,19 @@ run-dev:
 .PHONY: run-prod
 run-prod:
 	$(call log, starting production web server)
-	$(RUN) gunicorn --config="$(DIR_CONFIG)/gunicorn.conf.py" $(APPLICATION)
+	gunicorn --config="$(DIR_CONFIG)/gunicorn.conf.py" $(APPLICATION)
 
 
 .PHONY: format
 format:
 	$(call log, reorganizing imports & formatting code)
-	$(RUN) isort --virtual-env="$(DIR_VENV)" \
+	isort --virtual-env="$(DIR_VENV)" \
 		"$(DIR_SRC)" \
 		"$(DIR_TESTS)" \
 		"$(DIR_SCRIPTS)" \
 		"$(DIR_CONFIG)" \
 		|| exit 1
-	$(RUN) black \
+	black \
 		"$(DIR_SRC)" \
 		"$(DIR_TESTS)" \
 		"$(DIR_SCRIPTS)" \
@@ -44,14 +44,14 @@ format:
 .PHONY: test
 test:
 	$(call log, running tests)
-	$(RUN) pytest
-	$(RUN) isort --virtual-env="$(DIR_VENV)" --check-only \
+	pytest
+	isort --virtual-env="$(DIR_VENV)" --check-only \
 		"$(DIR_SRC)" \
 		"$(DIR_TESTS)" \
 		"$(DIR_SCRIPTS)" \
 		"$(DIR_CONFIG)" \
 		|| exit 1
-	$(RUN) black --check \
+	black --check \
 		"$(DIR_SRC)" \
 		"$(DIR_TESTS)" \
 		"$(DIR_SCRIPTS)" \
@@ -67,7 +67,7 @@ release: db data
 .PHONY: sh
 sh:
 	$(call log, starting Python shell)
-	$(RUN) ipython
+	ipython
 
 
 .PHONY: venv-dir
@@ -79,25 +79,31 @@ venv-dir:
 .PHONY: venv
 venv: venv-dir
 	$(call log, installing packages)
-	$(PIPENV_INSTALL)
+	pipenv install
 
 
 .PHONY: venv-dev
 venv-dev: venv-dir
 	$(call log, installing development packages)
-	$(PIPENV_INSTALL) --dev
+	pipenv install --dev
 
 
-.PHONY: venv-prod
-venv-prod: venv-dir
-	$(call log, installing development packages for production)
-	$(PIPENV_INSTALL) --deploy
+.PHONY: venv-deploy
+venv-deploy: venv-dir
+	$(call log, installing packages into system)
+	pipenv install --deploy --system
+
+
+.PHONY: venv-deploy-all
+venv-deploy-all: venv-dir
+	$(call log, installing all packages into system)
+	pipenv install --dev --deploy --system
 
 
 .PHONY: upgrade-venv
 upgrade-venv: venv-dir
 	$(call log, upgrading all packages in virtualenv)
-	$(MANAGEMENT) upgrade-packages
+	pipenv update --dev
 
 
 .PHONY: heroku

@@ -24,7 +24,7 @@ endif
 # independent variables
 
 DIR_REPO := $(realpath ./)
-DIR_VENV := $(shell $(PIPENV) --venv 2>/dev/null)
+DIR_VENV := $(shell pipenv --venv 2>/dev/null)
 
 # -----------------------------------------------
 # OS-depend variables
@@ -46,25 +46,7 @@ DIR_TESTS := $(abspath $(DIR_REPO)/tests)
 
 
 # -----------------------------------------------
-# Virtualenv-depend variables
-
-ifeq ($(shell "$(DIR_SCRIPTS)/in_venv.py"), True)
-
-IN_VENV := True
-RUN :=
-PIPENV_INSTALL := echo Cannot create venv under venv
-
-else
-
-IN_VENV := False
-RUN := $(PIPENV) run
-PIPENV_INSTALL := $(PIPENV) install
-
-endif
-
-
-# -----------------------------------------------
 # calculated variables
 
-PYTHON := $(RUN) python
+PYTHON := python
 MANAGEMENT := $(PYTHON) -m management.kb

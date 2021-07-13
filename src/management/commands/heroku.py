@@ -53,7 +53,9 @@ class HerokuCommand(ManagementCommand):
             "SENTRY_DSN": settings.SENTRY_DSN,
         }
 
-        response = cls._api_call(method="patch", path="config-vars", payload=payload)
+        response = cls._api_call(
+            method="patch", path="config-vars", payload=payload
+        )
         payload = response.json()
         print(json.dumps(payload, sort_keys=True, indent=4))
 

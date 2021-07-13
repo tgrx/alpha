@@ -9,6 +9,7 @@ python_version = "3.9"
 [dev-packages]
 black = "==21.6b0"
 coverage = { extras = ["toml"], version = "*" }
+devtools = { extras = ["pygments"], version = "*" }
 flake8 = "*"
 flake8-builtins = "*"
 httpie = "*"
@@ -20,16 +21,13 @@ pylint = "*"
 pytest = "*"
 pytest-asyncio = "*"
 pytest-mock = "*"
-pytest-selenium = "*"
 
 [packages]
 aiohttp = { extras = ["speedups"], version = "*" }
 asyncpg = "*"
-devtools = { extras = ["pygments"], version = "*" }
-dynaconf = {extras = [ "yaml",], version = "*"}
 gunicorn = "*"
 psycopg2-binary = "*"
-pydantic = "*"
+pydantic = {extras = ["dotenv"], version = "*"}
 python-dotenv = "*"
 requests = "*"
 sentry-sdk = "*"

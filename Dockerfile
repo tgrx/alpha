@@ -1,6 +1,5 @@
 FROM python:3.9-alpine
 
-ENV ALPHA_ENV docker
 ENV PIPENV_CACHE_DIR /app/.pipenv_cache
 ENV PIPENV_COLORBLIND 1
 ENV PIPENV_HIDE_EMOJIS 1
