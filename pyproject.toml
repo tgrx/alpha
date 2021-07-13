@@ -28,6 +28,7 @@ filterwarnings = [
 ]
 markers = [
     "functional",
+    "webapp",
     "unit",
 ]
 testpaths = [

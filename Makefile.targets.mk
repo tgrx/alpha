@@ -13,6 +13,8 @@ run-dev:
 		--log-level debug \
 		--port 8000 \
 		--reload \
+		--reload-dir $(DIR_CONFIG) \
+		--reload-dir $(DIR_SRC) \
 		--workers 1 \
 		--ws none \
 		$(APPLICATION)

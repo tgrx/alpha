@@ -1,3 +1,4 @@
+import json
 from typing import Callable
 from typing import Dict
 
@@ -7,29 +8,6 @@ from framework.config import settings
 from framework.logging import get_logger
 
 sentry_sdk.init(settings.SENTRY_DSN, traces_sample_rate=1.0)
-
-HTML_CONTENT = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Alpha</title>
-        <meta charset="utf-8">
-    </head>
-    <body>
-        <h1>Project Alpha</h1>
-        <hr>
-        <p>This is a template project.</p>
-        <p>
-            <h2>Scope</h2>
-            <p>{scope}</p>
-        </p>
-        <p>
-            <h2>Request</h2>
-            <p>{request}</p>
-        </p>
-    </body>
-</html>
-"""
 
 logger = get_logger("asgi")
 
@@ -50,17 +28,17 @@ async def application(scope: Dict, receive: Callable, send: Callable):
             "type": "http.response.start",
             "status": 200,
             "headers": [
-                [b"content-type", b"text/html"],
+                [b"content-type", b"application/json"],
             ],
         }
     )
 
-    payload = HTML_CONTENT.format(request=request, scope=scope)
+    payload = {}
 
     await send(
         {
             "type": "http.response.body",
-            "body": payload.encode(),
+            "body": json.dumps(payload).encode(),
         }
     )
 

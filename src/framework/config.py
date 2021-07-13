@@ -81,7 +81,9 @@ class Settings(DatabaseSettings):
     HOST: str = Field(default="localhost")
     MODE_DEBUG: bool = Field(default=False)
     PORT: int = Field(default=8000)
+    REQUEST_TIMEOUT: int = Field(default=30)
     SENTRY_DSN: Optional[str] = Field()
+    TEST_SERVICE_URL: str = Field(default="http://localhost:8000")
     WEB_CONCURRENCY: int = Field(default=cpu_count() * 2 + 1)
 
     def db_components_from_database_url(self) -> DatabaseSettings:

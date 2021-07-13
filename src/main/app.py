@@ -19,12 +19,18 @@ logger = get_logger("app")
 
 def run():
     banner = SERVER_RUNNING_BANNER.format(
-        host=settings.HOST, port=settings.PORT
+        host=settings.HOST,
+        port=settings.PORT,
     )
     logger.info(banner)
 
     try:
-        uvicorn.run(application, host="0.0.0.0", port=settings.PORT)
+        uvicorn.run(
+            application,
+            host="0.0.0.0",
+            port=settings.PORT,
+            reload=False,
+        )
     except KeyboardInterrupt:
         logger.debug("stopping server")
     finally:
