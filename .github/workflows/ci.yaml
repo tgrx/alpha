@@ -8,11 +8,9 @@ on:
   workflow_dispatch:
 
 env:
-  ALPHA_ENV: "ci"
   DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
   PIPENV_VENV_IN_PROJECT: "1"
   PYTHONPATH: "src"
-  TEST_BROWSER: "firefox"
   TEST_SERVICE_URL: "http://localhost:8000"
 
 jobs:
@@ -45,8 +43,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
-          restore-keys: ${{ runner.os }}-venv-${{ hashFiles('Pipfile.lock') }}
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
+          restore-keys: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
       - name: install pipenv
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: pip install pipenv
