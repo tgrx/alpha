@@ -5,36 +5,21 @@ import sentry_sdk
 
 from framework.config import settings
 from framework.logging import get_logger
+from main.payload import HostPortT
+from main.payload import PayloadT
+from main.payload import RequestT
+from main.payload import ScopeAsgiT
+from main.payload import ScopeT
 
 sentry_sdk.init(settings.SENTRY_DSN, traces_sample_rate=1.0)
-
-HTML_CONTENT = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Alpha</title>
-        <meta charset="utf-8">
-    </head>
-    <body>
-        <h1>Project Alpha</h1>
-        <hr>
-        <p>This is a template project.</p>
-        <p>
-            <h2>Scope</h2>
-            <p>{scope}</p>
-        </p>
-        <p>
-            <h2>Request</h2>
-            <p>{request}</p>
-        </p>
-    </body>
-</html>
-"""
 
 logger = get_logger("asgi")
 
 
 async def application(scope: Dict, receive: Callable, send: Callable):
+    if scope["type"] == "lifespan":
+        return
+
     path = scope["path"]
     logger.debug(f"path: {path}")
 
@@ -47,21 +32,51 @@ async def application(scope: Dict, receive: Callable, send: Callable):
 
     await send(
         {
-            "type": "http.response.start",
-            "status": 200,
             "headers": [
-                [b"content-type", b"text/html"],
+                [b"content-type", b"application/json"],
             ],
+            "status": 200,
+            "type": "http.response.start",
         }
     )
 
-    payload = HTML_CONTENT.format(request=request, scope=scope)
+    payload = build_payload(scope, request)
 
     await send(
         {
+            "body": payload.json(sort_keys=True, indent=2).encode(),
             "type": "http.response.body",
-            "body": payload.encode(),
         }
     )
 
-    logger.debug(f"response has been sent")
+    logger.debug("response has been sent")
+
+
+def build_payload(scope: Dict, request: Dict) -> PayloadT:
+    payload = PayloadT(
+        request=RequestT(
+            body=request["body"].decode(),
+            more_body=request["more_body"],
+            type=request["type"],
+        ),
+        scope=ScopeT(
+            asgi=ScopeAsgiT.parse_obj(scope["asgi"]),
+            client=HostPortT.parse_obj(
+                dict(zip(["host", "port"], scope["client"]))
+            ),
+            headers={k.decode(): v.decode() for k, v in scope["headers"]},
+            http_version=scope["http_version"],
+            method=scope["method"],
+            path=scope["path"],
+            query_string=scope["query_string"].decode(),
+            raw_path=scope["raw_path"].decode(),
+            root_path=scope["root_path"],
+            scheme=scope["scheme"],
+            server=HostPortT.parse_obj(
+                dict(zip(["host", "port"], scope["server"]))
+            ),
+            type=scope["type"],
+        ),
+    )
+
+    return payload
