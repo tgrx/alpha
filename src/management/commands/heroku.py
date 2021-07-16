@@ -47,9 +47,12 @@ class HerokuCommand(ManagementCommand):
     @classmethod
     def _configure(cls):
         payload = {
-            "ALPHA_ENV": "heroku",
-            "PYTHONPATH": "src",
-            "SENTRY_DSN": settings.SENTRY_DSN,
+            name: value
+            for name, value in {
+                "PYTHONPATH": "src",
+                "SENTRY_DSN": settings.SENTRY_DSN,
+            }.items()
+            if value is not None
         }
 
         response = cls._api_call(

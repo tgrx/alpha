@@ -8,6 +8,8 @@ from pydantic import Field
 from pydantic import ValidationError
 from pydantic.error_wrappers import ErrorWrapper
 
+from framework.dirs import DIR_CONFIG_SECRETS
+
 
 class DatabaseSettings(BaseSettings):
     DATABASE_URL: Optional[str] = Field()
@@ -37,6 +39,7 @@ class DatabaseSettings(BaseSettings):
         case_sensitive = True
         env_file = ".env"
         env_file_encoding = "utf-8"
+        secrets_dir = DIR_CONFIG_SECRETS.as_posix()
 
     def database_url_from_db_components(self) -> str:
         def fail_validation(error_message: str) -> NoReturn:
@@ -78,8 +81,8 @@ class DatabaseSettings(BaseSettings):
 class Settings(DatabaseSettings):
     __name__ = "Settings"
 
-    HEROKU_API_TOKEN: Optional[str] = Field(default=None)
-    HEROKU_APP_NAME: Optional[str] = Field(default=None)
+    HEROKU_API_TOKEN: Optional[str] = Field()
+    HEROKU_APP_NAME: Optional[str] = Field()
     HOST: str = Field(default="localhost")
     MODE_DEBUG: bool = Field(default=False)
     PORT: int = Field(default=8000)

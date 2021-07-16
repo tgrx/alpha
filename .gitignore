@@ -9,5 +9,6 @@
 .tests_artifacts/
 .venv/
 __pycache__/
+config/.secrets/
 db.sqlite3
 venv/
