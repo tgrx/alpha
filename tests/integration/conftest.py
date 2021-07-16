@@ -1,4 +1,4 @@
-from typing import Generator
+from collections import AsyncGenerator
 
 import httpx
 import pytest
@@ -10,7 +10,7 @@ TIMEOUT = 4
 
 
 @pytest.fixture(scope="function")
-async def asgi_client() -> Generator[httpx.AsyncClient, None, None]:
+async def asgi_client() -> AsyncGenerator[httpx.AsyncClient, None]:
     async with httpx.AsyncClient(
         app=application,
         base_url="http://asgi",
@@ -20,7 +20,7 @@ async def asgi_client() -> Generator[httpx.AsyncClient, None, None]:
 
 
 @pytest.fixture(scope="function")
-async def web_client() -> Generator[httpx.AsyncClient, None, None]:
+async def web_client() -> AsyncGenerator[httpx.AsyncClient, None]:
     async with httpx.AsyncClient(
         base_url=settings.TEST_SERVICE_URL,
         timeout=TIMEOUT,

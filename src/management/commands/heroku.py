@@ -2,8 +2,7 @@ import json
 from typing import Dict
 from typing import Optional
 
-import requests
-from requests import Response
+import httpx
 
 from framework.config import settings
 from management.commands.abstract import ManagementCommand
@@ -65,7 +64,7 @@ class HerokuCommand(ManagementCommand):
         method: str = "get",
         path: str = "",
         payload: Optional[Dict] = None,
-    ) -> Response:
+    ) -> httpx.Response:
         headers = {
             "Accept": "application/vnd.heroku+json; version=3",
             "Authorization": f"Bearer {settings.HEROKU_API_TOKEN}",
@@ -74,7 +73,7 @@ class HerokuCommand(ManagementCommand):
 
         url = f"{HEROKU_API_URL}/{settings.HEROKU_APP_NAME}/{path}"
 
-        meth = getattr(requests, method.lower())
+        meth = getattr(httpx, method.lower())
 
         meth_kwargs = {
             "headers": headers,
@@ -82,9 +81,9 @@ class HerokuCommand(ManagementCommand):
         if payload:
             meth_kwargs["json"] = payload
 
-        response = meth(url, **meth_kwargs)
+        response: httpx.Response = meth(url, **meth_kwargs)
         assert (
             response.status_code == 200
-        ), f"unable to get app info: {response.status_code}\n{response.content}"
+        ), f"unable to get app info: {response.status_code}\n{response.content!r}"
 
         return response

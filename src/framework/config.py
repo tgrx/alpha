@@ -47,7 +47,7 @@ class DatabaseSettings(BaseSettings):
                         loc="schema",
                     )
                 ],
-                model=self,
+                model=DatabaseSettings,
             )
 
         if not self.DB_DRIVER:
@@ -59,8 +59,8 @@ class DatabaseSettings(BaseSettings):
         if not self.DB_USER and self.DB_PASSWORD:
             fail_validation("db user MUST be set when password is set")
 
-        netloc = ":".join(filter(bool, (self.DB_HOST, self.DB_PORT)))
-        userinfo = ":".join(filter(bool, (self.DB_USER, self.DB_PASSWORD)))
+        netloc = ":".join(filter(bool, (self.DB_HOST, self.DB_PORT)))  # type: ignore
+        userinfo = ":".join(filter(bool, (self.DB_USER, self.DB_PASSWORD)))  # type: ignore
 
         if not netloc and userinfo:
             fail_validation("netloc MUST be set when userinfo is set")
@@ -78,6 +78,8 @@ class DatabaseSettings(BaseSettings):
 class Settings(DatabaseSettings):
     __name__ = "Settings"
 
+    HEROKU_API_TOKEN: Optional[str] = Field(default=None)
+    HEROKU_APP_NAME: Optional[str] = Field(default=None)
     HOST: str = Field(default="localhost")
     MODE_DEBUG: bool = Field(default=False)
     PORT: int = Field(default=8000)

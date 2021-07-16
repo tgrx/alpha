@@ -1,4 +1,6 @@
 import abc
+from typing import Dict
+from typing import Optional
 
 COMMANDS = {}
 
@@ -15,10 +17,10 @@ class _ManagementCommandMeta(abc.ABCMeta):
 
 
 class ManagementCommand(metaclass=_ManagementCommandMeta):
-    arguments = {}
-    help = None
-    name = None
-    required = False
+    arguments: Dict[str, str] = {}
+    help: Optional[str] = None
+    name: Optional[str] = None
+    required: bool = False
 
     def __init__(self, args):
         self.__args = args
@@ -30,7 +32,8 @@ class ManagementCommand(metaclass=_ManagementCommandMeta):
         return value
 
     @classmethod
-    def dest(cls, argument) -> str:
+    def dest(cls, argument: str) -> str:
+        assert cls.name, "name attr MUST be set"
         name = cls.name.replace("-", "").lower()
         arg = argument.replace("-", "").lower()
         dest = f"{name}__{arg}"
