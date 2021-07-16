@@ -43,10 +43,26 @@ format:
 		|| exit 1
 
 
-.PHONY: test
-test:
+.PHONY: qa
+qa: tests code-smell code-format
+	$(call log, QA checks)
+
+
+.PHONY: tests
+tests:
 	$(call log, running tests)
 	pytest
+
+
+.PHONY: code-smell
+code-smell:
+	$(call log, checking code smell)
+	mypy ./
+
+
+.PHONY: code-format
+code-format:
+	$(call log, checking code format)
 	isort --virtual-env="$(DIR_VENV)" --check-only \
 		"$(DIR_SRC)" \
 		"$(DIR_TESTS)" \
