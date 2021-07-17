@@ -57,7 +57,7 @@ tests:
 .PHONY: code-smell
 code-smell:
 	$(call log, checking code smell)
-	mypy ./
+	mypy
 
 
 .PHONY: code-format

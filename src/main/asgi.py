@@ -16,7 +16,7 @@ sentry_sdk.init(settings.SENTRY_DSN, traces_sample_rate=1.0)
 logger = get_logger("asgi")
 
 
-async def application(scope: Dict, receive: Callable, send: Callable):
+async def application(scope: Dict, receive: Callable, send: Callable) -> None:
     if scope["type"] == "lifespan":
         return
 

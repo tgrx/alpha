@@ -17,7 +17,7 @@ Visit http://{host}:{port}
 logger = get_logger("app")
 
 
-def run():
+def run() -> None:
     banner = SERVER_RUNNING_BANNER.format(
         host=settings.HOST,
         port=settings.PORT,

@@ -12,7 +12,7 @@ from framework.config import Settings
 
 @pytest.mark.unit
 @mock.patch.dict(os.environ, {}, clear=True)
-def test_default_settings():
+def test_default_settings() -> None:
     settings = Settings()
 
     assert settings.DATABASE_URL is None
@@ -36,7 +36,7 @@ def test_default_settings():
 
 
 @pytest.mark.unit
-def test_database_url_from_db_components():
+def test_database_url_from_db_components() -> None:
     with pytest.raises(ValidationError) as exc_info:
         Settings().database_url_from_db_components()
     err = json.loads(exc_info.value.json())

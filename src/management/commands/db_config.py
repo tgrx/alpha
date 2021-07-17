@@ -16,7 +16,7 @@ class DbConfigCommand(ManagementCommand):
         "--username": "Prints the DB username",
     }
 
-    def __call__(self):
+    def __call__(self) -> None:
         url = settings.DATABASE_URL
         if not url:
             raise RuntimeError("database is not configured")

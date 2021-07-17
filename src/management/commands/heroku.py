@@ -1,4 +1,5 @@
 import json
+from typing import Any
 from typing import Dict
 from typing import Optional
 
@@ -24,7 +25,7 @@ class HerokuCommand(ManagementCommand):
         ),
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         assert settings.HEROKU_APP_NAME, "Heroku app name is not configured"
@@ -32,20 +33,20 @@ class HerokuCommand(ManagementCommand):
             settings.HEROKU_API_TOKEN
         ), "Heroku API token is not set: see https://help.heroku.com/PBGP6IDE/"
 
-    def __call__(self):
+    def __call__(self) -> None:
         if self.option_is_active("--configure"):
             self._configure()
         else:
             self._get_config()
 
     @classmethod
-    def _get_config(cls):
+    def _get_config(cls) -> None:
         response = cls._api_call()
         payload = response.json()
         print(json.dumps(payload, sort_keys=True, indent=4))
 
     @classmethod
-    def _configure(cls):
+    def _configure(cls) -> None:
         payload = {
             name: value
             for name, value in {

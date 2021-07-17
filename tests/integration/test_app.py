@@ -9,7 +9,7 @@ pytestmark = [
 ]
 
 
-async def test_asgi_app(asgi_client: httpx.AsyncClient):
+async def test_asgi_app(asgi_client: httpx.AsyncClient) -> None:
     resp: httpx.Response = await asgi_client.get("/")
     payload = PayloadT.parse_obj(resp.json())
 
@@ -38,7 +38,7 @@ async def test_asgi_app(asgi_client: httpx.AsyncClient):
 
 
 @pytest.mark.webapp
-async def test_web_app(web_client: httpx.AsyncClient):
+async def test_web_app(web_client: httpx.AsyncClient) -> None:
     try:
         resp: httpx.Response = await web_client.get("/")
         payload = PayloadT.parse_obj(resp.json())

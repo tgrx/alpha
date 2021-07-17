@@ -38,9 +38,20 @@ testpaths = [
 
 
 [tool.mypy]
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+files = ["src", "tests",]
+no_implicit_optional = true
+pretty = true
 python_version = "3.9"
+show_error_context = true
+sqlite_cache = true
+warn_redundant_casts = true
 warn_return_any = true
 warn_unused_configs = true
+warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
 module = [
