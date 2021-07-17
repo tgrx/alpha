@@ -100,7 +100,7 @@ class Settings(DatabaseSettings):
         return DatabaseSettings(
             DB_DRIVER=components.scheme,
             DB_HOST=components.hostname,
-            DB_NAME=components.path,
+            DB_NAME=components.path[1:],
             DB_PASSWORD=components.password,
             DB_PORT=components.port,
             DB_USER=components.username,

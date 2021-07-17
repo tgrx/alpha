@@ -2,7 +2,7 @@ import abc
 from typing import Dict
 from typing import Optional
 
-COMMANDS = {}
+COMMANDS: Dict[str, "_ManagementCommandMeta"] = {}
 
 
 class _ManagementCommandMeta(abc.ABCMeta):

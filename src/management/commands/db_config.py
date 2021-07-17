@@ -1,5 +1,3 @@
-from urllib.parse import urlsplit
-
 from framework.config import settings
 from management.commands.abstract import ManagementCommand
 
@@ -23,28 +21,27 @@ class DbConfigCommand(ManagementCommand):
         if not url:
             raise RuntimeError("database is not configured")
 
-        url = urlsplit(url)
-        path = url.path[1:]
+        comps = settings.db_components_from_database_url()
 
         if self.option_is_active("--db-name"):
-            print(path)
+            print(comps.DB_NAME)
         elif self.option_is_active("--host"):
-            print(url.hostname)
+            print(comps.DB_HOST)
         elif self.option_is_active("--password"):
-            print(url.password)
+            print(comps.DB_PASSWORD)
         elif self.option_is_active("--port"):
-            print(url.port)
+            print(comps.DB_PORT)
         elif self.option_is_active("--username"):
-            print(url.username)
+            print(comps.DB_USER)
         else:
             full_config = f"""
-                URL:     \t{url.geturl()}
+                URL:     \t{settings.DATABASE_URL}
 
-                SCHEME:  \t{url.scheme}
-                USERNAME:\t{url.username}
-                PASSWORD:\t{url.password}
-                HOST:    \t{url.hostname}
-                PORT:    \t{url.port}
-                DATABASE:\t{path}
+                SCHEME:  \t{comps.DB_DRIVER}
+                USERNAME:\t{comps.DB_USER}
+                PASSWORD:\t{comps.DB_PASSWORD}
+                HOST:    \t{comps.DB_HOST}
+                PORT:    \t{comps.DB_PORT}
+                DATABASE:\t{comps.DB_NAME}
             """
             print(full_config)
