@@ -12,6 +12,7 @@ from framework.config import Settings
 
 @pytest.mark.unit
 @mock.patch.dict(os.environ, {}, clear=True)
+@mock.patch("framework.config.Settings.Config.secrets_dir", None)
 def test_default_settings() -> None:
     settings = Settings()
 
