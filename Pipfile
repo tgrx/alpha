@@ -7,7 +7,7 @@ verify_ssl = true
 python_version = "3.9"
 
 [dev-packages]
-black = "==21.6b0"
+black = "==21.7b0"
 coverage = { extras = ["toml"], version = "*" }
 devtools = { extras = ["pygments"], version = "*" }
 flake8 = "*"
@@ -20,14 +20,14 @@ pudb = "*"
 pylint = "*"
 pytest = "*"
 pytest-asyncio = "*"
+pytest-cov = "*"
 pytest-mock = "*"
 
 [packages]
 asyncpg = "*"
 gunicorn = "*"
 httpx = "*"
-psycopg2-binary = "*"
-pydantic = {extras = ["dotenv"], version = "*"}
+pydantic = { extras = ["dotenv"], version = "*" }
 python-dotenv = "*"
 sentry-sdk = "*"
-uvicorn = {extras = [ "standard",], version = "*"}
+uvicorn = { extras = ["standard", ], version = "*" }
