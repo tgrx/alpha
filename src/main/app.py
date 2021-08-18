@@ -17,7 +17,7 @@ Visit http://{host}:{port}
 logger = get_logger("app")
 
 
-def run():
+def run() -> None:
     banner = SERVER_RUNNING_BANNER.format(
         host=settings.HOST,
         port=settings.PORT,
@@ -27,7 +27,7 @@ def run():
     try:
         uvicorn.run(
             application,
-            host="0.0.0.0",
+            host="0.0.0.0",  # noqa: B104,S104
             port=settings.PORT,
             reload=False,
         )

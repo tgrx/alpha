@@ -3,8 +3,8 @@ import logging
 from framework.config import settings
 
 FORMATS = {
-    False: "{asctime} | {name}.{levelname} | {module}.{funcName} | {message}",
-    True: "{asctime} | {name}.{levelname}\n| {pathname}:{lineno}\n| {message}\n",
+    False: "{asctime} | {name}.{levelname} | {module}.{funcName} | {message}",  # noqa: E501
+    True: "{asctime} | {name}.{levelname}\n| {pathname}:{lineno}\n| {message}\n",  # noqa: E501
 }
 
 LEVELS = {
@@ -35,7 +35,7 @@ def get_logger(logger_name: str) -> logging.Logger:
     return logger
 
 
-def mute_root_logger():
+def mute_root_logger() -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.CRITICAL)
     for _handler in root_logger.handlers:

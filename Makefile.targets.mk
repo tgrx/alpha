@@ -43,10 +43,34 @@ format:
 		|| exit 1
 
 
-.PHONY: test
-test:
+.PHONY: qa
+qa: tests coverage code-smell code-format code-linters
+	$(call log, QA checks)
+
+
+.PHONY: tests
+tests:
 	$(call log, running tests)
+	rm -f .coverage
+	rm -rf htmlcov
 	pytest
+
+
+.PHONY: coverage
+coverage:
+	$(call log, calculating coverage)
+	coverage html
+
+
+.PHONY: code-smell
+code-smell:
+	$(call log, checking code smell)
+	mypy
+
+
+.PHONY: code-format
+code-format:
+	$(call log, checking code format)
 	isort --virtual-env="$(DIR_VENV)" --check-only \
 		"$(DIR_SRC)" \
 		"$(DIR_TESTS)" \
@@ -59,6 +83,12 @@ test:
 		"$(DIR_SCRIPTS)" \
 		"$(DIR_CONFIG)" \
 		|| exit 1
+
+
+.PHONY: code-linters
+code-linters:
+	$(call log, linting)
+	flake8
 
 
 .PHONY: release

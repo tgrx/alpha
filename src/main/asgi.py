@@ -16,19 +16,19 @@ sentry_sdk.init(settings.SENTRY_DSN, traces_sample_rate=1.0)
 logger = get_logger("asgi")
 
 
-async def application(scope: Dict, receive: Callable, send: Callable):
+async def application(scope: Dict, receive: Callable, send: Callable) -> None:
     if scope["type"] == "lifespan":
         return
 
     path = scope["path"]
-    logger.debug(f"path: {path}")
+    logger.debug("path: %s", path)
 
     if path.startswith("/e"):
-        logger.debug(f"here goes an error ...")
-        print(1 / 0)
+        logger.debug("here goes an error ...")
+        print(1 / 0)  # noqa: T001
 
     request = await receive()
-    logger.debug(f"request: {request}")
+    logger.debug("request: %s", request)
 
     await send(
         {

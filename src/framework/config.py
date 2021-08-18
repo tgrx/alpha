@@ -8,6 +8,8 @@ from pydantic import Field
 from pydantic import ValidationError
 from pydantic.error_wrappers import ErrorWrapper
 
+from framework.dirs import DIR_CONFIG_SECRETS
+
 
 class DatabaseSettings(BaseSettings):
     DATABASE_URL: Optional[str] = Field()
@@ -37,6 +39,7 @@ class DatabaseSettings(BaseSettings):
         case_sensitive = True
         env_file = ".env"
         env_file_encoding = "utf-8"
+        secrets_dir = DIR_CONFIG_SECRETS.as_posix()
 
     def database_url_from_db_components(self) -> str:
         def fail_validation(error_message: str) -> NoReturn:
@@ -47,7 +50,7 @@ class DatabaseSettings(BaseSettings):
                         loc="schema",
                     )
                 ],
-                model=self,
+                model=DatabaseSettings,
             )
 
         if not self.DB_DRIVER:
@@ -59,8 +62,8 @@ class DatabaseSettings(BaseSettings):
         if not self.DB_USER and self.DB_PASSWORD:
             fail_validation("db user MUST be set when password is set")
 
-        netloc = ":".join(filter(bool, (self.DB_HOST, self.DB_PORT)))
-        userinfo = ":".join(filter(bool, (self.DB_USER, self.DB_PASSWORD)))
+        netloc = ":".join(filter(bool, (self.DB_HOST, self.DB_PORT)))  # type: ignore  # noqa: E501
+        userinfo = ":".join(filter(bool, (self.DB_USER, self.DB_PASSWORD)))  # type: ignore  # noqa: E501
 
         if not netloc and userinfo:
             fail_validation("netloc MUST be set when userinfo is set")
@@ -76,8 +79,10 @@ class DatabaseSettings(BaseSettings):
 
 
 class Settings(DatabaseSettings):
-    __name__ = "Settings"
+    __name__ = "Settings"  # noqa: VNE003
 
+    HEROKU_API_TOKEN: Optional[str] = Field()
+    HEROKU_APP_NAME: Optional[str] = Field()
     HOST: str = Field(default="localhost")
     MODE_DEBUG: bool = Field(default=False)
     PORT: int = Field(default=8000)
@@ -95,7 +100,7 @@ class Settings(DatabaseSettings):
         return DatabaseSettings(
             DB_DRIVER=components.scheme,
             DB_HOST=components.hostname,
-            DB_NAME=components.path,
+            DB_NAME=components.path[1:],
             DB_PASSWORD=components.password,
             DB_PORT=components.port,
             DB_USER=components.username,

@@ -1,12 +1,10 @@
-from urllib.parse import urlsplit
-
 from framework.config import settings
 from management.commands.abstract import ManagementCommand
 
 
 class DbConfigCommand(ManagementCommand):
     name = "db-config"
-    help = (
+    help = (  # noqa: A003,VNE003
         "DB config command."
         " If called without arguments, displays the full DB config"
     )
@@ -18,33 +16,32 @@ class DbConfigCommand(ManagementCommand):
         "--username": "Prints the DB username",
     }
 
-    def __call__(self):
+    def __call__(self) -> None:
         url = settings.DATABASE_URL
         if not url:
             raise RuntimeError("database is not configured")
 
-        url = urlsplit(url)
-        path = url.path[1:]
+        comps = settings.db_components_from_database_url()
 
         if self.option_is_active("--db-name"):
-            print(path)
+            print(comps.DB_NAME)  # noqa: T001
         elif self.option_is_active("--host"):
-            print(url.hostname)
+            print(comps.DB_HOST)  # noqa: T001
         elif self.option_is_active("--password"):
-            print(url.password)
+            print(comps.DB_PASSWORD)  # noqa: T001
         elif self.option_is_active("--port"):
-            print(url.port)
+            print(comps.DB_PORT)  # noqa: T001
         elif self.option_is_active("--username"):
-            print(url.username)
+            print(comps.DB_USER)  # noqa: T001
         else:
             full_config = f"""
-                URL:     \t{url.geturl()}
+                URL:     \t{settings.DATABASE_URL}
 
-                SCHEME:  \t{url.scheme}
-                USERNAME:\t{url.username}
-                PASSWORD:\t{url.password}
-                HOST:    \t{url.hostname}
-                PORT:    \t{url.port}
-                DATABASE:\t{path}
+                SCHEME:  \t{comps.DB_DRIVER}
+                USERNAME:\t{comps.DB_USER}
+                PASSWORD:\t{comps.DB_PASSWORD}
+                HOST:    \t{comps.DB_HOST}
+                PORT:    \t{comps.DB_PORT}
+                DATABASE:\t{comps.DB_NAME}
             """
-            print(full_config)
+            print(full_config)  # noqa: T001

@@ -4,7 +4,7 @@ import sys
 from management.commands import COMMANDS
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
         dest="command",
@@ -36,7 +36,7 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    cmd_cls = COMMANDS.get(args.command)
+    cmd_cls = COMMANDS[args.command]
     cmd = cmd_cls(args)
     cmd()
 
