@@ -51,6 +51,8 @@ qa: tests coverage code-smell code-format code-linters
 .PHONY: tests
 tests:
 	$(call log, running tests)
+	rm -f .coverage
+	rm -rf htmlcov
 	pytest
 
 

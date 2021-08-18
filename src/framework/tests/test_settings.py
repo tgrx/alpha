@@ -9,8 +9,11 @@ from pydantic import ValidationError
 from framework.config import DatabaseSettings
 from framework.config import Settings
 
+pytestmark = [
+    pytest.mark.unit,
+]
 
-@pytest.mark.unit
+
 @mock.patch.dict(os.environ, {}, clear=True)
 @mock.patch("framework.config.Settings.Config.secrets_dir", None)
 def test_default_settings() -> None:
@@ -34,7 +37,8 @@ def test_default_settings() -> None:
     assert settings.db_components_from_database_url() == DatabaseSettings()
 
 
-@pytest.mark.unit
+@mock.patch.dict(os.environ, {}, clear=True)
+@mock.patch("framework.config.Settings.Config.secrets_dir", None)
 def test_database_url_from_db_components() -> None:
     with pytest.raises(ValidationError) as exc_info:
         Settings().database_url_from_db_components()
@@ -80,3 +84,52 @@ def test_database_url_from_db_components() -> None:
             "type": "value_error",
         }
     ]
+
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(
+            DB_DRIVER="postgresql",
+            DB_PORT="5432",
+        ).database_url_from_db_components()
+    err = json.loads(exc_info.value.json())
+    assert isinstance(err, list)
+    assert err == [
+        {
+            "loc": ["schema"],
+            "msg": "db host MUST be set when port is set",
+            "type": "value_error",
+        }
+    ]
+
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(  # noqa: S106,B106
+            DB_DRIVER="postgresql",
+            DB_PASSWORD="qwerty",
+        ).database_url_from_db_components()
+    err = json.loads(exc_info.value.json())
+    assert isinstance(err, list)
+    assert err == [
+        {
+            "loc": ["schema"],
+            "msg": "db user MUST be set when password is set",
+            "type": "value_error",
+        }
+    ]
+
+
+@mock.patch.dict(
+    os.environ,
+    {
+        "DATABASE_URL": "postgresql://u:p@h:1/d",
+    },
+    clear=True,
+)
+@mock.patch("framework.config.Settings.Config.secrets_dir", None)
+def test_db_components_from_database_url() -> None:
+    settings = Settings().db_components_from_database_url()
+
+    assert settings.DB_DRIVER == "postgresql"
+    assert settings.DB_HOST == "h"
+    assert settings.DB_NAME == "d"
+    assert settings.DB_PASSWORD == "p"
+    assert settings.DB_PORT == 1
+    assert settings.DB_USER == "u"

@@ -57,6 +57,9 @@ async def test_asgi_app(asgi_client: httpx.AsyncClient) -> None:
         scope__client__port_range=range(123, 124),
     )
 
+    with pytest.raises(ZeroDivisionError):
+        await asgi_client.get("/e")
+
 
 @pytest.mark.webapp
 async def test_web_app(web_client: httpx.AsyncClient) -> None:
@@ -74,3 +77,9 @@ async def test_web_app(web_client: httpx.AsyncClient) -> None:
         raise AssertionError(
             f"unable to connect to server @ {web_client.base_url}"
         ) from err
+
+
+@pytest.mark.webapp
+async def test_error_handling_webapp(web_client: httpx.AsyncClient) -> None:
+    resp: httpx.Response = await web_client.get("/e")
+    assert resp.status_code == 500
