@@ -8,7 +8,7 @@ source = src
 
 
 [report]
-fail_under = 50
+fail_under = 45
 skip_empty = True
 sort = -Cover
 
