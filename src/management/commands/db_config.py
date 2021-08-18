@@ -4,7 +4,7 @@ from management.commands.abstract import ManagementCommand
 
 class DbConfigCommand(ManagementCommand):
     name = "db-config"
-    help = (
+    help = (  # noqa: A003,VNE003
         "DB config command."
         " If called without arguments, displays the full DB config"
     )
@@ -24,15 +24,15 @@ class DbConfigCommand(ManagementCommand):
         comps = settings.db_components_from_database_url()
 
         if self.option_is_active("--db-name"):
-            print(comps.DB_NAME)
+            print(comps.DB_NAME)  # noqa: T001
         elif self.option_is_active("--host"):
-            print(comps.DB_HOST)
+            print(comps.DB_HOST)  # noqa: T001
         elif self.option_is_active("--password"):
-            print(comps.DB_PASSWORD)
+            print(comps.DB_PASSWORD)  # noqa: T001
         elif self.option_is_active("--port"):
-            print(comps.DB_PORT)
+            print(comps.DB_PORT)  # noqa: T001
         elif self.option_is_active("--username"):
-            print(comps.DB_USER)
+            print(comps.DB_USER)  # noqa: T001
         else:
             full_config = f"""
                 URL:     \t{settings.DATABASE_URL}
@@ -44,4 +44,4 @@ class DbConfigCommand(ManagementCommand):
                 PORT:    \t{comps.DB_PORT}
                 DATABASE:\t{comps.DB_NAME}
             """
-            print(full_config)
+            print(full_config)  # noqa: T001

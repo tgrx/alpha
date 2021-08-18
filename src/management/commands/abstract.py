@@ -11,20 +11,23 @@ COMMANDS: Dict[str, Type["ManagementCommand"]] = {}
 
 class _ManagementCommandMeta(abc.ABCMeta):
     def __new__(
-        mcs, name: str, bases: Tuple, attrs: Dict
+        cls,
+        name: str,
+        bases: Tuple,
+        attrs: Dict,
     ) -> "_ManagementCommandMeta":
-        cls = super().__new__(mcs, name, bases, attrs)
+        command_cls = super().__new__(cls, name, bases, attrs)
         command_name = attrs.get("name")
         if command_name:
             global COMMANDS
-            COMMANDS[command_name] = cls  # type: ignore
+            COMMANDS[command_name] = command_cls  # type: ignore
 
-        return cls
+        return command_cls
 
 
 class ManagementCommand(metaclass=_ManagementCommandMeta):
     arguments: Dict[str, str] = {}
-    help: Optional[str] = None
+    help: Optional[str] = None  # noqa: A003,VNE003
     name: Optional[str] = None
     required: bool = False
 

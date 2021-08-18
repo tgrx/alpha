@@ -1,8 +1,9 @@
 [run]
 branch = True
 omit = \
-    tests/*
     src/framework/tests/*
+    src/main/app.py
+    tests/*
 relative_files = True
 source = src
 

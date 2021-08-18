@@ -62,8 +62,8 @@ class DatabaseSettings(BaseSettings):
         if not self.DB_USER and self.DB_PASSWORD:
             fail_validation("db user MUST be set when password is set")
 
-        netloc = ":".join(filter(bool, (self.DB_HOST, self.DB_PORT)))  # type: ignore
-        userinfo = ":".join(filter(bool, (self.DB_USER, self.DB_PASSWORD)))  # type: ignore
+        netloc = ":".join(filter(bool, (self.DB_HOST, self.DB_PORT)))  # type: ignore  # noqa: E501
+        userinfo = ":".join(filter(bool, (self.DB_USER, self.DB_PASSWORD)))  # type: ignore  # noqa: E501
 
         if not netloc and userinfo:
             fail_validation("netloc MUST be set when userinfo is set")
@@ -79,7 +79,7 @@ class DatabaseSettings(BaseSettings):
 
 
 class Settings(DatabaseSettings):
-    __name__ = "Settings"
+    __name__ = "Settings"  # noqa: VNE003
 
     HEROKU_API_TOKEN: Optional[str] = Field()
     HEROKU_APP_NAME: Optional[str] = Field()

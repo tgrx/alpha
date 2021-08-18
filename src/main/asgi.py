@@ -24,8 +24,8 @@ async def application(scope: Dict, receive: Callable, send: Callable) -> None:
     logger.debug(f"path: {path}")
 
     if path.startswith("/e"):
-        logger.debug(f"here goes an error ...")
-        print(1 / 0)
+        logger.debug("here goes an error ...")
+        print(1 / 0)  # noqa: T001
 
     request = await receive()
     logger.debug(f"request: {request}")

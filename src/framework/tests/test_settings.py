@@ -15,6 +15,7 @@ from framework.config import Settings
 @mock.patch("framework.config.Settings.Config.secrets_dir", None)
 def test_default_settings() -> None:
     settings = Settings()
+    nr_cpus = 2 * cpu_count() + 1
 
     assert settings.DATABASE_URL is None
     assert settings.DB_DRIVER is None
@@ -27,10 +28,7 @@ def test_default_settings() -> None:
     assert settings.MODE_DEBUG is False
     assert settings.PORT == 8000
     assert settings.SENTRY_DSN is None
-
-    nr_cpus = 2 * cpu_count() + 1
     assert settings.WEB_CONCURRENCY == nr_cpus
-
     with pytest.raises(ValidationError):
         settings.database_url_from_db_components()
     assert settings.db_components_from_database_url() == DatabaseSettings()
@@ -40,6 +38,7 @@ def test_default_settings() -> None:
 def test_database_url_from_db_components() -> None:
     with pytest.raises(ValidationError) as exc_info:
         Settings().database_url_from_db_components()
+
     err = json.loads(exc_info.value.json())
     assert isinstance(err, list)
     assert err == [
@@ -50,28 +49,22 @@ def test_database_url_from_db_components() -> None:
         }
     ]
 
-    assert (
-        Settings(
-            DB_DRIVER="postgresql+asyncpg",
-        ).database_url_from_db_components()
-        == "postgresql+asyncpg://"
-    )
+    url = Settings(
+        DB_DRIVER="postgresql+asyncpg",
+    ).database_url_from_db_components()
+    assert url == "postgresql+asyncpg://"
 
-    assert (
-        Settings(
-            DB_DRIVER="sqlite",
-            DB_HOST="localhost",
-        ).database_url_from_db_components()
-        == "sqlite://localhost"
-    )
+    url = Settings(
+        DB_DRIVER="sqlite",
+        DB_HOST="localhost",
+    ).database_url_from_db_components()
+    assert url == "sqlite://localhost"
 
-    assert (
-        Settings(
-            DB_DRIVER="sqlite",
-            DB_NAME=":memory:",
-        ).database_url_from_db_components()
-        == "sqlite:///:memory:"
-    )
+    url = Settings(
+        DB_DRIVER="sqlite",
+        DB_NAME=":memory:",
+    ).database_url_from_db_components()
+    assert url == "sqlite:///:memory:"
 
     with pytest.raises(ValidationError) as exc_info:
         Settings(

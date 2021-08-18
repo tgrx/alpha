@@ -8,7 +8,7 @@ from pydantic import Field
 class RequestT(BaseModel):
     body: str = Field(...)
     more_body: bool = Field(default=False)
-    type: str = Field(...)
+    type: str = Field(...)  # noqa: A003,VNE003
 
 
 class ScopeAsgiT(BaseModel):
@@ -33,7 +33,7 @@ class ScopeT(BaseModel):
     root_path: str = Field(...)
     scheme: str = Field(...)
     server: HostPortT = Field(...)
-    type: str = Field(...)
+    type: str = Field(...)  # noqa: A003,VNE003
 
 
 class PayloadT(BaseModel):

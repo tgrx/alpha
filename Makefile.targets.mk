@@ -44,7 +44,7 @@ format:
 
 
 .PHONY: qa
-qa: tests coverage code-smell code-format
+qa: tests coverage code-smell code-format code-linters
 	$(call log, QA checks)
 
 
@@ -81,6 +81,12 @@ code-format:
 		"$(DIR_SCRIPTS)" \
 		"$(DIR_CONFIG)" \
 		|| exit 1
+
+
+.PHONY: code-linters
+code-linters:
+	$(call log, linting)
+	flake8
 
 
 .PHONY: release

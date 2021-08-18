@@ -27,7 +27,7 @@ def run() -> None:
     try:
         uvicorn.run(
             application,
-            host="0.0.0.0",
+            host="0.0.0.0",  # noqa: B104,S104
             port=settings.PORT,
             reload=False,
         )
