@@ -44,7 +44,7 @@ format:
 
 
 .PHONY: qa
-qa: tests code-smell code-format
+qa: tests coverage code-smell code-format
 	$(call log, QA checks)
 
 
@@ -52,6 +52,12 @@ qa: tests code-smell code-format
 tests:
 	$(call log, running tests)
 	pytest
+
+
+.PHONY: coverage
+coverage:
+	$(call log, calculating coverage)
+	coverage html
 
 
 .PHONY: code-smell

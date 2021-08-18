@@ -1,0 +1,18 @@
+[run]
+branch = True
+omit = \
+    tests/*
+    src/framework/tests/*
+relative_files = True
+source = src
+
+
+[report]
+fail_under = 50
+skip_empty = True
+sort = -Cover
+
+
+[html]
+skip_covered = False
+title = Alpha

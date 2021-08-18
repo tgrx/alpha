@@ -2,6 +2,7 @@
 *.log
 *.py[cod]
 *~
+.coverage
 .DS_Store
 .idea/
 .pytest_cache/
@@ -11,4 +12,5 @@
 __pycache__/
 config/.secrets/
 db.sqlite3
+htmlcov/
 venv/

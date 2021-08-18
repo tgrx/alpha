@@ -7,6 +7,7 @@ exclude = """
       /.git
     | /.github
     | /.pytest_cache
+    | /.run
     | /.tests_artifacts
     | /.venv
   )/
@@ -35,6 +36,7 @@ testpaths = [
     "src/framework/tests",
     "tests",
 ]
+addopts = "--cov --no-cov-on-fail --cov-fail-under=0"
 
 
 [tool.mypy]
