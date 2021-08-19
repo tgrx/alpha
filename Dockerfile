@@ -31,7 +31,7 @@ COPY ./scripts/ ./scripts/
 RUN chmod +x ./scripts/*
 
 RUN make \
-        venv-prod \
+        venv-deploy \
         release \
         || exit 1
 
