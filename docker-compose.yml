@@ -1,35 +1,39 @@
-version: "3.3"
+version: "3.9"
 services:
   alpha-web:
     build: ./
     container_name: alpha-web
     depends_on:
       - alpha-db
-    entrypoint: ["make", "wait-for-db", "run-prod"]
+    entrypoint: [ "make", "wait-for-db", "run-prod" ]
     environment:
       DATABASE_URL: "postgresql://alpha:alpha@alpha-db:5432/alpha"
+      MODE_DEBUG: 1
       PORT: 80
+      PYTHONPATH: src
+      SECRETS_DIR: /run/secrets
     image: alpha-web
     ports:
       - "8888:80"
+    restart: unless-stopped
   alpha-db:
     container_name: alpha-db
     environment:
       POSTGRES_USER: alpha
       POSTGRES_PASSWORD: alpha
       POSTGRES_DB: alpha
-    image: postgres:13.3-alpine
+    image: postgres:13.4-alpine
     ports:
       - "5555:5432"
-    restart: always
+    restart: unless-stopped
     volumes:
       - alpha-volume:/var/lib/postgresql/data
   alpha-dba:
     container_name: alpha-dba
     image: adminer
-    restart: always
+    restart: unless-stopped
     ports:
-      - 5556:8080
+      - "5556:8080"
     volumes:
       - alpha-volume:/var/lib/postgresql/data
 volumes:
