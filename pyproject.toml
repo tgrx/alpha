@@ -8,8 +8,8 @@ exclude = """
     | /.github
     | /.pytest_cache
     | /.run
-    | /.tests_artifacts
     | /.venv
+    | /htmlcov
   )/
 )
 """

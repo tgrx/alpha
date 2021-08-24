@@ -6,6 +6,5 @@ exclude =
     .mypy_cache
     .pytest_cache
     .run
-    .tests_artifacts
     .venv
     htmlcov
