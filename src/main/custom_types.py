@@ -1,4 +1,5 @@
 from typing import Dict
+from typing import List
 from typing import Optional
 
 from pydantic import BaseModel
@@ -36,6 +37,14 @@ class ScopeT(BaseModel):
     type: str = Field(...)  # noqa: A003,VNE003
 
 
+class DbSetting(BaseModel):
+    description: str = Field(...)
+    name: str = Field(...)
+    setting: str = Field(...)
+    unit: Optional[str] = Field(None)
+
+
 class PayloadT(BaseModel):
+    db_settings: List[DbSetting] = Field(default_factory=list)
     request: RequestT = Field(...)
     scope: ScopeT = Field(...)

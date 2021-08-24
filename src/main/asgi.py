@@ -1,19 +1,68 @@
+import traceback
+from contextlib import asynccontextmanager
+from typing import AsyncIterator
 from typing import Callable
 from typing import Dict
+from typing import List
+from typing import Optional
 
+import asyncpg
 import sentry_sdk
 
 from framework.config import settings
 from framework.logging import get_logger
-from main.payload import HostPortT
-from main.payload import PayloadT
-from main.payload import RequestT
-from main.payload import ScopeAsgiT
-from main.payload import ScopeT
+from main.custom_types import DbSetting
+from main.custom_types import HostPortT
+from main.custom_types import PayloadT
+from main.custom_types import RequestT
+from main.custom_types import ScopeAsgiT
+from main.custom_types import ScopeT
 
 sentry_sdk.init(settings.SENTRY_DSN, traces_sample_rate=1.0)
 
 logger = get_logger("asgi")
+
+
+@asynccontextmanager
+async def get_db_connection() -> AsyncIterator:
+    conn: Optional[asyncpg.Connection] = None
+    try:
+        conn = await asyncpg.connect(settings.DATABASE_URL)
+        yield conn
+    except Exception:
+        logger.error(traceback.format_exc())
+        raise
+    finally:
+        if conn is not None:
+            await conn.close()
+
+
+async def get_db_settings() -> List[DbSetting]:
+    sql = """
+        SELECT
+            trim(short_desc || ' ' || coalesce(extra_desc, '')) as description,
+            name,
+            setting,
+            unit
+        FROM
+            pg_settings
+        ;
+    """
+
+    db_settings: List[DbSetting] = []
+
+    try:
+        conn: asyncpg.Connection
+        async with get_db_connection() as conn:
+            stmt = await conn.prepare(sql)
+            records = await stmt.fetch()
+
+        db_settings = [DbSetting.parse_obj(rec) for rec in records]
+
+    except asyncpg.PostgresError:
+        pass
+
+    return db_settings
 
 
 async def application(scope: Dict, receive: Callable, send: Callable) -> None:
@@ -40,7 +89,8 @@ async def application(scope: Dict, receive: Callable, send: Callable) -> None:
         }
     )
 
-    payload = build_payload(scope, request)
+    db_settings = await get_db_settings()
+    payload = build_payload(scope, request, db_settings)
 
     await send(
         {
@@ -52,8 +102,13 @@ async def application(scope: Dict, receive: Callable, send: Callable) -> None:
     logger.debug("response has been sent")
 
 
-def build_payload(scope: Dict, request: Dict) -> PayloadT:
+def build_payload(
+    scope: Dict,
+    request: Dict,
+    db_settings: List[DbSetting],
+) -> PayloadT:
     payload = PayloadT(
+        db_settings=db_settings,
         request=RequestT(
             body=request["body"].decode(),
             more_body=request["more_body"],
