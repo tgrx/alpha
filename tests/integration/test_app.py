@@ -34,7 +34,7 @@ def validate_payload(
     assert payload.scope.client.host == "127.0.0.1"
     assert payload.scope.client.port in scope__client__port_range
     assert payload.scope.headers["host"] == scope__headers__host
-    assert payload.scope.headers["user-agent"] == "python-httpx/0.18.2"
+    assert payload.scope.headers["user-agent"] == "python-httpx/0.19.0"
     assert payload.scope.http_version == "1.1"
     assert payload.scope.method == "GET"
     assert payload.scope.path == "/"
