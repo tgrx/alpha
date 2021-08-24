@@ -8,8 +8,8 @@ exclude = """
     | /.github
     | /.pytest_cache
     | /.run
-    | /.tests_artifacts
     | /.venv
+    | /htmlcov
   )/
 )
 """
@@ -57,6 +57,7 @@ warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
 module = [
+    "asyncpg",
     "uvicorn",
 ]
 ignore_missing_imports = true

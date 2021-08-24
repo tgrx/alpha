@@ -3,7 +3,7 @@ from typing import Optional
 import httpx
 import pytest
 
-from main.payload import PayloadT
+from main.custom_types import PayloadT
 
 pytestmark = [
     pytest.mark.asyncio,

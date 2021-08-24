@@ -7,7 +7,6 @@
 .idea/
 .pytest_cache/
 .secrets.*
-.tests_artifacts/
 .venv/
 __pycache__/
 config/.secrets/
