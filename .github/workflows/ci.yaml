@@ -41,20 +41,6 @@ jobs:
       - name: install python packages
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: make venv-deploy-all
-      - name: zip alpha
-        run: zip -qq -r alpha.zip .
-      - name: zip alpha env
-        run: |
-          cd / &&
-          zip -qq -r ${{ github.workspace }}/alpha-env.zip ${{ env.pythonLocation }}
-      - name: upload alpha as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: alpha-ci-artifacts
-          path: |
-            alpha.zip
-            alpha-env.zip
-          retention-days: 1
   setup-services:
     needs:
       - build
@@ -78,14 +64,20 @@ jobs:
           --health-retries 5
           --health-timeout 5s
     steps:
-      - name: download alpha artifact
-        uses: actions/download-artifact@v2
+      - name: pull code from repo
+        uses: actions/checkout@v2
+      - name: set up runtime
+        uses: actions/setup-python@v2
         with:
-          name: alpha-ci-artifacts
-      - name: unzip alpha env
-        run: unzip -qq -o alpha-env.zip -d /
-      - name: unzip alpha
-        run: unzip -qq -o alpha.zip -d ${{ github.workspace }}
+          python-version: ${{ matrix.python-version }}
+          architecture: 'x64'
+      - name: cache runtime
+        id: cache-runtime
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
+          restore-keys: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
       - name: perform release steps
         env:
           PGPASSFILE: config/.pgpass
@@ -102,14 +94,20 @@ jobs:
         python-version: [ 3.9 ]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: download alpha artifact
-        uses: actions/download-artifact@v2
+      - name: pull code from repo
+        uses: actions/checkout@v2
+      - name: set up runtime
+        uses: actions/setup-python@v2
         with:
-          name: alpha-ci-artifacts
-      - name: unzip alpha env
-        run: unzip -qq -o alpha-env.zip -d /
-      - name: unzip alpha
-        run: unzip -qq -o alpha.zip -d ${{ github.workspace }}
+          python-version: ${{ matrix.python-version }}
+          architecture: 'x64'
+      - name: cache runtime
+        id: cache-runtime
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
+          restore-keys: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
       - name: run production web server
         run: make run-prod &
   qa:
@@ -123,14 +121,20 @@ jobs:
         python-version: [ 3.9 ]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: download alpha artifact
-        uses: actions/download-artifact@v2
+      - name: pull code from repo
+        uses: actions/checkout@v2
+      - name: set up runtime
+        uses: actions/setup-python@v2
         with:
-          name: alpha-ci-artifacts
-      - name: unzip alpha env
-        run: unzip -qq -o alpha-env.zip -d /
-      - name: unzip alpha
-        run: unzip -qq -o alpha.zip -d ${{ github.workspace }}
+          python-version: ${{ matrix.python-version }}
+          architecture: 'x64'
+      - name: cache runtime
+        id: cache-runtime
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
+          restore-keys: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
       - name: qa checks
         run: make qa
       - name: store coverage artifact
