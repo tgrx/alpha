@@ -44,7 +44,7 @@ format:
 
 
 .PHONY: qa
-qa: tests coverage code-smell code-format code-linters
+qa: tests coverage code-typing code-format code-linters
 	$(call log, QA checks)
 
 
@@ -62,9 +62,9 @@ coverage:
 	coverage html
 
 
-.PHONY: code-smell
-code-smell:
-	$(call log, checking code smell)
+.PHONY: code-typing
+code-typing:
+	$(call log, checking code typing)
 	mypy
 
 
