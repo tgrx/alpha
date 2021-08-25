@@ -17,7 +17,7 @@ jobs:
   full-build-and-qa:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
         python-version: [3.7, 3.8, 3.9]
     runs-on: ${{ matrix.os }}
     services:
@@ -38,7 +38,7 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: Install docker # Taken from https://github.com/actions/virtual-environments/issues/1143#issuecomment-652264388
-        if: ${{ matrix.os == macos-latest }}
+        if: ${{ matrix.os == 'macos-latest' }}
         run: |
           mkdir -p ~/.docker/machine/cache
           curl -Lo ~/.docker/machine/cache/boot2docker.iso https://github.com/boot2docker/boot2docker/releases/download/v19.03.12/boot2docker.iso
