@@ -91,7 +91,13 @@ jobs:
         run: make run-prod &
       - name: run tests
         if: ${{ steps.restore-build.outputs.cache-hit }}
-        run: make tests
+        run: make tests coverage
+      - name: upload coverage to codecov.io
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.xml
+          name: alpha
+          verbose: true
   check-code-typing:
     needs:
       - build

@@ -52,6 +52,7 @@ qa: tests coverage code-typing code-format code-linters
 tests:
 	$(call log, running tests)
 	rm -f .coverage
+	rm -f coverage.xml
 	rm -rf htmlcov
 	pytest
 
@@ -60,6 +61,7 @@ tests:
 coverage:
 	$(call log, calculating coverage)
 	coverage html
+	coverage xml
 
 
 .PHONY: code-typing
