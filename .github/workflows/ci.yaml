@@ -41,13 +41,21 @@ jobs:
       - name: install python packages
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: make venv-deploy-all
+      - name: zip alpha
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r alpha.zip ./
+      - name: zip alpha env
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r alpha-env.zip ${{ env.pythonLocation }}/
       - name: upload alpha as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: alpha-image
+          name: alpha-ci-artifacts
           path: |
-            ./
-            ${{ env.pythonLocation }}
+            alpha.zip
+            alpha-env.zip
   setup-services:
     needs:
       - build
@@ -74,7 +82,15 @@ jobs:
       - name: download alpha artifact
         uses: actions/download-artifact@v2
         with:
-          name: alpha-image
+          name: alpha-ci-artifacts
+      - name: unzip alpha env
+        uses: montudor/action-zip@v1
+        with:
+          name: alpha-env.zip
+      - name: unzip alpha
+        uses: montudor/action-zip@v1
+        with:
+          name: alpha.zip
       - name: perform release steps
         env:
           PGPASSFILE: config/.pgpass
@@ -94,7 +110,15 @@ jobs:
       - name: download alpha artifact
         uses: actions/download-artifact@v2
         with:
-          name: alpha-image
+          name: alpha-ci-artifacts
+      - name: unzip alpha env
+        uses: montudor/action-zip@v1
+        with:
+          name: alpha-env.zip
+      - name: unzip alpha
+        uses: montudor/action-zip@v1
+        with:
+          name: alpha.zip
       - name: run production web server
         run: make run-prod &
   qa:
@@ -111,7 +135,15 @@ jobs:
       - name: download alpha artifact
         uses: actions/download-artifact@v2
         with:
-          name: alpha-image
+          name: alpha-ci-artifacts
+      - name: unzip alpha env
+        uses: montudor/action-zip@v1
+        with:
+          name: alpha-env.zip
+      - name: unzip alpha
+        uses: montudor/action-zip@v1
+        with:
+          name: alpha.zip
       - name: qa checks
         run: make qa
       - name: store coverage artifact
