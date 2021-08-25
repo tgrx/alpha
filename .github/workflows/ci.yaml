@@ -97,6 +97,7 @@ jobs:
         with:
           files: ./coverage.xml
           name: alpha
+          token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
   check-code-typing:
     needs:
