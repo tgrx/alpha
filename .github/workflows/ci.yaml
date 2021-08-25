@@ -14,35 +14,6 @@ env:
   TEST_SERVICE_URL: "http://localhost:8000"
 
 jobs:
-  setup-services:
-    needs:
-      - build
-    strategy:
-      matrix:
-        os: [ ubuntu-latest ]
-        python-version: [ 3.9 ]
-    runs-on: ${{ matrix.os }}
-    services:
-      postgres:
-        image: postgres
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_DB: ci
-          POSTGRES_PASSWORD: ci
-          POSTGRES_USER: ci
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-retries 5
-          --health-timeout 5s
-    steps:
-      - name: perform release steps
-        env:
-          PGPASSFILE: config/.pgpass
-        run: |
-          chmod 0600 config/.pgpass
-          make initdb release
   build:
     strategy:
       matrix:
@@ -70,6 +41,46 @@ jobs:
       - name: install python packages
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: make venv-deploy-all
+      - name: upload alpha as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: alpha-image
+          path: |
+            ./
+            ${{ env.pythonLocation }}
+  setup-services:
+    needs:
+      - build
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: [ 3.9 ]
+    runs-on: ${{ matrix.os }}
+    services:
+      postgres:
+        image: postgres
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_USER: ci
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-retries 5
+          --health-timeout 5s
+    steps:
+      - name: download alpha artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: alpha-image
+      - name: perform release steps
+        env:
+          PGPASSFILE: config/.pgpass
+        run: |
+          chmod 0600 config/.pgpass
+          make initdb release
   run-server:
     needs:
       - build
@@ -80,6 +91,10 @@ jobs:
         python-version: [ 3.9 ]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: download alpha artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: alpha-image
       - name: run production web server
         run: make run-prod &
   qa:
@@ -93,6 +108,10 @@ jobs:
         python-version: [ 3.9 ]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: download alpha artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: alpha-image
       - name: qa checks
         run: make qa
       - name: store coverage artifact
