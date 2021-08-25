@@ -44,7 +44,7 @@ format:
 
 
 .PHONY: qa
-qa: tests coverage code-smell code-format code-linters
+qa: tests coverage code-typing code-format code-linters
 	$(call log, QA checks)
 
 
@@ -52,6 +52,7 @@ qa: tests coverage code-smell code-format code-linters
 tests:
 	$(call log, running tests)
 	rm -f .coverage
+	rm -f coverage.xml
 	rm -rf htmlcov
 	pytest
 
@@ -60,11 +61,12 @@ tests:
 coverage:
 	$(call log, calculating coverage)
 	coverage html
+	coverage xml
 
 
-.PHONY: code-smell
-code-smell:
-	$(call log, checking code smell)
+.PHONY: code-typing
+code-typing:
+	$(call log, checking code typing)
 	mypy
 
 

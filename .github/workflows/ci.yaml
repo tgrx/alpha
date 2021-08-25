@@ -9,61 +9,155 @@ on:
 
 env:
   DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
+  PGPASSFILE: config/.pgpass
   PIPENV_VENV_IN_PROJECT: "1"
   PYTHONPATH: "src"
   TEST_SERVICE_URL: "http://localhost:8000"
 
 jobs:
-  full-build-and-qa:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_DB: ci
-          POSTGRES_PASSWORD: ci
-          POSTGRES_USER: ci
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-retries 5
-          --health-timeout 5s
+  build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        python-version: [ 3.9 ]
+    runs-on: ${{ matrix.os }}
+    outputs:
+      runs-on: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}
+      python-location: ${{ env.pythonLocation }}
+      pipfile: ${{ steps.pipfile-hash.outputs.pipfile-hash }}
     steps:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
         uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
+          python-version: ${{ matrix.python-version }}
           architecture: 'x64'
       - name: cache runtime
         id: cache-runtime
         uses: actions/cache@v2
         with:
           path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
-          restore-keys: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
+          key: cache-runtime-${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
+      - name: set pipfile hash
+        id: pipfile-hash
+        run: echo "::set-output name=pipfile-hash::${{ hashFiles('Pipfile.lock') }}"
       - name: install pipenv
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: pip install pipenv
       - name: install python packages
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: make venv-deploy-all
-      - name: perform release steps
+  run-tests:
+    needs:
+      - build
+    runs-on: ${{ needs.build.outputs.runs-on }}
+    services:
+      postgres:
+        image: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-retries 5
+          --health-timeout 5s
         env:
-          PGPASSFILE: config/.pgpass
+          POSTGRES_DB: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_USER: ci
+    steps:
+      - name: pull code from repo
+        uses: actions/checkout@v2
+      - name: set up runtime
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ needs.build.outputs.python-version }}
+          architecture: 'x64'
+      - name: restore build from cache
+        id: restore-build
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.build.outputs.python-location }}
+          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.pipfile }}
+      - name: perform release steps
+        if: ${{ steps.restore-build.outputs.cache-hit }}
         run: |
           chmod 0600 config/.pgpass
           make initdb release
       - name: run production web server
+        if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make run-prod &
-      - name: qa checks
-        run: make qa
-      - name: store coverage artifact
-        uses: actions/upload-artifact@v2
+      - name: run tests
+        if: ${{ steps.restore-build.outputs.cache-hit }}
+        run: make tests coverage
+      - name: upload coverage to codecov.io
+        uses: codecov/codecov-action@v2
         with:
-          name: code-coverage-report
-          path: htmlcov
-          retention-days: 4
+          files: ./coverage.xml
+          name: alpha
+          verbose: true
+  check-code-typing:
+    needs:
+      - build
+    runs-on: ${{ needs.build.outputs.runs-on }}
+    steps:
+      - name: pull code from repo
+        uses: actions/checkout@v2
+      - name: set up runtime
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ needs.build.outputs.python-version }}
+          architecture: 'x64'
+      - name: restore build from cache
+        id: restore-build
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.build.outputs.python-location }}
+          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.pipfile }}
+      - name: check code typing
+        if: ${{ steps.restore-build.outputs.cache-hit }}
+        run: make code-typing
+  check-code-format:
+    needs:
+      - build
+    runs-on: ${{ needs.build.outputs.runs-on }}
+    steps:
+      - name: pull code from repo
+        uses: actions/checkout@v2
+      - name: set up runtime
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ needs.build.outputs.python-version }}
+          architecture: 'x64'
+      - name: restore build from cache
+        id: restore-build
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.build.outputs.python-location }}
+          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.pipfile }}
+      - name: check code format
+        if: ${{ steps.restore-build.outputs.cache-hit }}
+        run: make code-format
+  run-code-linters:
+    needs:
+      - build
+    runs-on: ${{ needs.build.outputs.runs-on }}
+    steps:
+      - name: pull code from repo
+        uses: actions/checkout@v2
+      - name: set up runtime
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ needs.build.outputs.python-version }}
+          architecture: 'x64'
+      - name: restore build from cache
+        id: restore-build
+        uses: actions/cache@v2
+        with:
+          path: ${{ needs.build.outputs.python-location }}
+          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.pipfile }}
+      - name: run code linters
+        if: ${{ steps.restore-build.outputs.cache-hit }}
+        run: make code-linters
