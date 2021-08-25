@@ -42,13 +42,11 @@ jobs:
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: make venv-deploy-all
       - name: zip alpha
-        uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r alpha.zip ./
+        run: zip -qq -r alpha.zip .
       - name: zip alpha env
-        uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r alpha-env.zip ${{ env.pythonLocation }}/
+        run: |
+          cd / &&
+          zip -qq -r ${{ github.workspace }}/alpha-env.zip ${{ env.pythonLocation }}
       - name: upload alpha as artifact
         uses: actions/upload-artifact@v2
         with:
@@ -56,6 +54,7 @@ jobs:
           path: |
             alpha.zip
             alpha-env.zip
+          retention-days: 1
   setup-services:
     needs:
       - build
@@ -84,13 +83,9 @@ jobs:
         with:
           name: alpha-ci-artifacts
       - name: unzip alpha env
-        uses: montudor/action-zip@v1
-        with:
-          name: alpha-env.zip
+        run: unzip -qq -o alpha-env.zip -d /
       - name: unzip alpha
-        uses: montudor/action-zip@v1
-        with:
-          name: alpha.zip
+        run: unzip -qq -o alpha.zip -d ${{ github.workspace }}
       - name: perform release steps
         env:
           PGPASSFILE: config/.pgpass
@@ -112,13 +107,9 @@ jobs:
         with:
           name: alpha-ci-artifacts
       - name: unzip alpha env
-        uses: montudor/action-zip@v1
-        with:
-          name: alpha-env.zip
+        run: unzip -qq -o alpha-env.zip -d /
       - name: unzip alpha
-        uses: montudor/action-zip@v1
-        with:
-          name: alpha.zip
+        run: unzip -qq -o alpha.zip -d ${{ github.workspace }}
       - name: run production web server
         run: make run-prod &
   qa:
@@ -137,13 +128,9 @@ jobs:
         with:
           name: alpha-ci-artifacts
       - name: unzip alpha env
-        uses: montudor/action-zip@v1
-        with:
-          name: alpha-env.zip
+        run: unzip -qq -o alpha-env.zip -d /
       - name: unzip alpha
-        uses: montudor/action-zip@v1
-        with:
-          name: alpha.zip
+        run: unzip -qq -o alpha.zip -d ${{ github.workspace }}
       - name: qa checks
         run: make qa
       - name: store coverage artifact
