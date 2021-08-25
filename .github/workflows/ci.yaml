@@ -14,11 +14,11 @@ env:
   TEST_SERVICE_URL: "http://localhost:8000"
 
 jobs:
-  full-build-and-qa:
+  setup-services:
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        python-version: [3.8, 3.9]
+        os: [ ubuntu-latest ]
+        python-version: [ 3.9 ]
     runs-on: ${{ matrix.os }}
     services:
       postgres:
@@ -34,6 +34,19 @@ jobs:
           --health-interval 10s
           --health-retries 5
           --health-timeout 5s
+    steps:
+      - name: perform release steps
+        env:
+          PGPASSFILE: config/.pgpass
+        run: |
+          chmod 0600 config/.pgpass
+          make initdb release
+  build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        python-version: [ 3.9 ]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: pull code from repo
         uses: actions/checkout@v2
@@ -55,14 +68,29 @@ jobs:
       - name: install python packages
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: make venv-deploy-all
-      - name: perform release steps
-        env:
-          PGPASSFILE: config/.pgpass
-        run: |
-          chmod 0600 config/.pgpass
-          make initdb release
+  run-server:
+    needs:
+      - build
+      - setup-services
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        python-version: [ 3.9 ]
+    runs-on: ${{ matrix.os }}
+    steps:
       - name: run production web server
         run: make run-prod &
+  qa:
+    needs:
+      - build
+      - setup-services
+      - run-server
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        python-version: [ 3.9 ]
+    runs-on: ${{ matrix.os }}
+    steps:
       - name: qa checks
         run: make qa
       - name: store coverage artifact
