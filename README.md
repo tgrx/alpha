@@ -1,4 +1,4 @@
-# ALPHA 
+# ALPHA
 
 Thou shalt [use this repo as a set up](https://github.com/tgrx/tms-template/generate) for beginner to study web programming.
 
@@ -25,3 +25,8 @@ Thou shalt [use this repo as a set up](https://github.com/tgrx/tms-template/gene
 [![pytest](https://img.shields.io/github/pipenv/locked/dependency-version/tgrx/alpha/dev/pytest?color=white)](https://docs.pytest.org/en/6.2.x/)
 
 ---
+
+## Want to know more?
+
+1. [Constitution](docs/00-constitution.md)
+2. [Contributing](docs/01-contributing.md)
