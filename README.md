@@ -29,3 +29,4 @@ Thou shalt [use this repo as a set up](https://github.com/tgrx/tms-template/gene
 ## Want to know more?
 
 1. [Constitution](docs/00-constitution.md)
+2. [Contributing](docs/01-contributing.md)
