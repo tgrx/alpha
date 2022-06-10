@@ -14,6 +14,6 @@ Any issue MUST follow the rules:
 ### Labels
 
 1. `🔥 fire`: up to 1 hour
-2. `💨 air`: ~10 hours (about a day)
-3. `💦 water`: ~20 hours (2~3 days)
-4. `🌍 earth`: ~40 hours (a week)
+2. `💨 air`: 10 hours (about a day)
+3. `💦 water`: 20 hours (2..3 days)
+4. `🌍 earth`: 40 hours (a week)
