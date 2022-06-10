@@ -5,7 +5,7 @@
 ### Rules
 
 Any issue MUST follow the rules:
-1. Each issue describes the future, the existence of something.
+1. Each issue describes the future existence of something.
 2. Each issue must describe the need, the motivation of itself.
 3. Each issue must contain everything so anybody knows what do you want and how do you want it done.
 4. Each issue must have two roles: reporter and assignee, it does not matter if one person does cover two roles.
