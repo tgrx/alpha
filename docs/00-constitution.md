@@ -1,3 +1,5 @@
+[^^^](/)
+
 # CONSTITUTION
 
 ## Issues
