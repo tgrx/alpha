@@ -19,21 +19,16 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        python-version: [ 3.9 ]
     runs-on: ${{ matrix.os }}
     outputs:
       runs-on: ${{ matrix.os }}
-      python-version: ${{ matrix.python-version }}
       python-location: ${{ env.pythonLocation }}
       pipfile: ${{ steps.pipfile-hash.outputs.pipfile-hash }}
     steps:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: 'x64'
+        run: make setup-python
       - name: cache runtime
         id: cache-runtime
         uses: actions/cache@v2
@@ -71,10 +66,7 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ needs.build.outputs.python-version }}
-          architecture: 'x64'
+        run: make setup-python
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -107,10 +99,7 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ needs.build.outputs.python-version }}
-          architecture: 'x64'
+        run: make setup-python
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -128,10 +117,7 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ needs.build.outputs.python-version }}
-          architecture: 'x64'
+        run: make setup-python
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -149,10 +135,7 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ needs.build.outputs.python-version }}
-          architecture: 'x64'
+        run: make setup-python
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
