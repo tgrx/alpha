@@ -115,26 +115,20 @@ sh:
 	ipython
 
 
-.PHONY: venv-dir
-venv-dir:
-	$(call log, initializing venv directory)
-	test -d .venv || mkdir .venv
-
-
 .PHONY: venv
-venv: venv-dir
+venv:
 	$(call log, installing packages)
 	poetry install --no-root
 
 
-.PHONY: venv-deploy
-venv-deploy: venv-dir
+.PHONY: venv-prod
+venv-deploy:
 	$(call log, installing packages into system)
 	poetry install --no-dev --no-root
 
 
 .PHONY: venv-update
-venv-update: venv-dir
+venv-update:
 	$(call log, upgrading all packages in virtualenv)
 	poetry update
 
