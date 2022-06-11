@@ -28,7 +28,10 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        run: make setup-python
+        run: |
+          curl https://pyenv.run | bash
+          exec $SHELL
+          make setup-python
       - name: cache runtime
         id: cache-runtime
         uses: actions/cache@v2
@@ -66,7 +69,10 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        run: make setup-python
+        run: |
+          curl https://pyenv.run | bash
+          exec $SHELL
+          make setup-python
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -99,7 +105,10 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        run: make setup-python
+        run: |
+          curl https://pyenv.run | bash
+          exec $SHELL
+          make setup-python
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -117,7 +126,10 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        run: make setup-python
+        run: |
+          curl https://pyenv.run | bash
+          exec $SHELL
+          make setup-python
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -135,7 +147,10 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        run: make setup-python
+        run: |
+          curl https://pyenv.run | bash
+          exec $SHELL
+          make setup-python
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
