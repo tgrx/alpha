@@ -32,8 +32,8 @@ jobs:
       - name: set up runtime
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
           architecture: 'x64'
+          python-version: ${{ matrix.python-version }}
       - name: cache runtime
         id: cache-runtime
         uses: actions/cache@v2
@@ -73,8 +73,8 @@ jobs:
       - name: set up runtime
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
           architecture: 'x64'
+          python-version: ${{ needs.build.outputs.python-version }}
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -109,8 +109,8 @@ jobs:
       - name: set up runtime
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
           architecture: 'x64'
+          python-version: ${{ needs.build.outputs.python-version }}
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -130,8 +130,8 @@ jobs:
       - name: set up runtime
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
           architecture: 'x64'
+          python-version: ${{ needs.build.outputs.python-version }}
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -151,8 +151,8 @@ jobs:
       - name: set up runtime
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
           architecture: 'x64'
+          python-version: ${{ needs.build.outputs.python-version }}
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
