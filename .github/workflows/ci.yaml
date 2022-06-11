@@ -10,7 +10,7 @@ on:
 env:
   DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
   PGPASSFILE: config/.pgpass
-  PIPENV_VENV_IN_PROJECT: "1"
+  POETRY_VIRTUALENVS_CREATE: false
   PYTHONPATH: "src"
   TEST_SERVICE_URL: "http://localhost:8000"
 
@@ -19,13 +19,13 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        python-version: [ 3.10.4 ]
+        python-version: [ 3.10.5 ]
     runs-on: ${{ matrix.os }}
     outputs:
       runs-on: ${{ matrix.os }}
       python-location: ${{ env.pythonLocation }}
       python-version: ${{ matrix.python-version }}
-      pipfile: ${{ steps.pipfile-hash.outputs.pipfile-hash }}
+      poetry: ${{ steps.poetry-hash.outputs.poetry-hash }}
     steps:
       - name: pull code from repo
         uses: actions/checkout@v2
@@ -39,16 +39,16 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.pythonLocation }}
-          key: cache-runtime-${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('Pipfile.lock') }}
-      - name: set pipfile hash
-        id: pipfile-hash
-        run: echo "::set-output name=pipfile-hash::${{ hashFiles('Pipfile.lock') }}"
-      - name: install pipenv
+          key: cache-runtime-${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('poetry.lock') }}
+      - name: set poetry hash
+        id: poetry-hash
+        run: echo "::set-output name=poetry-hash::${{ hashFiles('poetry.lock') }}"
+      - name: install poetry
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
-        run: pip install pipenv
+        run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
       - name: install python packages
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
-        run: make venv-deploy-all
+        run: make venv
   run-tests:
     needs:
       - build
@@ -80,7 +80,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ needs.build.outputs.python-location }}
-          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.pipfile }}
+          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.poetry }}
       - name: perform release steps
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: |
@@ -116,7 +116,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ needs.build.outputs.python-location }}
-          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.pipfile }}
+          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.poetry }}
       - name: check code typing
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make code-typing
@@ -137,7 +137,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ needs.build.outputs.python-location }}
-          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.pipfile }}
+          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.poetry }}
       - name: check code format
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make code-format
@@ -158,7 +158,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ needs.build.outputs.python-location }}
-          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.pipfile }}
+          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.poetry }}
       - name: run code linters
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make code-linters
