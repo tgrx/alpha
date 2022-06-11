@@ -11,6 +11,7 @@ env:
   DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
   PGPASSFILE: config/.pgpass
   POETRY_VIRTUALENVS_CREATE: false
+  POETRY_VIRTUALENVS_IN_PROJECT: false
   PYTHONPATH: "src"
   TEST_SERVICE_URL: "http://localhost:8000"
 
@@ -45,10 +46,14 @@ jobs:
         run: echo "::set-output name=poetry-hash::${{ hashFiles('poetry.lock') }}"
       - name: install poetry
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
-        run: pip install poetry
+        run: |
+          pip install pipx
+          pipx install poetry
       - name: install python packages
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
-        run: make venv
+        run: |
+          make venv
+          rm -rf .venv
   run-tests:
     needs:
       - build
