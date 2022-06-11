@@ -57,10 +57,9 @@ jobs:
           pip install --requirement requirements.txt
       - name: healthcheck
         run: |
-          poetry env info
-          poetry env info --path
-          which mypy
+          mypy
           python -c 'import pydantic; print(pydantic)'
+          which python
   run-tests:
     needs:
       - build
