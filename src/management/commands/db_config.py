@@ -24,15 +24,15 @@ class DbConfigCommand(ManagementCommand):
         comps = settings.db_components_from_database_url()
 
         if self.option_is_active("--db-name"):
-            print(comps.DB_NAME)  # noqa: T001
+            print(comps.DB_NAME)  # noqa: T201
         elif self.option_is_active("--host"):
-            print(comps.DB_HOST)  # noqa: T001
+            print(comps.DB_HOST)  # noqa: T201
         elif self.option_is_active("--password"):
-            print(comps.DB_PASSWORD)  # noqa: T001
+            print(comps.DB_PASSWORD)  # noqa: T201
         elif self.option_is_active("--port"):
-            print(comps.DB_PORT)  # noqa: T001
+            print(comps.DB_PORT)  # noqa: T201
         elif self.option_is_active("--username"):
-            print(comps.DB_USER)  # noqa: T001
+            print(comps.DB_USER)  # noqa: T201
         else:
             full_config = f"""
                 URL:     \t{settings.DATABASE_URL}
@@ -44,4 +44,4 @@ class DbConfigCommand(ManagementCommand):
                 PORT:    \t{comps.DB_PORT}
                 DATABASE:\t{comps.DB_NAME}
             """
-            print(full_config)  # noqa: T001
+            print(full_config)  # noqa: T201

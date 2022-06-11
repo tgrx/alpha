@@ -130,6 +130,6 @@ def test_db_components_from_database_url() -> None:
     assert settings.DB_DRIVER == "postgresql"
     assert settings.DB_HOST == "h"
     assert settings.DB_NAME == "d"
-    assert settings.DB_PASSWORD == "p"
+    assert settings.DB_PASSWORD == "p"  # noqa: S105
     assert settings.DB_PORT == 1
     assert settings.DB_USER == "u"

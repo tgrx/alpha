@@ -1,4 +1,4 @@
-from collections import AsyncGenerator
+from typing import AsyncGenerator
 
 import httpx
 import pytest

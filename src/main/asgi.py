@@ -74,7 +74,7 @@ async def application(scope: Dict, receive: Callable, send: Callable) -> None:
 
     if path.startswith("/e"):
         logger.debug("here goes an error ...")
-        print(1 / 0)  # noqa: T001
+        print(1 / 0)  # noqa: T201
 
     request = await receive()
     logger.debug("request: %s", request)
