@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-if [[ ! "$(uname)" = "Darwin" ]]; then
-  echo "only Mac OS X is currently supported"
-  exit 1
-fi
-
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && pwd 2> /dev/null; )";
 
 version_required=$(cat "${SCRIPT_DIR}/../.python-version")
