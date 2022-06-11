@@ -14,7 +14,7 @@ env:
   POETRY_VIRTUALENVS_IN_PROJECT: false
   PYTHONPATH: "src"
   TEST_SERVICE_URL: "http://localhost:8000"
-  X: 1
+  X: 2
 
 jobs:
   build:
@@ -57,6 +57,8 @@ jobs:
           rm -rf .venv
       - name: healthcheck
         run: |
+          poetry env info
+          poetry env info --path
           which mypy
           python -c 'import pydantic; print(pydantic)'
   run-tests:
