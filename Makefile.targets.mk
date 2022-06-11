@@ -1,3 +1,8 @@
+.PHONY: setup
+setup: setup-python
+	$(call log, configuring the project)
+
+
 .PHONY: setup-python
 setup-python:
 	$(call log, configuring Python)
