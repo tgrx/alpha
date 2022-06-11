@@ -14,7 +14,7 @@ env:
   POETRY_VIRTUALENVS_IN_PROJECT: false
   PYTHONPATH: "src"
   TEST_SERVICE_URL: "http://localhost:8000"
-  X: 3
+  X: 4
 
 jobs:
   build:
@@ -53,7 +53,7 @@ jobs:
       - name: install python packages
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: |
-          poetry export --dev --format=requirements.txt --output=requirements.txt
+          poetry export --dev --format=requirements.txt --output=requirements.txt --without-hashes
           pip install --requirement requirements.txt
       - name: healthcheck
         run: |
