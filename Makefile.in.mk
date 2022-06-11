@@ -15,6 +15,7 @@ define log
 	@tput setaf 4  2>/dev/null || exit 0
 	@echo '-*-    $(1)    -*-'
 	@tput sgr0  2>/dev/null || exit 0
+	@tput sgr0  2>/dev/null || exit 0
 endef
 
 endif
