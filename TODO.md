@@ -8,6 +8,3 @@ when your work is on hold.
 Please keep them under the line.
 
 ---
-
-document that this works on mac os only for now
-add this ^ check into script: uname / darwin
