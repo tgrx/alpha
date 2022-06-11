@@ -19,19 +19,21 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
+        python-version: [ 3.10.4 ]
     runs-on: ${{ matrix.os }}
     outputs:
       runs-on: ${{ matrix.os }}
       python-location: ${{ env.pythonLocation }}
+      python-version: ${{ matrix.python-version }}
       pipfile: ${{ steps.pipfile-hash.outputs.pipfile-hash }}
     steps:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        run: |
-          curl https://pyenv.run | bash
-          exec $SHELL
-          make setup-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: 'x64'
       - name: cache runtime
         id: cache-runtime
         uses: actions/cache@v2
@@ -69,10 +71,10 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        run: |
-          curl https://pyenv.run | bash
-          exec $SHELL
-          make setup-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: 'x64'
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -105,10 +107,10 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        run: |
-          curl https://pyenv.run | bash
-          exec $SHELL
-          make setup-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: 'x64'
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -126,10 +128,10 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        run: |
-          curl https://pyenv.run | bash
-          exec $SHELL
-          make setup-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: 'x64'
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
@@ -147,10 +149,10 @@ jobs:
       - name: pull code from repo
         uses: actions/checkout@v2
       - name: set up runtime
-        run: |
-          curl https://pyenv.run | bash
-          exec $SHELL
-          make setup-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: 'x64'
       - name: restore build from cache
         id: restore-build
         uses: actions/cache@v2
