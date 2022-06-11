@@ -1,3 +1,14 @@
+.PHONY: setup
+setup: setup-python
+	$(call log, configuring the project)
+
+
+.PHONY: setup-python
+setup-python:
+	$(call log, configuring Python)
+	$(DIR_SCRIPTS)/setup_python.sh
+
+
 .PHONY: run
 run:
 	$(call log, starting application)

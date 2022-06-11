@@ -1,4 +1,4 @@
-`[^^^](../../../)`
+[^^^](../../../)
 
 # CONTRIBUTING
 
@@ -22,6 +22,6 @@ on your machine.
 
 ## Run the project
 
-1. `make setup`
+1. `make setup-python` — *now works only on Mac OS X*
 2. `make run`
 3. open [localhost](http://localhost:8000) in your browser
