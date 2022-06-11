@@ -124,31 +124,19 @@ venv-dir:
 .PHONY: venv
 venv: venv-dir
 	$(call log, installing packages)
-	pipenv install
-
-
-.PHONY: venv-dev
-venv-dev: venv-dir
-	$(call log, installing development packages)
-	pipenv install --dev
+	poetry install --no-root
 
 
 .PHONY: venv-deploy
 venv-deploy: venv-dir
 	$(call log, installing packages into system)
-	pipenv install --deploy --system
+	poetry install --no-dev --no-root
 
 
-.PHONY: venv-deploy-all
-venv-deploy-all: venv-dir
-	$(call log, installing all packages into system)
-	pipenv install --dev --deploy --system
-
-
-.PHONY: upgrade-venv
-upgrade-venv: venv-dir
+.PHONY: venv-update
+venv-update: venv-dir
 	$(call log, upgrading all packages in virtualenv)
-	pipenv update --dev
+	poetry update
 
 
 .PHONY: heroku
