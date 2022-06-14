@@ -43,7 +43,7 @@ class HerokuCommand(ManagementCommand):
     def _get_config(cls) -> None:
         response = cls._api_call()
         payload = response.json()
-        print(json.dumps(payload, sort_keys=True, indent=4))  # noqa: T001
+        print(json.dumps(payload, sort_keys=True, indent=4))  # noqa: T201
 
     @classmethod
     def _configure(cls) -> None:
@@ -60,7 +60,7 @@ class HerokuCommand(ManagementCommand):
             method="patch", path="config-vars", payload=payload
         )
         payload = response.json()
-        print(json.dumps(payload, sort_keys=True, indent=4))  # noqa: T001
+        print(json.dumps(payload, sort_keys=True, indent=4))  # noqa: T201
 
     @staticmethod
     def _api_call(

@@ -115,40 +115,22 @@ sh:
 	ipython
 
 
-.PHONY: venv-dir
-venv-dir:
-	$(call log, initializing venv directory)
-	test -d .venv || mkdir .venv
-
-
 .PHONY: venv
-venv: venv-dir
+venv:
 	$(call log, installing packages)
-	pipenv install
+	poetry install --no-root
 
 
-.PHONY: venv-dev
-venv-dev: venv-dir
-	$(call log, installing development packages)
-	pipenv install --dev
-
-
-.PHONY: venv-deploy
-venv-deploy: venv-dir
+.PHONY: venv-prod
+venv-deploy:
 	$(call log, installing packages into system)
-	pipenv install --deploy --system
+	poetry install --no-dev --no-root
 
 
-.PHONY: venv-deploy-all
-venv-deploy-all: venv-dir
-	$(call log, installing all packages into system)
-	pipenv install --dev --deploy --system
-
-
-.PHONY: upgrade-venv
-upgrade-venv: venv-dir
+.PHONY: venv-update
+venv-update:
 	$(call log, upgrading all packages in virtualenv)
-	pipenv update --dev
+	poetry update
 
 
 .PHONY: heroku
