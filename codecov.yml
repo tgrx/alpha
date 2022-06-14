@@ -10,7 +10,7 @@ coverage:
       default:
         only_pulls: true
         target: 50%
-        threshold: 0%
+        threshold: 100%
 
 parsers:
   gcov:
