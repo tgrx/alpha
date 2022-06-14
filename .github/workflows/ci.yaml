@@ -98,13 +98,6 @@ jobs:
       - name: run tests
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make tests coverage
-      - name: upload coverage to codecov.io
-        uses: codecov/codecov-action@v2
-        with:
-          files: ./coverage.xml
-          name: alpha
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
   check-code-typing:
     needs:
       - build
