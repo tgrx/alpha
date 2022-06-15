@@ -211,10 +211,11 @@ static:
 
 .PHONY: docker-build
 docker-build:
-	docker build \
+	docker buildx build \
 		--build-arg python_version=$(shell cat ./.python-version) \
 		--build-arg version=$(shell cat ./version.txt) \
 		--compress \
+		--platform linux/amd64 \
 		--tag alexandersidorov/alpha:latest \
 		.
 	docker tag \

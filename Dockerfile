@@ -3,7 +3,7 @@
 ARG python_version
 ARG version
 
-FROM python:${python_version}-slim
+FROM --platform=linux/amd64 python:${python_version}-slim
 
 LABEL description="The template for building a web project"
 LABEL org.opencontainers.image.authors="Alexander Sidorov <alexander@sidorov.dev>"
@@ -61,8 +61,8 @@ RUN install --owner alpha --directory "${SECRETS_DIR}"
 
 USER alpha
 
-EXPOSE $PORT
+EXPOSE ${PORT}
 
-ENTRYPOINT ["make", "run"]
+ENTRYPOINT ["make", "run-prod"]
 
 HEALTHCHECK --start-period=10s CMD curl -f http://localhost:${PORT}/ || exit 1
