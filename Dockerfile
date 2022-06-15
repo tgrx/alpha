@@ -1,17 +1,27 @@
-FROM python:3.10.4-slim
+# syntax=docker/dockerfile:1
+
+ARG python_version
+ARG version
+
+FROM python:${python_version}-slim
+
+LABEL description="The template for building a web project"
+LABEL org.opencontainers.image.authors="Alexander Sidorov <alexander@sidorov.dev>"
+LABEL version=${version}
 
 ENV POETRY_CACHE_DIR=/app/.poetry_cache \
     POETRY_VIRTUALENVS_CREATE=false \
     POETRY_VIRTUALENVS_IN_PROJECT=false \
-    PORT=80 \
+    PORT=${PORT:-80} \
     PYTHONPATH=/app/src:${PYTHONPATH} \
     SECRETS_DIR=/run/secrets
 
 
-RUN apt-get update
+RUN apt update && apt upgrade --yes
 
-RUN apt-get install --no-install-recommends --yes \
+RUN apt install --no-install-recommends --yes \
     bash \
+    curl \
     g++ \
     libffi-dev \
     libpq-dev \
@@ -19,16 +29,11 @@ RUN apt-get install --no-install-recommends --yes \
     netcat \
     python3-dev
 
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf /var/cache/apt/archives
-
-RUN useradd \
-    --create-home \
-    --shell /bin/bash \
-    alpha
+RUN apt clean && rm -rf /var/lib/apt/lists/* && rm -rf /var/cache/apt/archives
 
 WORKDIR /app
 
-COPY ./ ./
+COPY poetry.toml poetry.lock pyproject.toml .env ./
 
 RUN pip install --no-cache pipx
 
@@ -45,13 +50,19 @@ RUN pip install \
     --no-cache-dir \
     --requirement /app/requirements.txt
 
-RUN install --owner alpha --directory "${SECRETS_DIR}"
+COPY ./ ./
 
+RUN useradd \
+    --create-home \
+    --shell /bin/bash \
+    alpha
+
+RUN install --owner alpha --directory "${SECRETS_DIR}"
 
 USER alpha
 
-
 EXPOSE $PORT
 
+CMD ["make", "run"]
 
-CMD ["make", "run-prod"]
+HEALTHCHECK --start-period=10s CMD curl -f http://localhost:${PORT}/ || exit 1

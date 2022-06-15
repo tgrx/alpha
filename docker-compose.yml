@@ -1,20 +1,21 @@
 version: "3.9"
 services:
   alpha-web:
-    build: ./
+    build:
+      context: .
+      args:
+        - python_version=3.8.4
+        - version=dev
     container_name: alpha-web
     depends_on:
       - alpha-db
-    entrypoint: [ "make", "wait-for-db", "run-prod" ]
+    entrypoint: [ "make", "wait-for-db", "run" ]
     environment:
       DATABASE_URL: "postgresql://alpha:alpha@alpha-db:5432/alpha"
       MODE_DEBUG: 1
-      PORT: 80
-      PYTHONPATH: src
-      SECRETS_DIR: /run/secrets
-    image: alpha-web
+    image: alexandersidorov/alpha:dev
     ports:
-      - "8888:80"
+      - "8080:80"
     restart: unless-stopped
   alpha-db:
     container_name: alpha-db
@@ -24,21 +25,35 @@ services:
       POSTGRES_DB: alpha
     image: postgres:14.3-alpine
     ports:
-      - "5555:5432"
+      - "8081:5432"
     restart: unless-stopped
     volumes:
-      - alpha-volume:/var/lib/postgresql/data
+      - alpha-db:/var/lib/postgresql/data
   alpha-dba:
     container_name: alpha-dba
     image: adminer
     restart: unless-stopped
     ports:
-      - "5556:8080"
+      - "8082:8080"
     volumes:
-      - alpha-volume:/var/lib/postgresql/data
+      - alpha-db:/var/lib/postgresql/data
+  alpha-qa:
+    depends_on:
+      - alpha-web
+    container_name: alpha-qa
+    entrypoint: [ "make", "qa" ]
+    environment:
+      DATABASE_URL: "postgresql://alpha:alpha@alpha-db:5432/alpha"
+      MODE_DEBUG: 1
+      TEST_SERVICE_URL: "http://alpha-web"
+    image: alexandersidorov/alpha:dev
+    volumes:
+      - type: bind
+        source: ./.garbage/alpha-qa/
+        target: /app/.garbage
 volumes:
-  alpha-volume:
-    name: alpha-volume
+  alpha-db:
+    name: alpha-db
     driver: local
     driver_opts:
       type: tmpfs

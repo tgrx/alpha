@@ -3,14 +3,11 @@
 *.py[cod]
 *~
 .DS_Store
-.coverage
+.garbage/
 .idea/
-.pytest_cache/
 .secrets.*
 .venv/
+.vscode/
 __pycache__/
 config/.secrets/
-coverage.xml
-db.sqlite3
-htmlcov/
 venv/

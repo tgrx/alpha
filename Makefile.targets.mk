@@ -147,7 +147,7 @@ db: migrate
 .PHONY: wait-for-db
 wait-for-db:
 	$(call log, waiting for DB up)
-	$(DIR_SCRIPTS)/wait_for_postgresql.sh \
+	$(DIR_SCRIPTS)/wait_online.sh \
 		$(shell $(MANAGEMENT) db-config --host) \
 		$(shell $(MANAGEMENT) db-config --port) \
 		|| exit 1
@@ -207,6 +207,12 @@ data: static
 .PHONY: static
 static:
 	$(call log, collecting static)
+
+
+.PHONY: docker-build
+docker-build:
+	docker build --build-arg python_version=$(shell cat ./.python-version) --build-arg version=$(shell cat ./version.txt) --tag alexandersidorov/alpha:latest .
+	docker tag alexandersidorov/alpha:latest alexandersidorov/alpha:$(shell cat ./version.txt)
 
 
 .PHONY: docker-clean

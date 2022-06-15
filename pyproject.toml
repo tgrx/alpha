@@ -5,11 +5,10 @@ exclude = """
 (
   /(
       /.git
+    | /.garbage
     | /.github
-    | /.pytest_cache
     | /.run
     | /.venv
-    | /htmlcov
   )/
 )
 """
@@ -23,6 +22,7 @@ profile = "black"
 
 
 [tool.pytest.ini_options]
+cache_dir = ".garbage/pytest/"
 console_output_style = "count"
 filterwarnings = [
     "ignore::DeprecationWarning",
@@ -40,6 +40,7 @@ addopts = "--cov --no-cov-on-fail --cov-fail-under=0"
 
 
 [tool.mypy]
+cache_dir = ".garbage/mypy/"
 check_untyped_defs = true
 disallow_incomplete_defs = true
 disallow_untyped_calls = true

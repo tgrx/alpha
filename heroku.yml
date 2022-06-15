@@ -4,7 +4,7 @@ setup:
       as: DATABASE
 build:
   docker:
-    web: Dockerfile
+    web: heroku.Dockerfile
 release:
   command:
     - make wait-for-db release

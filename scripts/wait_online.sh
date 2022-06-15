@@ -8,4 +8,4 @@ for i in $(seq 1 30); do
   sleep 1
 done
 
-echo Failed waiting for Postgres && exit 1
+echo service is not online && exit 1

@@ -6,7 +6,7 @@ import pytest
 from framework.config import settings
 from main.asgi import application
 
-TIMEOUT = 4
+TIMEOUT = 20
 
 
 @pytest.fixture(scope="function")

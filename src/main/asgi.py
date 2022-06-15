@@ -59,8 +59,10 @@ async def get_db_settings() -> List[DbSetting]:
 
         db_settings = [DbSetting.parse_obj(rec) for rec in records]
 
-    except asyncpg.PostgresError:
-        pass
+    except (OSError, asyncpg.PostgresError) as err:
+        logger.exception(
+            "error: %s\ntraceback: %s", err, traceback.format_exc()
+        )
 
     return db_settings
 
