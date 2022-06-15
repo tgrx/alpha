@@ -218,6 +218,7 @@ docker-build:
 		--platform linux/amd64 \
 		--tag alexandersidorov/alpha:latest \
 		.
+
 	docker tag \
 		alexandersidorov/alpha:latest \
 		alexandersidorov/alpha:$(shell cat ./version.txt)
