@@ -7,7 +7,7 @@ build:
     web: heroku.Dockerfile
 release:
   command:
-    - "echo 1"
+    - make wait-for-db release
   image: web
 run:
-  web: "echo 2"
+  web: make run-prod
