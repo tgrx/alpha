@@ -22,7 +22,7 @@ services:
       POSTGRES_USER: alpha
       POSTGRES_PASSWORD: alpha
       POSTGRES_DB: alpha
-    image: postgres:13.4-alpine
+    image: postgres:14.3-alpine
     ports:
       - "5555:5432"
     restart: unless-stopped
@@ -43,4 +43,4 @@ volumes:
     driver_opts:
       type: tmpfs
       device: tmpfs
-      o: size=100m
+      o: size=256m

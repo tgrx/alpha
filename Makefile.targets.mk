@@ -209,16 +209,6 @@ static:
 	$(call log, collecting static)
 
 
-.PHONY: docker
-docker:
-	docker-compose build
-
-
-.PHONY: docker-run
-docker-run:
-	docker-compose up
-
-
 .PHONY: docker-clean
 docker-clean:
 	docker-compose stop || true
