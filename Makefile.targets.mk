@@ -211,8 +211,15 @@ static:
 
 .PHONY: docker-build
 docker-build:
-	docker build --build-arg python_version=$(shell cat ./.python-version) --build-arg version=$(shell cat ./version.txt) --tag alexandersidorov/alpha:latest .
-	docker tag alexandersidorov/alpha:latest alexandersidorov/alpha:$(shell cat ./version.txt)
+	docker build \
+		--build-arg python_version=$(shell cat ./.python-version) \
+		--build-arg version=$(shell cat ./version.txt) \
+		--compress \
+		--tag alexandersidorov/alpha:latest \
+		.
+	docker tag \
+		alexandersidorov/alpha:latest \
+		alexandersidorov/alpha:$(shell cat ./version.txt)
 
 
 .PHONY: docker-clean

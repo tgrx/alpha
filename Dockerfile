@@ -63,6 +63,6 @@ USER alpha
 
 EXPOSE $PORT
 
-CMD ["make", "run"]
+ENTRYPOINT ["make", "run"]
 
 HEALTHCHECK --start-period=10s CMD curl -f http://localhost:${PORT}/ || exit 1
