@@ -5,9 +5,9 @@ setup:
 build:
   docker:
     web: heroku.Dockerfile
-release:
-  command:
-    - make wait-for-db release
-  image: web
+#release:
+#  command:
+#    - make wait-for-db release
+#  image: web
 run:
   web: make run-prod
