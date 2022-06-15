@@ -2,4 +2,4 @@
 
 FROM alexandersidorov/alpha:latest
 
-ENTRYPOINT ["make", "run-prod"]
+CMD ["make", "run-prod"]
