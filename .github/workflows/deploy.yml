@@ -1,4 +1,4 @@
-name: DockerHub Push
+name: Deployment
 
 on:
   workflow_dispatch:
@@ -24,7 +24,7 @@ jobs:
         run: |
           echo ::set-output name=python_version::$(cat .python-version)
           echo ::set-output name=version::$(cat version.txt)
-      - name: Build and push
+      - name: Build and push image to DockerHub
         uses: docker/build-push-action@v3
         with:
           build-args: |
@@ -35,3 +35,10 @@ jobs:
           tags: |
             alexandersidorov/alpha:${{ steps.build-args.outputs.version }}
             alexandersidorov/alpha:latest
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "alphasrv"
+          heroku_email: "alexander@sidorov.dev"
+          branch: "main"
