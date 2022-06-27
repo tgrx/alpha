@@ -18,6 +18,7 @@ env:
 
 jobs:
   build:
+    name: 📦 Package is built.
     strategy:
       matrix:
         os:
@@ -31,34 +32,35 @@ jobs:
       python-version: ${{ matrix.python-version }}
       runs-on: ${{ matrix.os }}
     steps:
-      - name: pull code from repo
+      - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v2
-      - name: set up runtime
+      - name: 🐍 Python runtime is set up.
         uses: actions/setup-python@v2
         with:
           architecture: 'x64'
           python-version: ${{ matrix.python-version }}
-      - name: calculate cache key
+      - name: 🔑 Runtime cache key is calculated.
         id: cache-key
         run: |
           echo "::set-output name=value::cache-runtime-${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}"
-      - name: cache runtime
+      - name: 📦 Runtime is cached and restored.
         id: cache-runtime
         uses: actions/cache@v2
         with:
           key: ${{ steps.cache-key.outputs.value }}
           path: ${{ env.pythonLocation }}
-      - name: install poetry
+      - name: 🔌 Poetry is installed.
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: |
           pip install pipx
           pipx install poetry
-      - name: install python packages
+      - name: 🔋 Dependencies are installed.
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: |
           poetry export --dev --format=requirements.txt --output=requirements.txt --without-hashes
           pip install --requirement requirements.txt
   run-tests:
+    name: ☯️ Tests are passed.
     needs:
       - build
     runs-on: ${{ needs.build.outputs.runs-on }}
@@ -77,90 +79,93 @@ jobs:
           POSTGRES_PASSWORD: ci
           POSTGRES_USER: ci
     steps:
-      - name: pull code from repo
+      - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v2
-      - name: set up runtime
+      - name: 🐍 Python runtime is set up.
         uses: actions/setup-python@v2
         with:
           architecture: 'x64'
           python-version: ${{ needs.build.outputs.python-version }}
-      - name: restore build from cache
+      - name: 📦 Runtime is restored from cache.
         id: restore-build
         uses: actions/cache@v2
         with:
           key: ${{ needs.build.outputs.cache-key }}
           path: ${{ needs.build.outputs.python-location }}
-      - name: perform release steps
+      - name: 🪛 DB and release steps are performed.
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: |
           chmod 0600 config/.pgpass
           make initdb release
-      - name: run production web server
+      - name: 🚀 Web server is up.
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make run-prod &
-      - name: run tests
+      - name: ☯️ Tests are passed.
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make tests coverage
   check-code-typing:
+    name: ☯️ Code typing checks are passed.
     needs:
       - build
     runs-on: ${{ needs.build.outputs.runs-on }}
     steps:
-      - name: pull code from repo
+      - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v2
-      - name: set up runtime
+      - name: 🐍 Python runtime is set up.
         uses: actions/setup-python@v2
         with:
           architecture: 'x64'
           python-version: ${{ needs.build.outputs.python-version }}
-      - name: restore build from cache
+      - name: 📦 Runtime is restored from cache.
         id: restore-build
         uses: actions/cache@v2
         with:
           key: ${{ needs.build.outputs.cache-key }}
           path: ${{ needs.build.outputs.python-location }}
-      - name: check code typing
+      - name: ☯️ Code typing checks are passed.
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make code-typing
   check-code-format:
+    name: ☯️ Code format checks are passed.
     needs:
       - build
     runs-on: ${{ needs.build.outputs.runs-on }}
     steps:
-      - name: pull code from repo
+      - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v2
-      - name: set up runtime
+      - name: 🐍 Python runtime is set up.
         uses: actions/setup-python@v2
         with:
           architecture: 'x64'
           python-version: ${{ needs.build.outputs.python-version }}
-      - name: restore build from cache
+      - name: 📦 Runtime is restored from cache.
         id: restore-build
         uses: actions/cache@v2
         with:
           key: ${{ needs.build.outputs.cache-key }}
           path: ${{ needs.build.outputs.python-location }}
-      - name: check code format
+      - name: ☯️ Code format checks are passed.
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make code-format
   run-code-linters:
+    name: ☯️ Linters approve the code.
     needs:
       - build
     runs-on: ${{ needs.build.outputs.runs-on }}
     steps:
-      - name: pull code from repo
+      - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v2
-      - name: set up runtime
+      - name: 🐍 Python runtime is set up.
         uses: actions/setup-python@v2
         with:
           architecture: 'x64'
           python-version: ${{ needs.build.outputs.python-version }}
-      - name: restore build from cache
+      - name: 📦 Runtime is restored from cache.
         id: restore-build
         uses: actions/cache@v2
         with:
           key: ${{ needs.build.outputs.cache-key }}
           path: ${{ needs.build.outputs.python-location }}
-      - name: run code linters
+      - name: ☯️ Linters approve the code.
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make code-linters
