@@ -17,8 +17,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
       - name: Get build args
         id: build-args
         run: |
@@ -38,7 +38,7 @@ jobs:
       - name: Deploy to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
+          branch: "main"
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "alphasrv"
           heroku_email: "alexander@sidorov.dev"
-          branch: "main"

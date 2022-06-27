@@ -1,10 +1,10 @@
 name: QA
 
 on:
+  pull_request:
   push:
     branches:
       - main
-  pull_request:
   workflow_dispatch:
 
 env:
@@ -20,14 +20,16 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
-        python-version: [ 3.10.5 ]
+        os:
+          - ubuntu-latest
+        python-version:
+          - 3.10.4
     runs-on: ${{ matrix.os }}
     outputs:
-      runs-on: ${{ matrix.os }}
+      cache-key: ${{ steps.cache-key.outputs.value }}
       python-location: ${{ env.pythonLocation }}
       python-version: ${{ matrix.python-version }}
-      poetry: ${{ steps.poetry-hash.outputs.poetry-hash }}
+      runs-on: ${{ matrix.os }}
     steps:
       - name: pull code from repo
         uses: actions/checkout@v2
@@ -36,15 +38,16 @@ jobs:
         with:
           architecture: 'x64'
           python-version: ${{ matrix.python-version }}
+      - name: calculate cache key
+        id: cache-key
+        run: |
+          echo "::set-output name=value::cache-runtime-${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}"
       - name: cache runtime
         id: cache-runtime
         uses: actions/cache@v2
         with:
+          key: ${{ steps.cache-key.outputs.value }}
           path: ${{ env.pythonLocation }}
-          key: cache-runtime-${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}
-      - name: set poetry hash
-        id: poetry-hash
-        run: echo "::set-output name=poetry-hash::${{ hashFiles('poetry.lock') }}"
       - name: install poetry
         if: ${{ !steps.cache-runtime.outputs.cache-hit }}
         run: |
@@ -85,8 +88,8 @@ jobs:
         id: restore-build
         uses: actions/cache@v2
         with:
+          key: ${{ needs.build.outputs.cache-key }}
           path: ${{ needs.build.outputs.python-location }}
-          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.poetry }}-${{ env.CACHE_CUSTOM_KEY }}
       - name: perform release steps
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: |
@@ -114,8 +117,8 @@ jobs:
         id: restore-build
         uses: actions/cache@v2
         with:
+          key: ${{ needs.build.outputs.cache-key }}
           path: ${{ needs.build.outputs.python-location }}
-          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.poetry }}-${{ env.CACHE_CUSTOM_KEY }}
       - name: check code typing
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make code-typing
@@ -135,8 +138,8 @@ jobs:
         id: restore-build
         uses: actions/cache@v2
         with:
+          key: ${{ needs.build.outputs.cache-key }}
           path: ${{ needs.build.outputs.python-location }}
-          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.poetry }}-${{ env.CACHE_CUSTOM_KEY }}
       - name: check code format
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make code-format
@@ -156,8 +159,8 @@ jobs:
         id: restore-build
         uses: actions/cache@v2
         with:
+          key: ${{ needs.build.outputs.cache-key }}
           path: ${{ needs.build.outputs.python-location }}
-          key: cache-runtime-${{ needs.build.outputs.runs-on }}-${{ needs.build.outputs.python-location }}-${{ needs.build.outputs.poetry }}-${{ env.CACHE_CUSTOM_KEY }}
       - name: run code linters
         if: ${{ steps.restore-build.outputs.cache-hit }}
         run: make code-linters
