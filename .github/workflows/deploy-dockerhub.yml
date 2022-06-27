@@ -1,4 +1,4 @@
-name: Deployment
+name: Deploy to DockerHub
 
 on:
   workflow_dispatch:
@@ -36,18 +36,3 @@ jobs:
           tags: |
             alexandersidorov/alpha:${{ steps.build-args.outputs.version }}
             alexandersidorov/alpha:latest
-  heroku:
-    name: 💾 Image is deployed to Heroku.
-    needs:
-      - docker
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Code is pulled from repo.
-        uses: actions/checkout@v3
-      - name: 💾 Image is deployed to Heroku.
-        uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          branch: "main"
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "alphasrv"
-          heroku_email: "alexander@sidorov.dev"
