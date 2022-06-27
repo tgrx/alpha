@@ -42,6 +42,8 @@ jobs:
       - docker
     runs-on: ubuntu-latest
     steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
       - name: 💾 Image is deployed to Heroku.
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
