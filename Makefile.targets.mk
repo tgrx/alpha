@@ -46,7 +46,7 @@ docs-run:
 .PHONY: docs-deploy
 docs-deploy:
 	$(call log, deploying docs)
-	(cd $(DIR_DOCS) && mkdocs gh-deploy)
+	(cd $(DIR_DOCS) && mkdocs gh-deploy --force)
 
 
 .PHONY: format
