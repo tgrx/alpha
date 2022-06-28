@@ -37,6 +37,18 @@ run-prod:
 	gunicorn --config="$(DIR_CONFIG)/gunicorn.conf.py" $(APPLICATION)
 
 
+.PHONY: docs-run
+docs-run:
+	$(call log, starting docs server)
+	(cd $(DIR_DOCS) && mkdocs serve)
+
+
+.PHONY: docs-deploy
+docs-deploy:
+	$(call log, deploying docs)
+	(cd $(DIR_DOCS) && mkdocs gh-deploy)
+
+
 .PHONY: format
 format:
 	$(call log, reorganizing imports & formatting code)

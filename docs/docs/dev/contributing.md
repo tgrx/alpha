@@ -1,6 +1,4 @@
-[^^^](../../../)
-
-# CONTRIBUTING
+# Contributing
 
 ## Prerequisites
 

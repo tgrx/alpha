@@ -10,4 +10,5 @@
 .vscode/
 __pycache__/
 config/.secrets/
+docs/site
 venv/
