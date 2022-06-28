@@ -133,3 +133,23 @@ def test_db_components_from_database_url() -> None:
     assert settings.DB_PASSWORD == "p"  # noqa: S105
     assert settings.DB_PORT == 1
     assert settings.DB_USER == "u"
+
+
+@mock.patch.dict(
+    os.environ,
+    {
+        "DATABASE_URL": "postgresql://u:p@h:1/d",
+    },
+    clear=True,
+)
+@mock.patch("framework.config.Settings.Config.secrets_dir", None)
+def test_issue_51_db_url_integer_port() -> None:
+    settings = Settings().db_components_from_database_url()
+    assert settings.DB_PORT == 1
+    url = settings.database_url_from_db_components()
+    assert url == "postgresql://u:p@h:1/d"
+
+    settings.DB_PORT = 5432
+    assert settings.DB_PORT == 5432
+    url = settings.database_url_from_db_components()
+    assert url == "postgresql://u:p@h:5432/d"

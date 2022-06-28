@@ -62,7 +62,7 @@ class DatabaseSettings(BaseSettings):
         if not self.DB_USER and self.DB_PASSWORD:
             fail_validation("db user MUST be set when password is set")
 
-        netloc = ":".join(filter(bool, (self.DB_HOST, self.DB_PORT)))  # type: ignore  # noqa: E501
+        netloc = ":".join(map(str, filter(bool, (self.DB_HOST, self.DB_PORT))))
         userinfo = ":".join(filter(bool, (self.DB_USER, self.DB_PASSWORD)))  # type: ignore  # noqa: E501
 
         if not netloc and userinfo:

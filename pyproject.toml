@@ -65,7 +65,7 @@ ignore_missing_imports = true
 
 [tool.poetry]
 name = "alpha"
-version = "1.0.0"
+version = "2022.06.15"
 description = "A template for web project"
 authors = ["Alexander Sidorov <alexander@sidorov.dev>"]
 license = "MIT"
