@@ -73,11 +73,14 @@ qa: tests coverage code-typing code-format code-linters
 
 .PHONY: tests
 tests:
-	$(call log, running tests)
-	rm -f .coverage
-	rm -f coverage.xml
-	rm -rf htmlcov
+	$(call log, running all tests)
 	pytest
+
+
+.PHONY: tests-unit
+tests-unit:
+	$(call log, running unit tests)
+	pytest -m unit
 
 
 .PHONY: coverage
