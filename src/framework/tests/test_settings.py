@@ -146,8 +146,10 @@ def test_db_components_from_database_url() -> None:
 def test_issue_51_db_url_integer_port() -> None:
     settings = Settings().db_components_from_database_url()
     assert settings.DB_PORT == 1
-    assert settings.database_url_from_db_components() == "postgresql://u:p@h:1/d"
+    url = settings.database_url_from_db_components()
+    assert url == "postgresql://u:p@h:1/d"
 
-    settings.PORT = 5432
+    settings.DB_PORT = 5432
     assert settings.DB_PORT == 5432
-    assert settings.database_url_from_db_components() == "postgresql://u:p@h:5432/d"
+    url = settings.database_url_from_db_components()
+    assert url == "postgresql://u:p@h:5432/d"
