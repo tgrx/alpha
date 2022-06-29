@@ -6,8 +6,8 @@ from unittest import mock
 import pytest
 from pydantic import ValidationError
 
-from framework.config import DatabaseSettings
-from framework.config import Settings
+from alpha.settings import DatabaseSettings
+from alpha.settings import Settings
 
 pytestmark = [
     pytest.mark.unit,
@@ -15,7 +15,7 @@ pytestmark = [
 
 
 @mock.patch.dict(os.environ, {}, clear=True)
-@mock.patch("framework.config.Settings.Config.secrets_dir", None)
+@mock.patch.object(Settings.Config, "secrets_dir", None)
 def test_default_settings() -> None:
     settings = Settings()
     nr_cpus = 2 * cpu_count() + 1
@@ -38,7 +38,6 @@ def test_default_settings() -> None:
 
 
 @mock.patch.dict(os.environ, {}, clear=True)
-@mock.patch("framework.config.Settings.Config.secrets_dir", None)
 def test_database_url_from_db_components() -> None:
     with pytest.raises(ValidationError) as exc_info:
         Settings().database_url_from_db_components()
@@ -123,7 +122,6 @@ def test_database_url_from_db_components() -> None:
     },
     clear=True,
 )
-@mock.patch("framework.config.Settings.Config.secrets_dir", None)
 def test_db_components_from_database_url() -> None:
     settings = Settings().db_components_from_database_url()
 
@@ -142,7 +140,6 @@ def test_db_components_from_database_url() -> None:
     },
     clear=True,
 )
-@mock.patch("framework.config.Settings.Config.secrets_dir", None)
 def test_issue_51_db_url_integer_port() -> None:
     settings = Settings().db_components_from_database_url()
     assert settings.DB_PORT == 1

@@ -5,9 +5,10 @@ from typing import Optional
 
 import httpx
 
-from framework.config import settings
+from alpha.settings import Settings
 from management.commands.abstract import ManagementCommand
 
+settings = Settings()
 HEROKU_API_URL = "https://api.heroku.com/apps"
 
 

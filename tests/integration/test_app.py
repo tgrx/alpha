@@ -54,7 +54,7 @@ async def test_asgi_app(asgi_client: httpx.AsyncClient) -> None:
         await asgi_client.get("/e")
 
 
-@pytest.mark.webapp
+@pytest.mark.integration
 async def test_web_app(web_client: httpx.AsyncClient) -> None:
     try:
         resp: httpx.Response = await web_client.get("/")
@@ -69,7 +69,7 @@ async def test_web_app(web_client: httpx.AsyncClient) -> None:
         ) from err
 
 
-@pytest.mark.webapp
+@pytest.mark.integration
 async def test_error_handling_webapp(web_client: httpx.AsyncClient) -> None:
     resp: httpx.Response = await web_client.get("/e")
     assert resp.status_code == 500

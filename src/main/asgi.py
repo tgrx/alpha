@@ -1,4 +1,3 @@
-import traceback
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 from typing import Callable
@@ -9,8 +8,8 @@ from typing import Optional
 import asyncpg
 import sentry_sdk
 
-from framework.config import settings
-from framework.logging import get_logger
+from alpha.logging import logger
+from alpha.settings import Settings
 from main.custom_types import DbSetting
 from main.custom_types import HostPortT
 from main.custom_types import PayloadT
@@ -18,21 +17,24 @@ from main.custom_types import RequestT
 from main.custom_types import ScopeAsgiT
 from main.custom_types import ScopeT
 
-sentry_sdk.init(settings.SENTRY_DSN, traces_sample_rate=1.0)
+settings = Settings()
 
-logger = get_logger("asgi")
+sentry_sdk.init(settings.SENTRY_DSN, traces_sample_rate=1.0)
 
 
 @asynccontextmanager
 async def get_db_connection() -> AsyncIterator:
     conn: Optional[asyncpg.Connection] = None
+    log = logger.bind(db=settings.DATABASE_URL)
     try:
+        log.debug("attempt to connect to db")
         conn = await asyncpg.connect(settings.DATABASE_URL)
         yield conn
     except Exception:
-        logger.error(traceback.format_exc())
+        log.exception("database is not available")
         raise
     finally:
+        log.debug("closing the connection")
         if conn is not None:
             await conn.close()
 
@@ -52,6 +54,7 @@ async def get_db_settings() -> List[DbSetting]:
     db_settings: List[DbSetting] = []
 
     try:
+        logger.debug("get db settings", sql=sql)
         conn: asyncpg.Connection
         async with get_db_connection() as conn:
             stmt = await conn.prepare(sql)
@@ -60,9 +63,7 @@ async def get_db_settings() -> List[DbSetting]:
         db_settings = [DbSetting.parse_obj(rec) for rec in records]
 
     except (OSError, asyncpg.PostgresError) as err:
-        logger.exception(
-            "error: %s\ntraceback: %s", err, traceback.format_exc()
-        )
+        logger.exception("db exception", err=err)
 
     return db_settings
 

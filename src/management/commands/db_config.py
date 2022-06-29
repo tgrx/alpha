@@ -1,5 +1,7 @@
-from framework.config import settings
+from alpha.settings import Settings
 from management.commands.abstract import ManagementCommand
+
+settings = Settings()
 
 
 class DbConfigCommand(ManagementCommand):
