@@ -1,5 +1,5 @@
-from alpha.settings import Settings
 from alpha.dirs import DIR_SRC
+from alpha.settings import Settings
 
 settings = Settings()
 

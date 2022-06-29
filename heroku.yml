@@ -2,6 +2,9 @@ setup:
   addons:
     - plan: heroku-postgresql
       as: DATABASE
+  config:
+    MODE_DEBUG: 0
+    PYTHONPATH: src
 build:
   docker:
     web: heroku.Dockerfile
