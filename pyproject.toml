@@ -28,11 +28,11 @@ filterwarnings = [
     "ignore::DeprecationWarning",
 ]
 markers = [
-    "functional",
-    "webapp",
+    "integration",
     "unit",
 ]
 testpaths = [
+    "src/alpha",
     "src/framework/tests",
     "tests",
 ]
