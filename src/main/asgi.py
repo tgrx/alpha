@@ -73,14 +73,14 @@ async def application(scope: Dict, receive: Callable, send: Callable) -> None:
         return
 
     path = scope["path"]
-    logger.debug("path: %s", path)
+    log = logger.bind(path=path)
 
     if path.startswith("/e"):
-        logger.debug("here goes an error ...")
+        log.debug("here goes an error ...")
         print(1 / 0)  # noqa: T201
 
     request = await receive()
-    logger.debug("request: %s", request)
+    log.debug("get request", request=request)
 
     await send(
         {
@@ -102,7 +102,7 @@ async def application(scope: Dict, receive: Callable, send: Callable) -> None:
         }
     )
 
-    logger.debug("response has been sent")
+    log.debug("response has been sent")
 
 
 def build_payload(
