@@ -6,7 +6,6 @@ from typing import List
 from typing import Optional
 
 import asyncpg
-import sentry_sdk
 
 from alpha.logging import logger
 from alpha.settings import Settings
@@ -18,8 +17,6 @@ from main.custom_types import ScopeAsgiT
 from main.custom_types import ScopeT
 
 settings = Settings()
-
-sentry_sdk.init(settings.SENTRY_DSN, traces_sample_rate=1.0)
 
 
 @asynccontextmanager
@@ -138,3 +135,11 @@ def build_payload(
     )
 
     return payload
+
+
+if not settings.MODE_DEBUG and settings.SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
+
+    sentry_sdk.init(settings.SENTRY_DSN, traces_sample_rate=1.0)
+    application = SentryAsgiMiddleware(application)

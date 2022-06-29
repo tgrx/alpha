@@ -1,5 +1,5 @@
+from alpha.management.commands.abstract import ManagementCommand
 from alpha.settings import Settings
-from management.commands.abstract import ManagementCommand
 
 settings = Settings()
 

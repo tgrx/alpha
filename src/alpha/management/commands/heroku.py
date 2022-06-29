@@ -5,8 +5,8 @@ from typing import Optional
 
 import httpx
 
+from alpha.management.commands.abstract import ManagementCommand
 from alpha.settings import Settings
-from management.commands.abstract import ManagementCommand
 
 settings = Settings()
 HEROKU_API_URL = "https://api.heroku.com/apps"
@@ -32,7 +32,7 @@ class HerokuCommand(ManagementCommand):
         assert settings.HEROKU_APP_NAME, "Heroku app name is not configured"
         assert (
             settings.HEROKU_API_TOKEN
-        ), "Heroku API token is not set: see https://help.heroku.com/PBGP6IDE/"
+        ), "HEROKU_API_TOKEN is not set: see https://help.heroku.com/PBGP6IDE/"
 
     def __call__(self) -> None:
         if self.option_is_active("--configure"):

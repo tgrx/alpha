@@ -52,4 +52,4 @@ DIR_TESTS := $(abspath $(DIR_REPO)/tests)
 # calculated variables
 
 PYTHON := python
-MANAGEMENT := $(PYTHON) -m management
+MANAGEMENT := $(PYTHON) -m alpha.management

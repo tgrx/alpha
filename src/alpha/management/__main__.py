@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from management.commands import COMMANDS
+from alpha.management.commands import COMMANDS
 
 
 def main() -> None:

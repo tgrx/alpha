@@ -26,6 +26,7 @@ run-dev:
 		--reload \
 		--reload-dir $(DIR_CONFIG) \
 		--reload-dir $(DIR_SRC) \
+		--reload-include .env \
 		--workers 1 \
 		--ws none \
 		$(APPLICATION)
