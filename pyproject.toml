@@ -83,6 +83,7 @@ rich = "^12.4.4"
 sentry-sdk = "^1.5.12"
 structlog = "^21.5.0"
 uvicorn = {extras = ["standard"], version = "^0.17.6"}
+attrs = "^21.4.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
