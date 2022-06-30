@@ -1,3 +1,4 @@
+!tmp/.gitkeep
 *.bak
 *.log
 *.py[cod]
