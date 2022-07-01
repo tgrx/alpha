@@ -1,5 +1,7 @@
-from framework.config import settings
-from framework.dirs import DIR_SRC
+from alpha.dirs import DIR_SRC
+from alpha.settings import Settings
+
+settings = Settings()
 
 bind = f"0.0.0.0:{settings.PORT}"
 chdir = DIR_SRC.as_posix()

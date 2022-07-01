@@ -3,9 +3,10 @@ from typing import AsyncGenerator
 import httpx
 import pytest
 
-from framework.config import settings
+from alpha.settings import Settings
 from main.asgi import application
 
+settings = Settings()
 TIMEOUT = 20
 
 

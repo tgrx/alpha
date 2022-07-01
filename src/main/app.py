@@ -1,8 +1,10 @@
 import uvicorn
 
-from framework.config import settings
-from framework.logging import get_logger
+from alpha.logging import logger
+from alpha.settings import Settings
 from main.asgi import application
+
+settings = Settings()
 
 SERVER_RUNNING_BANNER = """
 +----------------------------------------+
@@ -10,17 +12,17 @@ SERVER_RUNNING_BANNER = """
 +----------------------------------------+
 
 Visit http://{host}:{port}
+Or:   {test_url}
 
 ..........................................
 """
-
-logger = get_logger("app")
 
 
 def run() -> None:
     banner = SERVER_RUNNING_BANNER.format(
         host=settings.HOST,
         port=settings.PORT,
+        test_url=settings.TEST_SERVICE_URL,
     )
     logger.info(banner)
 

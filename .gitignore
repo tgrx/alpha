@@ -12,3 +12,7 @@ __pycache__/
 config/.secrets/
 docs/site
 venv/
+
+tmp/
+!tmp/.gitkeep
+

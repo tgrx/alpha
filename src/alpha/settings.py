@@ -8,7 +8,7 @@ from pydantic import Field
 from pydantic import ValidationError
 from pydantic.error_wrappers import ErrorWrapper
 
-from framework.dirs import DIR_CONFIG_SECRETS
+from alpha.dirs import DIR_CONFIG_SECRETS
 
 
 class DatabaseSettings(BaseSettings):
@@ -42,6 +42,11 @@ class DatabaseSettings(BaseSettings):
         secrets_dir = DIR_CONFIG_SECRETS.as_posix()
 
     def database_url_from_db_components(self) -> str:
+        """
+        Returns database url composed from database components.
+        Does not update self DATABASE_URL.
+        """
+
         def fail_validation(error_message: str) -> NoReturn:
             raise ValidationError(
                 errors=[
@@ -77,6 +82,28 @@ class DatabaseSettings(BaseSettings):
 
         return url
 
+    def db_components_from_database_url(self) -> "DatabaseSettings":
+        """
+        Returns new instance with components extracted from DATABASE_URL.
+        Returns self copy if DATABASE_URL is not set.
+        Does not update self components.
+        """
+
+        if not self.DATABASE_URL:
+            return DatabaseSettings()
+
+        components = urlsplit(self.DATABASE_URL)
+
+        return DatabaseSettings(
+            DATABASE_URL=self.DATABASE_URL,
+            DB_DRIVER=components.scheme,
+            DB_HOST=components.hostname,
+            DB_NAME=components.path[1:],
+            DB_PASSWORD=components.password,
+            DB_PORT=components.port,
+            DB_USER=components.username,
+        )
+
 
 class Settings(DatabaseSettings):
     __name__ = "Settings"  # noqa: VNE003
@@ -90,21 +117,3 @@ class Settings(DatabaseSettings):
     SENTRY_DSN: Optional[str] = Field()
     TEST_SERVICE_URL: str = Field(default="http://localhost:8000")
     WEB_CONCURRENCY: int = Field(default=cpu_count() * 2 + 1)
-
-    def db_components_from_database_url(self) -> DatabaseSettings:
-        if not self.DATABASE_URL:
-            return DatabaseSettings()
-
-        components = urlsplit(self.DATABASE_URL)
-
-        return DatabaseSettings(
-            DB_DRIVER=components.scheme,
-            DB_HOST=components.hostname,
-            DB_NAME=components.path[1:],
-            DB_PASSWORD=components.password,
-            DB_PORT=components.port,
-            DB_USER=components.username,
-        )
-
-
-settings: Settings = Settings()
