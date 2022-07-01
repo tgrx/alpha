@@ -164,8 +164,8 @@ db: migrate
 wait-for-db:
 	$(call log, waiting for DB up)
 	$(DIR_SCRIPTS)/wait_online.sh \
-		$(shell $(MANAGEMENT) db --host) \
-		$(shell $(MANAGEMENT) db --port) \
+		$(shell $(MANAGEMENT) db host) \
+		$(shell $(MANAGEMENT) db port) \
 		|| exit 1
 
 
@@ -184,12 +184,12 @@ dropdb:
 	$(call log, dropping the DB)
 	dropdb \
 		--echo \
-		--host=$(shell $(MANAGEMENT) db --host) \
+		--host=$(shell $(MANAGEMENT) db host) \
 		--if-exists \
 		--maintenance-db=postgres\
-		--port=$(shell $(MANAGEMENT) db --port) \
-		--username=$(shell $(MANAGEMENT) db --username) \
-		$(shell $(MANAGEMENT) db --db)
+		--port=$(shell $(MANAGEMENT) db port) \
+		--username=$(shell $(MANAGEMENT) db user) \
+		$(shell $(MANAGEMENT) db name)
 
 
 .PHONY: createdb
@@ -197,12 +197,12 @@ createdb:
 	$(call log, creating the DB)
 	createdb \
 		--echo \
-		--host=$(shell $(MANAGEMENT) db --host) \
+		--host=$(shell $(MANAGEMENT) db host) \
 		--maintenance-db=postgres\
-		--owner=$(shell $(MANAGEMENT) db --username) \
-		--port=$(shell $(MANAGEMENT) db --port) \
-		--username=$(shell $(MANAGEMENT) db --username)\
-		$(shell $(MANAGEMENT) db --db)
+		--owner=$(shell $(MANAGEMENT) db user) \
+		--port=$(shell $(MANAGEMENT) db port) \
+		--username=$(shell $(MANAGEMENT) db user)\
+		$(shell $(MANAGEMENT) db name)
 
 
 .PHONY: migrations
@@ -245,4 +245,3 @@ docker-clean:
 	docker-compose stop || true
 	docker-compose down || true
 	docker-compose rm --force || true
-	docker system prune --force

@@ -7,9 +7,7 @@ import httpx
 from alpha.management.common import ManagementContext
 from alpha.management.common import json_dumps
 from alpha.management.common import pass_mgmt_context
-from alpha.settings import Settings
 
-settings = Settings()
 HEROKU_API_URL = "https://api.heroku.com/apps"
 
 
@@ -32,7 +30,7 @@ def command_heroku(
     *,
     configure: bool = False,
 ) -> None:
-    validate()
+    validate(mc)
 
     if configure:
         return do_configure(mc)
@@ -45,7 +43,7 @@ def do_configure(mc: ManagementContext) -> None:
         name: value
         for name, value in {
             "PYTHONPATH": "src",
-            "SENTRY_DSN": settings.SENTRY_DSN,
+            "SENTRY_DSN": mc.settings.SENTRY_DSN,
         }.items()
         if value is not None
     }
@@ -77,11 +75,11 @@ def call_api(
 ) -> httpx.Response:
     headers = {
         "Accept": "application/vnd.heroku+json; version=3",
-        "Authorization": f"Bearer {settings.HEROKU_API_TOKEN}",
+        "Authorization": f"Bearer {mc.settings.HEROKU_API_TOKEN}",
         "Content-Type": "application/json",
     }
 
-    url = f"{HEROKU_API_URL}/{settings.HEROKU_APP_NAME}/{path}"
+    url = f"{HEROKU_API_URL}/{mc.settings.HEROKU_APP_NAME}/{path}"
 
     meth = getattr(httpx, method.lower())
 
@@ -111,11 +109,11 @@ def call_api(
     return response
 
 
-def validate() -> None:
-    if not settings.HEROKU_APP_NAME:
+def validate(mc: ManagementContext) -> None:
+    if not mc.settings.HEROKU_APP_NAME:
         raise click.UsageError("HEROKU_APP_NAME is not configured.")
 
-    if not settings.HEROKU_API_TOKEN:
+    if not mc.settings.HEROKU_API_TOKEN:
         raise click.UsageError(
             "HEROKU_API_TOKEN is not set: "
             "see https://help.heroku.com/PBGP6IDE/"

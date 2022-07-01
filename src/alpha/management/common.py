@@ -4,9 +4,12 @@ import attrs
 import click
 import orjson
 
+from alpha.settings import Settings
+
 
 @attrs.define
 class ManagementContext:
+    settings: Settings = attrs.field(factory=Settings)
     verbose: int = attrs.field(default=0)
 
 
