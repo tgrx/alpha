@@ -11,34 +11,38 @@ from alpha.management.common import pass_mgmt_context
 HEROKU_API_URL = "https://api.heroku.com/apps"
 
 
-@click.command(
-    help=(
-        "Heroku management command."
-        " If called without arguments, prints an app config in JSON format."
-        " Both HEROKU_APP_NAME and HEROKU_API_KEY MUST be configured."
-    )
-)
+@click.group()
+@pass_mgmt_context
+def main(mc: ManagementContext) -> None:
+    """
+    Heroku Management Tool
+
+    Both HEROKU_APP_NAME and HEROKU_API_KEY MUST be configured.
+    """
+
+    if not mc.settings.HEROKU_APP_NAME:
+        raise click.UsageError("HEROKU_APP_NAME is not configured.")
+
+    if not mc.settings.HEROKU_API_TOKEN:
+        raise click.UsageError(
+            "HEROKU_API_TOKEN is not set: "
+            "see https://help.heroku.com/PBGP6IDE/"
+        )
+
+
+@main.command(name="set-config-vars")
 @click.option(
-    "--configure",
+    "--dry-run",
     is_flag=True,
-    help="Configures your app on Heroku.",
     default=False,
+    help="Displays the new config vars without patching.",
 )
 @pass_mgmt_context
-def command_heroku(
-    mc: ManagementContext,
-    *,
-    configure: bool = False,
-) -> None:
-    validate(mc)
+def set_config_vars(mc: ManagementContext, *, dry_run: bool = False) -> None:
+    """
+    Sets config vars for app on Heroku.
+    """
 
-    if configure:
-        return do_configure(mc)
-
-    return do_output_config(mc)
-
-
-def do_configure(mc: ManagementContext) -> None:
     payload = {
         name: value
         for name, value in {
@@ -47,6 +51,12 @@ def do_configure(mc: ManagementContext) -> None:
         }.items()
         if value is not None
     }
+
+    if dry_run:
+        click.echo(json_dumps(payload))
+        if mc.verbose:
+            click.secho("\nDRY RUN!", fg="yellow")
+        return
 
     response = call_api(
         mc,
@@ -59,7 +69,13 @@ def do_configure(mc: ManagementContext) -> None:
     click.echo(msg)
 
 
-def do_output_config(mc: ManagementContext) -> None:
+@main.command(name="app")
+@pass_mgmt_context
+def echo_app_config(mc: ManagementContext) -> None:
+    """
+    Displays app config in JSON format.
+    """
+
     response = call_api(mc)
     payload = response.json()
     msg = json_dumps(payload)
@@ -107,17 +123,6 @@ def call_api(
         raise click.UsageError(msg)
 
     return response
-
-
-def validate(mc: ManagementContext) -> None:
-    if not mc.settings.HEROKU_APP_NAME:
-        raise click.UsageError("HEROKU_APP_NAME is not configured.")
-
-    if not mc.settings.HEROKU_API_TOKEN:
-        raise click.UsageError(
-            "HEROKU_API_TOKEN is not set: "
-            "see https://help.heroku.com/PBGP6IDE/"
-        )
 
 
 def spam_request(

@@ -24,7 +24,7 @@ pass_local_context = click.make_pass_decorator(LocalContext)
 @click.pass_context
 def main(ctx: click.Context, *, from_url: str = "") -> None:
     """
-    Database Management Tool.
+    Database Management Tool
     """
 
     mc: ManagementContext = ctx.ensure_object(ManagementContext)
@@ -34,8 +34,9 @@ def main(ctx: click.Context, *, from_url: str = "") -> None:
         raise click.UsageError("DATABASE_URL is not configured")
 
     ds = DatabaseSettings(
-        DATABASE_URL=db_url
+        DATABASE_URL=db_url,
     ).db_components_from_database_url()
+
     ctx.obj = LocalContext(
         ds=ds,
         verbose=mc.verbose,
@@ -86,9 +87,9 @@ def echo_password(lc: LocalContext) -> None:
 @click.option(
     "-p",
     "--port",
-    is_flag=True,
     default=False,
     help="Include port in output.",
+    is_flag=True,
 )
 @pass_local_context
 def echo_host(lc: LocalContext, *, port: bool = False) -> None:
@@ -124,6 +125,7 @@ def echo_name(lc: LocalContext) -> None:
     """
     Displays the database name.
     """
+
     echo_db_component(lc, "DB_NAME")
 
 
