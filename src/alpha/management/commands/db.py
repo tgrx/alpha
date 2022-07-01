@@ -32,7 +32,6 @@ _fields_colors = {
 
 @click.command(
     help="Prints requested DB components or full DB config",
-    name="db",
 )
 @click.option(
     "-d",
@@ -69,21 +68,29 @@ _fields_colors = {
     help="Prints the DB username.",
     is_flag=True,
 )
+@click.option(
+    "--from-url",
+    help="Uses given URL as DATABASE_URL.",
+    type=str,
+)
 @pass_mgmt_context
 def command_db(
     mc: ManagementContext,
     *,
     db: bool = False,
+    from_url: str = "",
     host: bool = False,
     password: bool = False,
     port: bool = False,
     username: bool = False,
 ) -> None:
-    url = settings.DATABASE_URL
+    url = from_url or settings.DATABASE_URL
     if not url:
         raise click.UsageError("DATABASE_URL is not configured")
 
-    comps = settings.db_components_from_database_url()
+    comps = DatabaseSettings(
+        DATABASE_URL=url
+    ).db_components_from_database_url()
 
     echo = partial(echo_value, mc, comps)
 
@@ -113,7 +120,9 @@ def command_db(
 
 
 def echo_value(
-    mc: ManagementContext, comps: DatabaseSettings, field: str
+    mc: ManagementContext,
+    comps: DatabaseSettings,
+    field: str,
 ) -> None:
     value = getattr(comps, field)
     if mc.verbose:

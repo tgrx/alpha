@@ -66,7 +66,7 @@ async def get_db_settings() -> List[DbSetting]:
 
 
 async def application(scope: Dict, receive: Callable, send: Callable) -> None:
-    if scope["type"] == "lifespan":
+    if scope["type"] == "lifespan":  # pragma: no cover
         return
 
     path = scope["path"]

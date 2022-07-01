@@ -1,6 +1,7 @@
 import click
 
 from alpha.management.commands.db import command_db
+from alpha.management.commands.heroku import command_heroku
 from alpha.management.common import ManagementContext
 from alpha.management.common import show_ads
 
@@ -16,7 +17,8 @@ def main(ctx: click.Context, *, verbose: int = 0) -> None:
         show_ads()
 
 
-main.add_command(command_db)
+main.add_command(command_db, "db")
+main.add_command(command_heroku, "heroku")
 
 if __name__ == "__main__":
     main()

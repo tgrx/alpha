@@ -164,8 +164,8 @@ db: migrate
 wait-for-db:
 	$(call log, waiting for DB up)
 	$(DIR_SCRIPTS)/wait_online.sh \
-		$(shell $(MANAGEMENT) db-config --host) \
-		$(shell $(MANAGEMENT) db-config --port) \
+		$(shell $(MANAGEMENT) db --host) \
+		$(shell $(MANAGEMENT) db --port) \
 		|| exit 1
 
 
@@ -184,12 +184,12 @@ dropdb:
 	$(call log, dropping the DB)
 	dropdb \
 		--echo \
-		--host=$(shell $(MANAGEMENT) db-config --host) \
+		--host=$(shell $(MANAGEMENT) db --host) \
 		--if-exists \
 		--maintenance-db=postgres\
-		--port=$(shell $(MANAGEMENT) db-config --port) \
-		--username=$(shell $(MANAGEMENT) db-config --username) \
-		$(shell $(MANAGEMENT) db-config --db-name)
+		--port=$(shell $(MANAGEMENT) db --port) \
+		--username=$(shell $(MANAGEMENT) db --username) \
+		$(shell $(MANAGEMENT) db --db)
 
 
 .PHONY: createdb
@@ -197,12 +197,12 @@ createdb:
 	$(call log, creating the DB)
 	createdb \
 		--echo \
-		--host=$(shell $(MANAGEMENT) db-config --host) \
+		--host=$(shell $(MANAGEMENT) db --host) \
 		--maintenance-db=postgres\
-		--owner=$(shell $(MANAGEMENT) db-config --username) \
-		--port=$(shell $(MANAGEMENT) db-config --port) \
-		--username=$(shell $(MANAGEMENT) db-config --username)\
-		$(shell $(MANAGEMENT) db-config --db-name)
+		--owner=$(shell $(MANAGEMENT) db --username) \
+		--port=$(shell $(MANAGEMENT) db --port) \
+		--username=$(shell $(MANAGEMENT) db --username)\
+		$(shell $(MANAGEMENT) db --db)
 
 
 .PHONY: migrations
