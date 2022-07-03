@@ -15,6 +15,7 @@ pytestmark = [
 
 
 @mock.patch.dict(os.environ, {}, clear=True)
+@mock.patch.object(Settings.Config, "env_file", None)
 @mock.patch.object(Settings.Config, "secrets_dir", None)
 def test_default_settings() -> None:
     settings = Settings()
@@ -122,6 +123,8 @@ def test_database_url_from_db_components() -> None:
     },
     clear=True,
 )
+@mock.patch.object(Settings.Config, "env_file", None)
+@mock.patch.object(Settings.Config, "secrets_dir", None)
 def test_db_components_from_database_url() -> None:
     settings = Settings().db_components_from_database_url()
 
@@ -140,6 +143,8 @@ def test_db_components_from_database_url() -> None:
     },
     clear=True,
 )
+@mock.patch.object(Settings.Config, "env_file", None)
+@mock.patch.object(Settings.Config, "secrets_dir", None)
 def test_issue_51_db_url_integer_port() -> None:
     settings = Settings().db_components_from_database_url()
     assert settings.DB_PORT == 1

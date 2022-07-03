@@ -3,6 +3,7 @@ from typing import Optional
 
 import click
 import httpx
+import orjson
 
 from alpha.management.common import ManagementContext
 from alpha.management.common import json_dumps
@@ -99,11 +100,14 @@ def call_api(
 
     meth = getattr(httpx, method.lower())
 
-    meth_kwargs = {
+    meth_kwargs: dict[str, Any] = {
         "headers": headers,
     }
     if payload:
-        meth_kwargs["json"] = payload
+        meth_kwargs["content"] = orjson.dumps(
+            payload,
+            option=orjson.OPT_SORT_KEYS,
+        )
 
     spam_request(
         mc,

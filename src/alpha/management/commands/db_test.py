@@ -22,6 +22,15 @@ def run_subcommand() -> Generator[partial, None, None]:
     yield subcommand
 
 
+@mock.patch.dict(os.environ, {}, clear=True)
+@mock.patch.object(Settings.Config, "env_file", None)
+@mock.patch.object(Settings.Config, "secrets_dir", None)
+def test_db_not_configured(run_subcommand: partial) -> None:
+    result = run_subcommand(["name"])
+    assert result.exit_code == 2
+    assert "Error: DATABASE_URL is not configured" in result.output
+
+
 driver = "postgresql"
 host = "host"
 name = "somedb"
@@ -36,6 +45,7 @@ test_env = {
 
 
 @mock.patch.dict(os.environ, test_env, clear=True)
+@mock.patch.object(Settings.Config, "env_file", None)
 @mock.patch.object(Settings.Config, "secrets_dir", None)
 @pytest.mark.parametrize(
     "subcommand,expected",
@@ -59,15 +69,8 @@ def test_subcommands(
     assert result.output.strip() == str(expected)
 
 
-@mock.patch.dict(os.environ, {}, clear=True)
-@mock.patch.object(Settings.Config, "secrets_dir", None)
-def test_db_not_configured(run_subcommand: partial) -> None:
-    result = run_subcommand(["name"])
-    assert result.exit_code == 2
-    assert "Error: DATABASE_URL is not configured" in result.output
-
-
 @mock.patch.dict(os.environ, test_env, clear=True)
+@mock.patch.object(Settings.Config, "env_file", None)
 @mock.patch.object(Settings.Config, "secrets_dir", None)
 def test_verbose(run_subcommand: partial) -> None:
     result = run_subcommand(["name"], obj=ManagementContext(verbose=1))
@@ -76,6 +79,7 @@ def test_verbose(run_subcommand: partial) -> None:
 
 
 @mock.patch.dict(os.environ, test_env, clear=True)
+@mock.patch.object(Settings.Config, "env_file", None)
 @mock.patch.object(Settings.Config, "secrets_dir", None)
 @pytest.mark.parametrize(
     "options,verbose,expected",
