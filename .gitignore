@@ -1,3 +1,5 @@
+!tmp/.gitkeep
+**/.coverage
 *.bak
 *.log
 *.py[cod]
@@ -11,8 +13,5 @@
 __pycache__/
 config/.secrets/
 docs/site
-venv/
-
 tmp/
-!tmp/.gitkeep
-
+venv/

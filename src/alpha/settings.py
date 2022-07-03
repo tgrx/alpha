@@ -1,14 +1,26 @@
 from multiprocessing import cpu_count
 from typing import NoReturn
 from typing import Optional
+from typing import Type
 from urllib.parse import urlsplit
 
+from pydantic import BaseConfig
 from pydantic import BaseSettings
 from pydantic import Field
 from pydantic import ValidationError
 from pydantic.error_wrappers import ErrorWrapper
 
 from alpha.dirs import DIR_CONFIG_SECRETS
+
+
+def build_config() -> Type[BaseConfig]:
+    class _DefaultConfig(BaseConfig):
+        case_sensitive = True
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        secrets_dir = DIR_CONFIG_SECRETS.as_posix()
+
+    return _DefaultConfig
 
 
 class DatabaseSettings(BaseSettings):
@@ -35,11 +47,7 @@ class DatabaseSettings(BaseSettings):
         ]
     )
 
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        secrets_dir = DIR_CONFIG_SECRETS.as_posix()
+    Config = build_config()
 
     def database_url_from_db_components(self) -> str:
         """
@@ -107,6 +115,8 @@ class DatabaseSettings(BaseSettings):
 
 class Settings(DatabaseSettings):
     __name__ = "Settings"  # noqa: VNE003
+
+    Config = build_config()
 
     HEROKU_API_TOKEN: Optional[str] = Field()
     HEROKU_APP_NAME: Optional[str] = Field()

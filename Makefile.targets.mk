@@ -68,7 +68,7 @@ format:
 
 
 .PHONY: qa
-qa: tests coverage code-typing code-format code-linters
+qa: clean-coverage tests coverage code-typing code-format code-linters
 	$(call log, QA checks)
 
 
@@ -89,6 +89,12 @@ coverage:
 	$(call log, calculating coverage)
 	coverage html
 	coverage xml
+
+
+.PHONY: clean-coverage
+clean-coverage:
+	$(call log, cleaning Coverage garbage)
+	coverage erase
 
 
 .PHONY: code-typing

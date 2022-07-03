@@ -1,10 +1,9 @@
 [run]
 branch = True
+concurrency = greenlet
 data_file = .garbage/coverage/data_file.db
 omit = \
-    src/framework/tests/*
     src/main/app.py
-    tests/*
 relative_files = True
 source = src
 
@@ -20,7 +19,7 @@ exclude_lines =
     pragma: no cover
     raise AssertionError
     raise NotImplementedError
-fail_under = 50
+fail_under = 90
 skip_covered = False
 skip_empty = True
 sort = -Cover

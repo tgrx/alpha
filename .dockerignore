@@ -1,5 +1,6 @@
 **/*.secrets.*
 **/*Dockerfile*
+**/.coverage
 **/.gitignore
 **/__pycache__/
 .dockerignore
@@ -14,5 +15,6 @@
 docker-compose.yml
 heroku.Dockerfile
 heroku.yml
+tmp/
 TODO.md
 venv/

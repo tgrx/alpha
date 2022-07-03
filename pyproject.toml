@@ -36,7 +36,7 @@ testpaths = [
     "src/alpha",
     "tests",
 ]
-addopts = "--cov --no-cov-on-fail --cov-fail-under=0"
+addopts = "--cov --no-cov-on-fail --cov-fail-under=90"
 
 
 [tool.mypy]
@@ -115,6 +115,7 @@ flake8-print = "^5.0.0"
 flake8-printf-formatting = "^1.1.2"
 flake8-simplify = "^0.19.2"
 flake8-variables-names = "^0.0.5"
+greenlet = "^1.1.2"
 httpie = "^3.2.1"
 ipython = "^8.4.0"
 isort = "^5.10.1"
@@ -127,6 +128,7 @@ pytest = "^7.1.2"
 pytest-asyncio = "^0.18.3"
 pytest-cov = "^3.0.0"
 pytest-mock = "^3.7.0"
+pytest-httpx = "^0.21.0"
 
 
 [build-system]
