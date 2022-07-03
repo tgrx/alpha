@@ -13,7 +13,9 @@ nav:
       - 'Issues': 'dev/issues.md'
       - 'Commits, PRs': 'dev/pr.md'
       - 'Versioning': 'dev/versioning.md'
-      - 'Alpha Management Tool': 'alpha-management-tool.md'
+  - 'Usage':
+    - 'Alpha Management Tool': 'usage/alpha-management-tool.md'
+    - 'Envs': 'usage/envs.md'
 
 theme:
   name: 'material'
@@ -22,6 +24,6 @@ theme:
     accent: 'green'
   features:
     - 'navigation.instant'
-    - 'navigation.tracking'
-    - 'navigation.tabs'
     - 'navigation.sections'
+    - 'navigation.tabs'
+    - 'navigation.tracking'
