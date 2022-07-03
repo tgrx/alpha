@@ -1,10 +1,9 @@
 [run]
 branch = True
+concurrency = greenlet
 data_file = .garbage/coverage/data_file.db
 omit = \
-    src/framework/tests/*
     src/main/app.py
-    tests/*
 relative_files = True
 source = src
 
