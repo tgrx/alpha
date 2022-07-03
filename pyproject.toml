@@ -36,7 +36,7 @@ testpaths = [
     "src/alpha",
     "tests",
 ]
-addopts = "--cov --no-cov-on-fail --cov-fail-under=0"
+addopts = "--cov --no-cov-on-fail --cov-fail-under=90"
 
 
 [tool.mypy]

@@ -19,7 +19,7 @@ exclude_lines =
     pragma: no cover
     raise AssertionError
     raise NotImplementedError
-fail_under = 50
+fail_under = 90
 skip_covered = False
 skip_empty = True
 sort = -Cover
