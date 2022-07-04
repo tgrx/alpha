@@ -8,7 +8,7 @@ Envs may be set using these mechanisms:
 
 Secrets are kept in `config/.secrets/` dir. Usage: create a file, name it as a variable, and post the value into it.
 
-Secrets dir may be different in case of using Docker secrets.
+Secrets dir may be different in case of using Docker secrets. `SECRETS_DIR` is used to control that location. 
 
 ## 1. Server
 
