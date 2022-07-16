@@ -10,7 +10,7 @@ include ./Makefile.in.mk
 # override to whatever works on your system
 
 APPLICATION := main.asgi:application
-ENTRYPOINT := $(PYTHON) $(DIR_SRC)/main/app.py
+ENTRYPOINT := $(PYTHON) $(DIR_SRC)/main/runner.py
 
 include ./Makefile.targets.mk
 

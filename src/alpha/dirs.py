@@ -18,3 +18,8 @@ DIR_DOCS = (DIR_REPO / "docs").resolve()
 DIR_SCRIPTS = (DIR_REPO / "scripts").resolve()
 
 DIR_TESTS = (DIR_REPO / "tests").resolve()
+
+DIR_CI = (DIR_REPO / ".github").resolve()
+DIR_CI_WORKFLOWS = (DIR_CI / "workflows").resolve()
+
+DIR_RUN_CONFIGURATIONS = (DIR_REPO / ".run").resolve()

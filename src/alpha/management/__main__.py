@@ -2,6 +2,7 @@ import click
 
 from alpha.management.commands import db
 from alpha.management.commands import heroku
+from alpha.management.commands import rebranding
 from alpha.management.common import ManagementContext
 from alpha.management.common import show_ads
 
@@ -28,6 +29,7 @@ def main(ctx: click.Context, *, verbose: int = 0) -> None:
 
 main.add_command(db.main, "db")
 main.add_command(heroku.main, "heroku")
+main.add_command(rebranding.main, "rebranding")
 
 if __name__ == "__main__":
     main()

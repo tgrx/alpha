@@ -34,9 +34,10 @@ def main(mc: ManagementContext) -> None:
 @main.command(name="set-config-vars")
 @click.option(
     "--dry-run",
-    is_flag=True,
     default=False,
     help="Displays the new config vars without patching.",
+    is_flag=True,
+    show_default="off, config vars will be changed",
 )
 @pass_mgmt_context
 def set_config_vars(mc: ManagementContext, *, dry_run: bool = False) -> None:

@@ -3,7 +3,7 @@ branch = True
 concurrency = greenlet
 data_file = .garbage/coverage/data_file.db
 omit = \
-    src/main/app.py
+    src/main/runner.py
 relative_files = True
 source = src
 
