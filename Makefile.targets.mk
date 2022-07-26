@@ -95,6 +95,7 @@ coverage:
 clean-coverage:
 	$(call log, cleaning Coverage garbage)
 	coverage erase
+	rm -rf "$(DIR_GARBAGE)/.coverage"
 
 
 .PHONY: code-typing
