@@ -23,7 +23,7 @@ def main(ctx: click.Context, *, verbose: int = 0) -> None:
     mc = ManagementContext(verbose=verbose)
     ctx.obj = mc
 
-    if mc.verbose > 1:  # user requests spam!
+    if mc.verbose > 1:  # user requests spam!  # pragma: no cover
         show_ads()
 
 

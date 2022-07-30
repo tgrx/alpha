@@ -1,5 +1,6 @@
 import io
 import sys
+import xml.etree.ElementTree as ET
 from contextlib import contextmanager
 from functools import wraps
 from pathlib import Path
@@ -134,7 +135,7 @@ def main(**kwargs: Any) -> None:
 
     rebrand_codeowners(lc)
     rebrand_ci(lc)
-    # rebrand_run(lc)
+    rebrand_run(lc)
     # deal_with_docs(lc)
     # deal_with_alpha(lc)
     # deal_with_sources(lc)
@@ -227,6 +228,7 @@ def file_banner(target: Path) -> Generator[None, None, None]:
         yield
     finally:
         click.secho("~" * len_full, fg="cyan")
+        click.echo()
 
 
 @contextmanager
@@ -402,14 +404,50 @@ def rebrand_run(lc: LocalContext) -> None:
     assert lc
 
     files = {
-        dirs.DIR_RUN_CONFIGURATIONS / "app.run.xml",
+        dirs.DIR_RUN_CONFIGURATIONS / "runner.run.xml",
         dirs.DIR_RUN_CONFIGURATIONS / "tests - all.run.xml",
         dirs.DIR_RUN_CONFIGURATIONS / "tests - unit.run.xml",
     }
-    for i, f in enumerate(sorted(files), start=1):
-        f = f.resolve()
-        fn = click.style(f.as_posix(), fg="green" if f.is_file() else "red")
-        click.echo(f"{i}. rebrand {fn}")
+    for target in sorted(files):
+        target = target.resolve()
+        assert target.is_file(), f"not a file: {target.as_posix()}"
+
+        with elastic(io.StringIO()) as buffer_original, target.open(
+            "r"
+        ) as stream:
+            content = stream.read()
+            buffer_original.write(content)
+
+        root = ET.fromstring(content)
+
+        node = root.find("./configuration/module[1]")
+        assert node
+        if node.get("name") == "alpha":
+            node.set("name", lc.brand)
+
+        with elastic(io.StringIO()) as buffer_modified:
+            tree = ET.ElementTree(root)
+            tree.write(buffer_modified, encoding="unicode")
+
+        with elastic(buffer_original), elastic(buffer_modified), file_banner(
+            target
+        ):
+            side_by_side = zip(
+                buffer_original.readlines(),
+                buffer_modified.readlines(),
+            )
+            for lineno, (line_original, line_modified) in enumerate(
+                side_by_side,
+                start=1,
+            ):
+                color = "red" if line_original != line_modified else "reset"
+                line = f"{lineno:>4} | {line_modified}"
+                click.secho(line, fg=color, nl=False)
+
+        confirm(lc)
+
+        with target.open("w") as stream:
+            stream.write(buffer_modified.read())
 
 
 @step

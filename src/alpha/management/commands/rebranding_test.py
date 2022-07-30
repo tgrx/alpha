@@ -8,6 +8,8 @@ import pytest
 from click.testing import CliRunner
 
 from alpha import ALPHA_DOCKERHUB_IMAGE
+from alpha import ALPHA_HEROKU_APP_NAME
+from alpha import ALPHA_HEROKU_MAINTAINER_EMAIL
 from alpha import ALPHA_OWNER
 from alpha.management.commands import rebranding
 from alpha.settings import Settings
@@ -70,3 +72,32 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
             assert ALPHA_OWNER not in content
             assert dockerhub_image in content
             assert github_username in content
+
+        target = cloned_repo_dirs.DIR_CI_WORKFLOWS / "deploy-heroku.yml"
+        with target.open("r") as stream:
+            content = stream.read()
+            assert ALPHA_OWNER not in content
+            assert ALPHA_HEROKU_APP_NAME not in content
+            assert ALPHA_HEROKU_MAINTAINER_EMAIL not in content
+
+        target = cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "runner.run.xml"
+        with target.open("r") as stream:
+            content = stream.read()
+            assert "alpha" not in content
+            assert brand in content
+
+        target = (
+            cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "tests - all.run.xml"
+        )
+        with target.open("r") as stream:
+            content = stream.read()
+            assert "alpha" not in content
+            assert brand in content
+
+        target = (
+            cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "tests - unit.run.xml"
+        )
+        with target.open("r") as stream:
+            content = stream.read()
+            assert "alpha" not in content
+            assert brand in content

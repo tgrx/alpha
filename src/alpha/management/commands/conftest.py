@@ -53,7 +53,9 @@ def ignore_on_copy(src: str, names: list[str]) -> list[str]:
 
     ignored_always = {
         ".garbage",
+        ".idea",
         ".venv",
+        ".vscode",
         "__pycache__",
     }
 
