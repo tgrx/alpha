@@ -1,6 +1,5 @@
 import io
 import sys
-import xml.etree.ElementTree as ET
 from contextlib import contextmanager
 from functools import wraps
 from pathlib import Path
@@ -11,6 +10,7 @@ from typing import ParamSpec
 
 import attrs
 import click
+from defusedxml.ElementTree import parse as parse_xml
 from ruamel.yaml import YAML
 
 from alpha import ALPHA_DOCKERHUB_IMAGE
@@ -419,19 +419,29 @@ def rebrand_run(lc: LocalContext) -> None:
             content = stream.read()
             buffer_original.write(content)
 
-        root = ET.fromstring(content)
+        with elastic(buffer_original):
+            tree = parse_xml(
+                buffer_original,
+                forbid_dtd=True,
+                forbid_entities=True,
+                forbid_external=True,
+            )
 
-        node = root.find("./configuration/module[1]")
-        end_if(
-            node.tag != "module" and "name" not in node.attrib,
-            f"maybe malformed XML at {target.as_posix()}: node=<{node.tag} {node.attrib}>",
+        node = tree.find("./configuration/module[1]")
+        assert node is not None
+        err_msg_attrs = ", ".join(
+            f"{a}={v!r}" for a, v in sorted(node.attrib.items())
         )
+        err_msg = (
+            f"maybe malformed XML at {target.as_posix()}: "
+            f"node=<{node.tag} {err_msg_attrs}>"
+        )
+        end_if(node.tag != "module" and "name" not in node.attrib, err_msg)
 
         if node.get("name") == "alpha":
             node.set("name", lc.brand)
 
         with elastic(io.StringIO()) as buffer_modified:
-            tree = ET.ElementTree(root)
             tree.write(buffer_modified, encoding="unicode")
 
         with elastic(buffer_original), elastic(buffer_modified), file_banner(
