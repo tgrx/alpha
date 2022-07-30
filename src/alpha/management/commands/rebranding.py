@@ -379,7 +379,7 @@ def rebrand_ci_deploy_heroku(lc: LocalContext) -> None:
     )
 
     node["with"]["heroku_app_name"] = lc.heroku_app_name
-    node["with"]["heroku_email"] = lc.heroku_app_name
+    node["with"]["heroku_email"] = lc.heroku_app_maintainer_email
 
     with elastic(io.StringIO()) as buffer_modified:
         yaml.dump(dom, buffer_modified)
@@ -410,6 +410,7 @@ def rebrand_run(lc: LocalContext) -> None:
     }
     for target in sorted(files):
         target = target.resolve()
+        click.secho(f"- {target.as_posix()}", fg="bright_yellow")
         assert target.is_file(), f"not a file: {target.as_posix()}"
 
         with elastic(io.StringIO()) as buffer_original, target.open(
@@ -421,7 +422,11 @@ def rebrand_run(lc: LocalContext) -> None:
         root = ET.fromstring(content)
 
         node = root.find("./configuration/module[1]")
-        assert node
+        end_if(
+            node.tag != "module" and "name" not in node.attrib,
+            f"maybe malformed XML at {target.as_posix()}: node=<{node.tag} {node.attrib}>",
+        )
+
         if node.get("name") == "alpha":
             node.set("name", lc.brand)
 

@@ -37,11 +37,11 @@ def test_no_brand() -> None:
 @mock.patch.object(Settings.Config, "env_file", None)
 @mock.patch.object(Settings.Config, "secrets_dir", None)
 def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
-    github_username = "gh-u-beta"
-    dockerhub_image = "dh-u/dh-i"
-    heroku_app_name = "h-a"
-    heroku_app_maintainer_email = "h-a-m-e"
-    brand = "Beta"
+    brand = "beta"
+    dockerhub_image = f"{brand}-dockerhub-image"
+    github_username = f"{brand}-github-username"
+    heroku_app_maintainer_email = f"{brand}-heroku-app-maintainer-email"
+    heroku_app_name = f"{brand}-heroku-app-name"
 
     cmd_args = [
         f"--dockerhub-image={dockerhub_image}",
@@ -76,9 +76,12 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
         target = cloned_repo_dirs.DIR_CI_WORKFLOWS / "deploy-heroku.yml"
         with target.open("r") as stream:
             content = stream.read()
-            assert ALPHA_OWNER not in content
             assert ALPHA_HEROKU_APP_NAME not in content
             assert ALPHA_HEROKU_MAINTAINER_EMAIL not in content
+            assert ALPHA_OWNER not in content
+            assert github_username in content
+            assert heroku_app_maintainer_email in content
+            assert heroku_app_name in content
 
         target = cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "runner.run.xml"
         with target.open("r") as stream:
