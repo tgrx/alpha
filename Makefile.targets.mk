@@ -98,6 +98,17 @@ clean-coverage:
 	rm -rf "$(DIR_GARBAGE)/.coverage"
 
 
+.PHONY: clean-mypy
+clean-mypy:
+	$(call log, cleaning Mypy garbage)
+	rm -rf "$(DIR_GARBAGE)/.mypy"
+
+
+.PHONY: clean-garbage
+clean-garbage: clean-coverage clean-mypy
+	$(call log, cleaning garbage)
+
+
 .PHONY: code-typing
 code-typing:
 	$(call log, checking code typing)

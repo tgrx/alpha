@@ -49,14 +49,14 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
         f"--github-username={github_username}",
         f"--heroku-app-maintainer-email={heroku_app_maintainer_email}",
         f"--heroku-app-name={heroku_app_name}",
-        f"--remove-alpha",
-        f"--remove-docs",
-        f"--remove-sources",
+        f"--remove-alpha",  # noqa: F541
+        f"--remove-docs",  # noqa: F541
+        f"--remove-sources",  # noqa: F541
         brand,
     ]
 
     with patch(
-        "alpha.management.commands.rebranding.dirs",
+        "alpha.management.commands.rebranding_steps.dirs",
         cloned_repo_dirs,
     ):
         result = run_subcommand(cmd_args)

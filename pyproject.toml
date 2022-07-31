@@ -61,6 +61,7 @@ ignore_missing_imports = true
 module = [
     "asyncpg",
     "defusedxml.ElementTree",
+    "ruamel",
     "uvicorn",
 ]
 

@@ -65,15 +65,15 @@ def confirm(
     if lc.yes:
         return True
 
-    token_apply = "yes"
-    token_quit = "q"
+    token_apply = "yes"  # noqa: S105
+    token_quit = "q"  # noqa: S105
+    prompt = (
+        f"Apply? "
+        f"[please type {token_apply!r} to apply, "
+        f"{token_quit!r} to quit]: "
+    )
 
-    choice = input(
-        click.style(
-            f"Apply? [please type {token_apply!r} to apply, {token_quit!r} to quit]: ",
-            fg="bright_magenta",
-        )
-    ).lower()
+    choice = input(click.style(prompt, fg="bright_magenta")).lower()
 
     if choice == token_quit:
         click.echo("Quit.")

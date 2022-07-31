@@ -31,7 +31,6 @@ yaml = YAML()
 def display_summary(lc: LocalContext) -> None:
     click.secho("============    REBRANDING    ============", fg="magenta")
 
-    # TODO: use attrs.fields to get a dict and compare with default values
     for option, value in sorted(attrs.asdict(lc).items()):
         option_ = f"{option}:"
         click.echo(f"- {option_:<30} ", nl=False)
@@ -63,12 +62,12 @@ def rebrand_codeowners(lc: LocalContext) -> None:
     with elastic_io(
         target_to_buffer(target)
     ) as original, elastic_io() as modified:
-        for lineno, line_original in enumerate(original.readlines(), start=1):
+        for line_original in original.readlines():
             tokens_original = line_original.split(" ")
             tokens_modified = []
             for token in tokens_original:
-                if token == f"@{ALPHA_OWNER}":
-                    token = lc.github_username
+                if f"@{ALPHA_OWNER}" in token:
+                    token = token.replace(ALPHA_OWNER, lc.github_username)
                     need_rebranding = True
                 tokens_modified.append(token)
             line_modified = " ".join(tokens_modified)
