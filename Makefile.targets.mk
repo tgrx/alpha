@@ -68,7 +68,7 @@ format:
 
 
 .PHONY: qa
-qa: clean-coverage tests coverage code-typing code-format code-linters
+qa: clean-garbage tests coverage code-typing code-format code-linters
 	$(call log, QA checks)
 
 
@@ -91,21 +91,27 @@ coverage:
 	coverage xml
 
 
-.PHONY: clean-coverage
-clean-coverage:
+.PHONY: clean-garbage-coverage
+clean-garbage-coverage:
 	$(call log, cleaning Coverage garbage)
 	coverage erase
-	rm -rf "$(DIR_GARBAGE)/.coverage"
+	rm -rf "$(DIR_GARBAGE)/coverage"
 
 
-.PHONY: clean-mypy
-clean-mypy:
+.PHONY: clean-garbage-mypy
+clean-garbage-mypy:
 	$(call log, cleaning Mypy garbage)
-	rm -rf "$(DIR_GARBAGE)/.mypy"
+	rm -rf "$(DIR_GARBAGE)/mypy"
+
+
+.PHONY: clean-garbage-pytest
+clean-garbage-pytest:
+	$(call log, cleaning Mypy garbage)
+	rm -rf "$(DIR_GARBAGE)/pytest"
 
 
 .PHONY: clean-garbage
-clean-garbage: clean-coverage clean-mypy
+clean-garbage: clean-garbage-mypy clean-garbage-pytest clean-garbage-coverage
 	$(call log, cleaning garbage)
 
 

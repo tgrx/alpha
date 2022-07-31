@@ -38,11 +38,6 @@ from alpha.management.commands.rebranding_util import LocalContext
     help="Heroku app name",
 )
 @click.option(
-    "--new-license",
-    default="",
-    help="Change license - DANGEROUS",
-)
-@click.option(
     "--project-description",
     default="",
     help="Project description",
@@ -90,18 +85,17 @@ def main(**kwargs: Any) -> None:
         raise click.UsageError(str(err)) from err
 
     steps = (
-        rebranding_steps.display_summary,
-        rebranding_steps.modify_license,
-        rebranding_steps.rebrand_ci_deploy_dockerhub,
-        rebranding_steps.rebrand_ci_deploy_heroku,
-        rebranding_steps.rebrand_codeowners,
-        rebranding_steps.rebrand_coveragerc,
+        # rebranding_steps.display_summary,
+        # rebranding_steps.rebrand_ci_deploy_dockerhub,
+        # rebranding_steps.rebrand_ci_deploy_heroku,
+        # rebranding_steps.rebrand_codeowners,
+        # rebranding_steps.rebrand_coveragerc,
         rebranding_steps.rebrand_docker_compose,
-        rebranding_steps.rebrand_dotenv,
-        rebranding_steps.rebrand_pyproject_toml,
-        rebranding_steps.rebrand_readme_md,
-        rebranding_steps.rebrand_run,
-        rebranding_steps.remove_project_paths,
+        # rebranding_steps.rebrand_dotenv,
+        # rebranding_steps.rebrand_pyproject_toml,  # TODO
+        # rebranding_steps.rebrand_readme_md,
+        # rebranding_steps.rebrand_run,
+        # rebranding_steps.remove_project_paths,
     )
 
     for step_func in steps:

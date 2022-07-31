@@ -24,7 +24,6 @@ class LocalContext:
     github_username: str = ""
     heroku_app_maintainer_email: str = ""
     heroku_app_name: str = ""
-    new_license: str = ""
     project_description: str = ""
     project_maintainer: str = ""
     remove_alpha: bool = False

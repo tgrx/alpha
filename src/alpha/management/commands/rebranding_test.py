@@ -7,11 +7,13 @@ from unittest.mock import patch
 import pytest
 from click.testing import CliRunner
 
+from alpha import ALPHA_BRAND
 from alpha import ALPHA_DOCKERHUB_IMAGE
 from alpha import ALPHA_HEROKU_APP_NAME
 from alpha import ALPHA_HEROKU_MAINTAINER_EMAIL
 from alpha import ALPHA_OWNER
 from alpha.management.commands import rebranding
+from alpha.management.commands.rebranding_util import resolve_file
 from alpha.settings import Settings
 
 pytestmark = [
@@ -62,51 +64,88 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
         result = run_subcommand(cmd_args)
         assert result.exit_code == 0
 
-        target = cloned_repo_dirs.DIR_REPO / "CODEOWNERS"
+        target = resolve_file(cloned_repo_dirs.DIR_REPO / "CODEOWNERS")
         with target.open("r") as stream:
             content = stream.read()
-            assert ALPHA_OWNER not in content
-            assert github_username in content
+            assert f"*   @{ALPHA_OWNER}" not in content
+            assert f"*   @{github_username}" in content
 
-        target = cloned_repo_dirs.DIR_CI_WORKFLOWS / "deploy-dockerhub.yml"
+        target = resolve_file(
+            cloned_repo_dirs.DIR_CI_WORKFLOWS / "deploy-dockerhub.yml"
+        )
         with target.open("r") as stream:
             content = stream.read()
-            assert ALPHA_DOCKERHUB_IMAGE not in content
-            assert ALPHA_OWNER not in content
-            assert dockerhub_image in content
-            assert github_username in content
+            assert f"if: github.actor == '{ALPHA_OWNER}'" not in content
+            assert f"if: github.actor == '{github_username}'" in content
+            assert (
+                f"{ALPHA_DOCKERHUB_IMAGE}:${{{{ steps.build-args.outputs.version }}}}"  # noqa: E501
+                not in content
+            )
+            assert f"{ALPHA_DOCKERHUB_IMAGE}:latest" not in content
+            assert (
+                f"{dockerhub_image}:${{{{ steps.build-args.outputs.version }}}}"  # noqa: E501
+                in content
+            )
+            assert f"{dockerhub_image}:latest" in content
 
-        target = cloned_repo_dirs.DIR_CI_WORKFLOWS / "deploy-heroku.yml"
+        target = resolve_file(
+            cloned_repo_dirs.DIR_CI_WORKFLOWS / "deploy-heroku.yml"
+        )
         with target.open("r") as stream:
             content = stream.read()
-            assert ALPHA_HEROKU_APP_NAME not in content
-            assert ALPHA_HEROKU_MAINTAINER_EMAIL not in content
-            assert ALPHA_OWNER not in content
-            assert github_username in content
-            assert heroku_app_maintainer_email in content
-            assert heroku_app_name in content
+            assert f"if: github.actor == '{ALPHA_OWNER}'" not in content
+            assert f"if: github.actor == '{github_username}'" in content
+            assert f'heroku_app_name: "{ALPHA_HEROKU_APP_NAME}"' not in content
+            assert f'heroku_app_name: "{heroku_app_name}"' not in content
+            assert (
+                f'heroku_email: "{ALPHA_HEROKU_MAINTAINER_EMAIL}"'
+                not in content
+            )
+            assert (
+                f'heroku_email: "{heroku_app_maintainer_email}"' not in content
+            )
 
-        target = cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "runner.run.xml"
+        target = resolve_file(
+            cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "runner.run.xml"
+        )
         with target.open("r") as stream:
             content = stream.read()
-            assert "alpha" not in content
-            assert brand in content
+            assert f'<module name="{ALPHA_BRAND.lower()}" />' not in content
+            assert f'<module name="{brand}" />' in content
 
-        target = (
+        target = resolve_file(
             cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "tests - all.run.xml"
         )
         with target.open("r") as stream:
             content = stream.read()
-            assert "alpha" not in content
-            assert brand in content
+            assert f'<module name="{ALPHA_BRAND.lower()}" />' not in content
+            assert f'<module name="{brand}" />' in content
 
-        target = (
+        target = resolve_file(
             cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "tests - unit.run.xml"
         )
         with target.open("r") as stream:
             content = stream.read()
-            assert "alpha" not in content
-            assert brand in content
+            assert f'<module name="{ALPHA_BRAND.lower()}" />' not in content
+            assert f'<module name="{brand}" />' in content
+
+        target = resolve_file(cloned_repo_dirs.DIR_REPO / ".coveragerc")
+        with target.open("r") as stream:
+            content = stream.read()
+            assert f"title = {ALPHA_BRAND.capitalize()}" not in content
+            assert f"title = {brand}" in content
+
+        target = resolve_file(cloned_repo_dirs.DIR_REPO / ".env")
+        with target.open("r") as stream:
+            content = stream.read()
+            assert f'HEROKU_APP_NAME="{ALPHA_HEROKU_APP_NAME}"' not in content
+            assert f'HEROKU_APP_NAME="{heroku_app_name}"' in content
+
+        target = resolve_file(cloned_repo_dirs.DIR_REPO / "README.md")
+        with target.open("r") as stream:
+            content = stream.read()
+            assert f"# {ALPHA_BRAND.upper()}" not in content
+            assert f"# {brand.upper()}" in content
 
         target = cloned_repo_dirs.DIR_DOCS
         assert not target.is_dir()

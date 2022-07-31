@@ -1,58 +1,58 @@
-version: "3.9"
+version: '3.9'
 services:
   alpha-web:
     build:
       context: .
       args:
-        - python_version=3.10.4
-        - version=dev
+      - python_version=3.10.4
+      - version=dev
     container_name: alpha-web
     depends_on:
-      - alpha-db
-    entrypoint: [ "make", "wait-for-db", "run" ]
+    - alpha-db
+    entrypoint: [make, wait-for-db, run]
     environment:
-      DATABASE_URL: "postgresql://alpha:alpha@alpha-db:5432/alpha"
+      DATABASE_URL: postgresql://e7a36973:a4f7a8c8@alpha-db:5432/8fbbc147
       MODE_DEBUG: 1
     image: alexandersidorov/alpha:dev
     ports:
-      - "8080:80"
+    - 8080:80
     restart: unless-stopped
   alpha-db:
     container_name: alpha-db
     environment:
-      POSTGRES_USER: alpha
-      POSTGRES_PASSWORD: alpha
-      POSTGRES_DB: alpha
+      POSTGRES_USER: e7a36973
+      POSTGRES_PASSWORD: a4f7a8c8
+      POSTGRES_DB: 8fbbc147
     image: postgres:14.3-alpine
     ports:
-      - "8081:5432"
+    - 8081:5432
     restart: unless-stopped
     volumes:
-      - alpha-db:/var/lib/postgresql/data
+    - alpha-db:/var/lib/postgresql/data
   alpha-dba:
     container_name: alpha-dba
     image: adminer
     restart: unless-stopped
     ports:
-      - "8082:8080"
+    - 8082:8080
     volumes:
-      - alpha-db:/var/lib/postgresql/data
+    - alpha-db:/var/lib/postgresql/data
   alpha-qa:
     depends_on:
-      - alpha-web
+    - alpha-web
     container_name: alpha-qa
-    entrypoint: [ "make", "qa" ]
+    entrypoint: [make, qa]
     environment:
-      DATABASE_URL: "postgresql://alpha:alpha@alpha-db:5432/alpha"
+      DATABASE_URL: postgresql://e7a36973:a4f7a8c8@alpha-db:5432/8fbbc147
       MODE_DEBUG: 1
-      TEST_SERVICE_URL: "http://alpha-web"
+      TEST_SERVICE_URL: http://alpha-web
     image: alexandersidorov/alpha:dev
     volumes:
-      - type: bind
-        source: ./.garbage/alpha-qa/
-        target: /app/.garbage
+    - type: bind
+      source: ./.garbage/docker-compose/
+      target: /app/.garbage
 volumes:
-  alpha-db:
+  alpha-qa:
     name: alpha-db
     driver: local
     driver_opts:
