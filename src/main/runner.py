@@ -1,5 +1,6 @@
 import uvicorn
 
+import alpha.management.commands.rebranding_util
 from alpha.logging import logger
 from alpha.settings import Settings
 from main.asgi import application
@@ -24,7 +25,7 @@ def run() -> None:
         port=settings.PORT,
         test_url=settings.TEST_SERVICE_URL,
     )
-    logger.info(banner)
+    alpha.management.commands.rebranding_util.info(banner)
 
     try:
         uvicorn.run(
@@ -36,7 +37,9 @@ def run() -> None:
     except KeyboardInterrupt:
         logger.debug("stopping server")
     finally:
-        logger.info("server has been shut down")
+        alpha.management.commands.rebranding_util.info(
+            "server has been shut down"
+        )
 
 
 if __name__ == "__main__":

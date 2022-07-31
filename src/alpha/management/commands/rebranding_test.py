@@ -44,11 +44,14 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
     heroku_app_name = f"{brand}-heroku-app-name"
 
     cmd_args = [
+        "--yes",
         f"--dockerhub-image={dockerhub_image}",
         f"--github-username={github_username}",
         f"--heroku-app-maintainer-email={heroku_app_maintainer_email}",
         f"--heroku-app-name={heroku_app_name}",
-        "--yes",
+        f"--remove-alpha",
+        f"--remove-docs",
+        f"--remove-sources",
         brand,
     ]
 
@@ -104,3 +107,12 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
             content = stream.read()
             assert "alpha" not in content
             assert brand in content
+
+        target = cloned_repo_dirs.DIR_DOCS
+        assert not target.is_dir()
+
+        target = cloned_repo_dirs.DIR_ALPHA
+        assert not target.is_dir()
+
+        target = cloned_repo_dirs.DIR_SRC
+        assert not target.is_dir()
