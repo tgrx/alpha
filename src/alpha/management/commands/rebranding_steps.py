@@ -8,9 +8,11 @@ from defusedxml.ElementTree import parse as parse_xml
 from ruamel.yaml import YAML
 
 from alpha import ALPHA_BRAND
+from alpha import ALPHA_DESCRIPTION
 from alpha import ALPHA_DOCKERHUB_IMAGE
 from alpha import ALPHA_HEROKU_APP_NAME
-from alpha import ALPHA_HEROKU_MAINTAINER_EMAIL
+from alpha import ALPHA_MAINTAINER
+from alpha import ALPHA_MAINTAINER_EMAIL
 from alpha import ALPHA_OWNER
 from alpha import dirs
 from alpha.management.commands.rebranding_util import DockerComposeRebranding
@@ -167,7 +169,7 @@ def rebrand_ci_deploy_heroku(lc: LocalContext) -> None:
         node["with"]["heroku_app_name"] = lc.heroku_app_name
 
     line = node["with"]["heroku_email"]
-    if ALPHA_HEROKU_MAINTAINER_EMAIL in line:
+    if ALPHA_MAINTAINER_EMAIL in line:
         need_rebranding = True
         node["with"]["heroku_email"] = lc.heroku_app_maintainer_email
 
@@ -324,9 +326,40 @@ def rebrand_docker_compose(lc: LocalContext) -> None:
 
 @step
 def rebrand_pyproject_toml(lc: LocalContext) -> None:
-    assert lc
-    target = dirs.DIR_REPO / "pyproject.toml"
-    click.echo(f"rebrand {target}")
+    assert lc.project_description, "Project description is not set"
+    assert lc.project_maintainer, "Project maintainer is not set"
+
+    target = resolve_file(dirs.DIR_REPO / "pyproject.toml")
+
+    need_rebranding = False
+
+    with elastic_io(
+        target_to_buffer(target)
+    ) as original, elastic_io() as modified:
+        for line_original in original.readlines():
+            line_original = line_original.strip()
+
+            if line_original == f'name = "{ALPHA_BRAND.lower()}"':
+                need_rebranding = True
+                line_modified = f'name = "{lc.brand}"'
+            elif line_original == f'description = "{ALPHA_DESCRIPTION}"':
+                need_rebranding = True
+                line_modified = f'description = "{lc.project_description}"'
+            elif line_original == f'authors = ["{ALPHA_MAINTAINER}"]':
+                need_rebranding = True
+                line_modified = f'authors = ["{lc.project_maintainer}"]'
+            else:
+                line_modified = line_original
+
+            modified.write(f"{line_modified}\n")
+
+    end_if_rebranded(not need_rebranding, target)
+
+    show_diff(target, original, modified)
+
+    confirm(lc)
+
+    buffer_to_target(modified, target)
 
 
 @step

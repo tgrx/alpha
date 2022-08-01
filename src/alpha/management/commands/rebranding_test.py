@@ -8,9 +8,11 @@ import pytest
 from click.testing import CliRunner
 
 from alpha import ALPHA_BRAND
+from alpha import ALPHA_DESCRIPTION
 from alpha import ALPHA_DOCKERHUB_IMAGE
 from alpha import ALPHA_HEROKU_APP_NAME
-from alpha import ALPHA_HEROKU_MAINTAINER_EMAIL
+from alpha import ALPHA_MAINTAINER
+from alpha import ALPHA_MAINTAINER_EMAIL
 from alpha import ALPHA_OWNER
 from alpha.management.commands import rebranding
 from alpha.management.commands.rebranding_util import resolve_file
@@ -40,10 +42,12 @@ def test_no_brand() -> None:
 @mock.patch.object(Settings.Config, "secrets_dir", None)
 def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
     brand = "beta"
+    description = f"{brand}-description"
     dockerhub_image = f"{brand}-dockerhub-image"
     github_username = f"{brand}-github-username"
     heroku_app_maintainer_email = f"{brand}-heroku-app-maintainer-email"
     heroku_app_name = f"{brand}-heroku-app-name"
+    maintainer = f"{brand}-maintainer"
 
     cmd_args = [
         "--yes",
@@ -51,6 +55,8 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
         f"--github-username={github_username}",
         f"--heroku-app-maintainer-email={heroku_app_maintainer_email}",
         f"--heroku-app-name={heroku_app_name}",
+        f"--project-description={description}",
+        f"--project-maintainer={maintainer}",
         f"--remove-alpha",  # noqa: F541
         f"--remove-docs",  # noqa: F541
         f"--remove-sources",  # noqa: F541
@@ -95,15 +101,10 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
             content = stream.read()
             assert f"if: github.actor == '{ALPHA_OWNER}'" not in content
             assert f"if: github.actor == '{github_username}'" in content
-            assert f'heroku_app_name: "{ALPHA_HEROKU_APP_NAME}"' not in content
-            assert f'heroku_app_name: "{heroku_app_name}"' not in content
-            assert (
-                f'heroku_email: "{ALPHA_HEROKU_MAINTAINER_EMAIL}"'
-                not in content
-            )
-            assert (
-                f'heroku_email: "{heroku_app_maintainer_email}"' not in content
-            )
+            assert f"heroku_app_name: {ALPHA_HEROKU_APP_NAME}" not in content
+            assert f"heroku_app_name: {heroku_app_name}" in content
+            assert f"heroku_email: {ALPHA_MAINTAINER_EMAIL}" not in content
+            assert f"heroku_email: {heroku_app_maintainer_email}" in content
 
         target = resolve_file(
             cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "runner.run.xml"
@@ -168,6 +169,16 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
             assert f"{brand.lower()}-dba" in content
             assert f"{brand.lower()}-qa" in content
             assert f"{brand.lower()}-web" in content
+
+        target = resolve_file(cloned_repo_dirs.DIR_REPO / "pyproject.toml")
+        with target.open("r") as stream:
+            content = stream.read()
+            assert f'authors = ["{ALPHA_MAINTAINER}"]' not in content
+            assert f'authors = ["{maintainer}"]' in content
+            assert f'description = "{ALPHA_DESCRIPTION}"' not in content
+            assert f'description = "{description}"' in content
+            assert f'name = "{ALPHA_BRAND.lower()}"' not in content
+            assert f'name = "{brand}"' in content
 
         target = cloned_repo_dirs.DIR_DOCS
         assert not target.is_dir()
