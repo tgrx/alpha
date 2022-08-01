@@ -1,4 +1,5 @@
 import io
+import re
 import sys
 from contextlib import contextmanager
 from functools import partial
@@ -11,8 +12,10 @@ from typing import ParamSpec
 
 import attrs
 import click
+from ruamel.yaml import CommentedMap
 
 from alpha import ALPHA_BRAND
+from alpha import ALPHA_DOCKERHUB_IMAGE
 
 
 @attrs.define
@@ -202,3 +205,154 @@ def buffer_to_target(buffer: io.StringIO, target: Path) -> None:
     with elastic_io(buffer), target.open("w") as stream:
         buffer.seek(0)
         stream.write(buffer.read())
+
+
+class DockerComposeRebranding:
+    def __init__(self, lc: LocalContext, dom: CommentedMap):
+        self._dom = dom
+        self._lc = lc
+        self._rebranded = False
+
+        self._cur_brand = ALPHA_BRAND.lower()
+
+        self._new_brand = re.sub(r"\s+", "-", lc.brand.lower())
+        self._new_brand = re.sub(r"[^a-z0-9-_]+", "", self._new_brand)
+
+    @property
+    def services(self) -> CommentedMap:
+        services: CommentedMap = self._dom.get("services")
+        assert services is not None, "malformed: no 'services:' node"
+        return services
+
+    @property
+    def volumes(self) -> CommentedMap:
+        volumes: CommentedMap = self._dom.get("volumes")
+        assert volumes is not None, "malformed: no 'volumes:' node"
+        return volumes
+
+    def rebrand(self) -> bool:
+        self._rebrand_services()
+        self._rebrand_volumes()
+
+        return self._rebranded
+
+    def _rebrand_services(self) -> None:
+        service_types = ("web", "db", "dba", "qa")
+
+        for service_type in service_types:
+            service = self._rename_service(service_type)
+            self._fix_service_container_name(service)
+            self._fix_service_depends_on(service)
+            self._fix_service_environment(service)
+            self._fix_service_image(service)
+            self._fix_service_volumes(service)
+
+    def _rebrand_volumes(self) -> None:
+        cur = f"{self._cur_brand}-db"
+        new = f"{self._new_brand}-db"
+        db = self.__rename_node(self.volumes, cur, new)
+        self.__rebrand_str_attr(db, "name", cur, new)
+
+    def _rename_service(self, service_type: str) -> CommentedMap:
+        cur = f"{self._cur_brand}-{service_type}"
+        new = f"{self._new_brand}-{service_type}"
+
+        service = self.__rename_node(self.services, cur, new)
+
+        return service
+
+    def _fix_service_container_name(self, service: CommentedMap) -> None:
+        self.__rebrand_str_attr(
+            service,
+            "container_name",
+            self._cur_brand,
+            self._new_brand,
+        )
+
+    def _fix_service_depends_on(self, service: CommentedMap) -> None:
+        self.__rebrand_list_attr(service, "depends_on")
+
+    def _fix_service_environment(self, service: CommentedMap) -> None:
+        cur: CommentedMap = service.get("environment")
+        if cur is None:
+            return
+
+        self.__rebrand_str_attr(
+            cur,
+            "DATABASE_URL",
+            f"{self._cur_brand}-db",
+            f"{self._new_brand}-db",
+        )
+        self.__rebrand_str_attr(
+            cur,
+            "TEST_SERVICE_URL",
+            f"{self._cur_brand}-web",
+            f"{self._new_brand}-web",
+        )
+
+    def _fix_service_image(self, service: CommentedMap) -> None:
+        assert self._lc.dockerhub_image, "no dockerhub image specified"
+        self.__rebrand_str_attr(
+            service,
+            "image",
+            ALPHA_DOCKERHUB_IMAGE,
+            self._lc.dockerhub_image,
+        )
+
+    def _fix_service_volumes(self, service: CommentedMap) -> None:
+        self.__rebrand_list_attr(service, "volumes")
+
+    def __rename_node(
+        self,
+        parent: CommentedMap,
+        current_name: str,
+        new_name: str,
+    ) -> CommentedMap:
+        node = parent.pop(current_name)
+        if node is not None:
+            self._rebranded = True
+            parent[new_name] = node
+
+        node = parent.get(new_name)
+
+        errmsg = f"node '{new_name}:' not found. Contact support."
+        assert node is not None, errmsg
+
+        errmsg = (
+            f"node '{new_name}:' invalid type={type(node)}. "
+            f"Contact support."
+        )
+        assert isinstance(node, CommentedMap), errmsg
+
+        return node
+
+    def __rebrand_str_attr(
+        self,
+        node: CommentedMap,
+        attr: str,
+        cur: str,
+        new: str,
+    ) -> None:
+        cur_value: str = node.get(attr)
+        if not cur_value:
+            return
+
+        if cur in cur_value:
+            self._rebranded = True
+            new_value = cur_value.replace(cur, new)
+            node[attr] = new_value
+
+    def __rebrand_list_attr(self, node: CommentedMap, attr: str) -> None:
+        cur: list = node.get(attr) or []
+        if not cur:
+            return
+
+        new = []
+        for item in cur:
+            if isinstance(item, str):  # noqa: SIM102
+                if self._cur_brand in item:
+                    self._rebranded = True
+                    item = item.replace(self._cur_brand, self._new_brand)
+            new.append(item)
+
+        node[attr] = sorted(new)

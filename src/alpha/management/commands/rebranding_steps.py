@@ -6,7 +6,6 @@ import attrs
 import click
 from defusedxml.ElementTree import parse as parse_xml
 from ruamel.yaml import YAML
-from ruamel.yaml import CommentedMap
 
 from alpha import ALPHA_BRAND
 from alpha import ALPHA_DOCKERHUB_IMAGE
@@ -14,6 +13,7 @@ from alpha import ALPHA_HEROKU_APP_NAME
 from alpha import ALPHA_HEROKU_MAINTAINER_EMAIL
 from alpha import ALPHA_OWNER
 from alpha import dirs
+from alpha.management.commands.rebranding_util import DockerComposeRebranding
 from alpha.management.commands.rebranding_util import LocalContext
 from alpha.management.commands.rebranding_util import buffer_to_target
 from alpha.management.commands.rebranding_util import confirm
@@ -306,139 +306,9 @@ def rebrand_docker_compose(lc: LocalContext) -> None:
     with elastic_io(target_to_buffer(target)) as original:
         dom = yaml.load(original)
 
-    need_rebranding = False
-    brand_original = ALPHA_BRAND.lower()
-    brand_modified = lc.brand.lower()
+    helper = DockerComposeRebranding(lc, dom)
 
-    node_services: CommentedMap = dom["services"]
-
-    node_service_web: CommentedMap = node_services.pop(f"{brand_original}-web")
-    if node_service_web:
-        node_services[f"{brand_modified}-web"] = node_service_web
-        need_rebranding = True
-    node_service_web = node_services[f"{brand_modified}-web"]
-    container_name = node_service_web["container_name"]
-    if brand_original in container_name:
-        need_rebranding = True
-        node_service_web["container_name"] = f"{brand_modified}-web"
-    depends_on = node_service_web["depends_on"]
-    depends_on_modified = []
-    for dep in depends_on:
-        if brand_original in dep:
-            need_rebranding = True
-            depends_on_modified.append(
-                dep.replace(brand_original, brand_modified)
-            )
-        else:
-            depends_on_modified.append(dep)
-    node_service_web["depends_on"] = sorted(depends_on_modified)
-    environment: dict = node_service_web["environment"]
-    database_url: str = environment["DATABASE_URL"]
-    if f"{brand_original}-db" in database_url:
-        need_rebranding = True
-        environment["DATABASE_URL"] = database_url.replace(
-            f"{brand_original}-db", f"{brand_modified}-db"
-        )
-    image: str = node_service_web["image"]
-    if ALPHA_DOCKERHUB_IMAGE in image:
-        need_rebranding = True
-        node_service_web["image"] = image.replace(
-            ALPHA_DOCKERHUB_IMAGE, lc.dockerhub_image
-        )
-
-    node_service_db: CommentedMap = node_services.pop(f"{brand_original}-db")
-    if node_service_db:
-        node_services[f"{brand_modified}-db"] = node_service_db
-        need_rebranding = True
-    node_service_db = node_services[f"{brand_modified}-db"]
-    container_name = node_service_db["container_name"]
-    if brand_original in container_name:
-        need_rebranding = True
-        node_service_db["container_name"] = f"{brand_modified}-db"
-    volumes: list[str] = node_service_db["volumes"]
-    volumes_modified = []
-    for volume in volumes:
-        if f"{brand_original}-db" in volume:
-            need_rebranding = True
-            volumes_modified.append(
-                volume.replace(f"{brand_original}-db", f"{brand_modified}-db")
-            )
-        else:
-            volumes_modified.append(volume)
-    node_service_db["volumes"] = sorted(volumes_modified)
-
-    node_service_dba: CommentedMap = node_services.pop(f"{brand_original}-dba")
-    if node_service_dba:
-        node_services[f"{lc.brand.lower()}-dba"] = node_service_dba
-        need_rebranding = True
-    node_service_dba = node_services[f"{lc.brand.lower()}-dba"]
-    container_name = node_service_dba["container_name"]
-    if brand_original in container_name:
-        need_rebranding = True
-        node_service_dba["container_name"] = f"{brand_modified}-dba"
-    volumes: list[str] = node_service_dba["volumes"]
-    volumes_modified = []
-    for volume in volumes:
-        if f"{brand_original}-db" in volume:
-            need_rebranding = True
-            volumes_modified.append(
-                volume.replace(f"{brand_original}-db", f"{brand_modified}-db")
-            )
-        else:
-            volumes_modified.append(volume)
-    node_service_dba["volumes"] = sorted(volumes_modified)
-
-    node_service_qa: CommentedMap = node_services.pop(f"{brand_original}-qa")
-    if node_service_qa:
-        node_services[f"{lc.brand.lower()}-qa"] = node_service_qa
-        need_rebranding = True
-    node_service_qa = node_services[f"{lc.brand.lower()}-qa"]
-    depends_on = node_service_qa["depends_on"]
-    depends_on_modified = []
-    for dep in depends_on:
-        if brand_original in dep:
-            need_rebranding = True
-            depends_on_modified.append(
-                dep.replace(brand_original, brand_modified)
-            )
-        else:
-            depends_on_modified.append(dep)
-    node_service_qa["depends_on"] = sorted(depends_on_modified)
-    container_name = node_service_qa["container_name"]
-    if brand_original in container_name:
-        need_rebranding = True
-        node_service_qa["container_name"] = f"{brand_modified}-qa"
-    environment: dict = node_service_qa["environment"]
-    database_url: str = environment["DATABASE_URL"]
-    if f"{brand_original}-db" in database_url:
-        need_rebranding = True
-        environment["DATABASE_URL"] = database_url.replace(
-            f"{brand_original}-db", f"{brand_modified}-db"
-        )
-    test_service_url: str = environment["TEST_SERVICE_URL"]
-    if f"{brand_original}-web" in test_service_url:
-        need_rebranding = True
-        environment["TEST_SERVICE_URL"] = test_service_url.replace(
-            f"{brand_original}-web", f"{brand_modified}-web"
-        )
-    image: str = node_service_qa["image"]
-    if ALPHA_DOCKERHUB_IMAGE in image:
-        need_rebranding = True
-        node_service_qa["image"] = image.replace(
-            ALPHA_DOCKERHUB_IMAGE, lc.dockerhub_image
-        )
-
-    node_volumes: CommentedMap = dom["volumes"]
-
-    node_volumes_db: CommentedMap = node_volumes.pop(f"{brand_original}-db")
-    if node_volumes_db:
-        node_volumes[f"{lc.brand.lower()}-db"] = node_volumes_db
-        need_rebranding = True
-    node_volumes_db = node_volumes[f"{lc.brand.lower()}-db"]
-    name = node_volumes_db["name"]
-    if name == f"{brand_original}-db":
-        need_rebranding = True
-        node_volumes_db["name"] = f"{brand_modified}-db"
+    need_rebranding = helper.rebrand()
 
     end_if_rebranded(not need_rebranding, target)
 
@@ -455,9 +325,8 @@ def rebrand_docker_compose(lc: LocalContext) -> None:
 @step
 def rebrand_pyproject_toml(lc: LocalContext) -> None:
     assert lc
-    f = dirs.DIR_REPO / "pyproject.toml"
-    t = click.style(f.as_posix(), fg="green" if f.is_file() else "red")
-    click.echo(f"rebrand {t}")
+    target = dirs.DIR_REPO / "pyproject.toml"
+    click.echo(f"rebrand {target}")
 
 
 @step

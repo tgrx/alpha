@@ -92,7 +92,7 @@ def main(**kwargs: Any) -> None:
         rebranding_steps.rebrand_coveragerc,
         rebranding_steps.rebrand_docker_compose,
         rebranding_steps.rebrand_dotenv,
-        # rebranding_steps.rebrand_pyproject_toml,  # TODO
+        rebranding_steps.rebrand_pyproject_toml,
         rebranding_steps.rebrand_readme_md,
         rebranding_steps.rebrand_run,
         rebranding_steps.remove_project_paths,
