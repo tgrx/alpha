@@ -52,7 +52,7 @@ services:
       source: ./.garbage/docker-compose/
       target: /app/.garbage
 volumes:
-  alpha-qa:
+  alpha-db:
     name: alpha-db
     driver: local
     driver_opts:

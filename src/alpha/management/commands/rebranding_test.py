@@ -147,6 +147,28 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
             assert f"# {ALPHA_BRAND.upper()}" not in content
             assert f"# {brand.upper()}" in content
 
+        target = resolve_file(cloned_repo_dirs.DIR_REPO / "docker-compose.yml")
+        with target.open("r") as stream:
+            content = stream.read()
+            assert ALPHA_DOCKERHUB_IMAGE not in content
+            assert dockerhub_image in content
+            assert f"container_name: {ALPHA_BRAND.lower()}-db" not in content
+            assert f"container_name: {ALPHA_BRAND.lower()}-dba" not in content
+            assert f"container_name: {ALPHA_BRAND.lower()}-qa" not in content
+            assert f"container_name: {ALPHA_BRAND.lower()}-web" not in content
+            assert f"container_name: {brand.lower()}-db" in content
+            assert f"container_name: {brand.lower()}-dba" in content
+            assert f"container_name: {brand.lower()}-qa" in content
+            assert f"container_name: {brand.lower()}-web" in content
+            assert f"{ALPHA_BRAND.lower()}-db" not in content
+            assert f"{ALPHA_BRAND.lower()}-dba" not in content
+            assert f"{ALPHA_BRAND.lower()}-qa" not in content
+            assert f"{ALPHA_BRAND.lower()}-web" not in content
+            assert f"{brand.lower()}-db" in content
+            assert f"{brand.lower()}-dba" in content
+            assert f"{brand.lower()}-qa" in content
+            assert f"{brand.lower()}-web" in content
+
         target = cloned_repo_dirs.DIR_DOCS
         assert not target.is_dir()
 

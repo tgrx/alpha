@@ -5,7 +5,8 @@ from pathlib import Path
 import attrs
 import click
 from defusedxml.ElementTree import parse as parse_xml
-from ruamel.yaml import YAML, CommentedMap
+from ruamel.yaml import YAML
+from ruamel.yaml import CommentedMap
 
 from alpha import ALPHA_BRAND
 from alpha import ALPHA_DOCKERHUB_IMAGE
@@ -325,19 +326,25 @@ def rebrand_docker_compose(lc: LocalContext) -> None:
     for dep in depends_on:
         if brand_original in dep:
             need_rebranding = True
-            depends_on_modified.append(dep.replace(brand_original, brand_modified))
+            depends_on_modified.append(
+                dep.replace(brand_original, brand_modified)
+            )
         else:
             depends_on_modified.append(dep)
     node_service_web["depends_on"] = sorted(depends_on_modified)
-    environment:dict = node_service_web["environment"]
-    database_url:str = environment["DATABASE_URL"]
+    environment: dict = node_service_web["environment"]
+    database_url: str = environment["DATABASE_URL"]
     if f"{brand_original}-db" in database_url:
         need_rebranding = True
-        environment["DATABASE_URL"] = database_url.replace(f"{brand_original}-db", f"{brand_modified}-db")
+        environment["DATABASE_URL"] = database_url.replace(
+            f"{brand_original}-db", f"{brand_modified}-db"
+        )
     image: str = node_service_web["image"]
     if ALPHA_DOCKERHUB_IMAGE in image:
         need_rebranding = True
-        node_service_web["image"] = image.replace(ALPHA_DOCKERHUB_IMAGE, lc.dockerhub_image)
+        node_service_web["image"] = image.replace(
+            ALPHA_DOCKERHUB_IMAGE, lc.dockerhub_image
+        )
 
     node_service_db: CommentedMap = node_services.pop(f"{brand_original}-db")
     if node_service_db:
@@ -348,12 +355,14 @@ def rebrand_docker_compose(lc: LocalContext) -> None:
     if brand_original in container_name:
         need_rebranding = True
         node_service_db["container_name"] = f"{brand_modified}-db"
-    volumes:list[str] = node_service_db["volumes"]
+    volumes: list[str] = node_service_db["volumes"]
     volumes_modified = []
     for volume in volumes:
         if f"{brand_original}-db" in volume:
             need_rebranding = True
-            volumes_modified.append(volume.replace(f"{brand_original}-db", f"{brand_modified}-db"))
+            volumes_modified.append(
+                volume.replace(f"{brand_original}-db", f"{brand_modified}-db")
+            )
         else:
             volumes_modified.append(volume)
     node_service_db["volumes"] = sorted(volumes_modified)
@@ -372,7 +381,9 @@ def rebrand_docker_compose(lc: LocalContext) -> None:
     for volume in volumes:
         if f"{brand_original}-db" in volume:
             need_rebranding = True
-            volumes_modified.append(volume.replace(f"{brand_original}-db", f"{brand_modified}-db"))
+            volumes_modified.append(
+                volume.replace(f"{brand_original}-db", f"{brand_modified}-db")
+            )
         else:
             volumes_modified.append(volume)
     node_service_dba["volumes"] = sorted(volumes_modified)
@@ -387,7 +398,9 @@ def rebrand_docker_compose(lc: LocalContext) -> None:
     for dep in depends_on:
         if brand_original in dep:
             need_rebranding = True
-            depends_on_modified.append(dep.replace(brand_original, brand_modified))
+            depends_on_modified.append(
+                dep.replace(brand_original, brand_modified)
+            )
         else:
             depends_on_modified.append(dep)
     node_service_qa["depends_on"] = sorted(depends_on_modified)
@@ -399,23 +412,29 @@ def rebrand_docker_compose(lc: LocalContext) -> None:
     database_url: str = environment["DATABASE_URL"]
     if f"{brand_original}-db" in database_url:
         need_rebranding = True
-        environment["DATABASE_URL"] = database_url.replace(f"{brand_original}-db", f"{brand_modified}-db")
+        environment["DATABASE_URL"] = database_url.replace(
+            f"{brand_original}-db", f"{brand_modified}-db"
+        )
     test_service_url: str = environment["TEST_SERVICE_URL"]
     if f"{brand_original}-web" in test_service_url:
         need_rebranding = True
-        environment["TEST_SERVICE_URL"] = test_service_url.replace(f"{brand_original}-web", f"{brand_modified}-web")
+        environment["TEST_SERVICE_URL"] = test_service_url.replace(
+            f"{brand_original}-web", f"{brand_modified}-web"
+        )
     image: str = node_service_qa["image"]
     if ALPHA_DOCKERHUB_IMAGE in image:
         need_rebranding = True
-        node_service_qa["image"] = image.replace(ALPHA_DOCKERHUB_IMAGE, lc.dockerhub_image)
+        node_service_qa["image"] = image.replace(
+            ALPHA_DOCKERHUB_IMAGE, lc.dockerhub_image
+        )
 
     node_volumes: CommentedMap = dom["volumes"]
 
     node_volumes_db: CommentedMap = node_volumes.pop(f"{brand_original}-db")
     if node_volumes_db:
-        node_volumes[f"{lc.brand.lower()}-qa"] = node_volumes_db
+        node_volumes[f"{lc.brand.lower()}-db"] = node_volumes_db
         need_rebranding = True
-    node_volumes_db = node_volumes[f"{lc.brand.lower()}-qa"]
+    node_volumes_db = node_volumes[f"{lc.brand.lower()}-db"]
     name = node_volumes_db["name"]
     if name == f"{brand_original}-db":
         need_rebranding = True
