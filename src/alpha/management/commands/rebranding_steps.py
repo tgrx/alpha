@@ -1,9 +1,11 @@
 import shutil
 import sys
 from pathlib import Path
+from typing import Any
 
 import attrs
 import click
+import tomlkit
 from defusedxml.ElementTree import parse as parse_xml
 from ruamel.yaml import YAML
 
@@ -336,22 +338,29 @@ def rebrand_pyproject_toml(lc: LocalContext) -> None:
     with elastic_io(
         target_to_buffer(target)
     ) as original, elastic_io() as modified:
-        for line_original in original.readlines():
-            line_original = line_original.strip()
+        # `Any`: mypy does not understand tomlkit types
+        dom: Any = tomlkit.load(original)
 
-            if line_original == f'name = "{ALPHA_BRAND.lower()}"':
-                need_rebranding = True
-                line_modified = f'name = "{lc.brand}"'
-            elif line_original == f'description = "{ALPHA_DESCRIPTION}"':
-                need_rebranding = True
-                line_modified = f'description = "{lc.project_description}"'
-            elif line_original == f'authors = ["{ALPHA_MAINTAINER}"]':
-                need_rebranding = True
-                line_modified = f'authors = ["{lc.project_maintainer}"]'
-            else:
-                line_modified = line_original
+        poetry = dom["tool"]["poetry"]
 
-            modified.write(f"{line_modified}\n")
+        if poetry["name"] == ALPHA_BRAND.lower():
+            need_rebranding = True
+            poetry["name"] = lc.brand
+
+        if poetry["description"] == ALPHA_DESCRIPTION:
+            need_rebranding = True
+            poetry["description"] = lc.project_description
+
+        authors = []
+        for author in poetry["authors"]:
+            if author == ALPHA_MAINTAINER:
+                need_rebranding = True
+                author = lc.project_maintainer
+            authors.append(author)
+        poetry["authors"].clear()
+        poetry["authors"].extend(sorted(authors))
+
+        tomlkit.dump(dom, modified)
 
     end_if_rebranded(not need_rebranding, target)
 
