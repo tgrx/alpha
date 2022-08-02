@@ -1,5 +1,7 @@
 import os
+from configparser import ConfigParser
 from functools import partial
+from pathlib import Path
 from typing import Any
 from unittest import mock
 from unittest.mock import patch
@@ -7,10 +9,10 @@ from unittest.mock import patch
 import pytest
 import tomlkit
 from click.testing import CliRunner
+from defusedxml.ElementTree import parse as parse_xml
 from dockerfile_parse import DockerfileParser
 from dotenv import dotenv_values
 
-from alpha import ALPHA_BRAND
 from alpha import ALPHA_DESCRIPTION
 from alpha import ALPHA_DOCKERHUB_IMAGE
 from alpha import ALPHA_HEROKU_APP_NAME
@@ -110,38 +112,28 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
             assert f"heroku_email: {ALPHA_MAINTAINER_EMAIL}" not in content
             assert f"heroku_email: {heroku_app_maintainer_email}" in content
 
-        target = resolve_file(
-            cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "runner.run.xml"
+        check_run_config(
+            cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "runner.run.xml",
+            brand=brand,
         )
-        with target.open("r") as stream:
-            content = stream.read()
-            assert f'<module name="{ALPHA_BRAND.lower()}" />' not in content
-            assert f'<module name="{brand}" />' in content
 
-        target = resolve_file(
-            cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "tests - all.run.xml"
+        check_run_config(
+            cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "tests - all.run.xml",
+            brand=brand,
         )
-        with target.open("r") as stream:
-            content = stream.read()
-            assert f'<module name="{ALPHA_BRAND.lower()}" />' not in content
-            assert f'<module name="{brand}" />' in content
 
-        target = resolve_file(
-            cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "tests - unit.run.xml"
+        check_run_config(
+            cloned_repo_dirs.DIR_RUN_CONFIGURATIONS / "tests - unit.run.xml",
+            brand=brand,
         )
-        with target.open("r") as stream:
-            content = stream.read()
-            assert f'<module name="{ALPHA_BRAND.lower()}" />' not in content
-            assert f'<module name="{brand}" />' in content
 
-        target = resolve_file(cloned_repo_dirs.DIR_REPO / ".coveragerc")
-        with target.open("r") as stream:
-            content = stream.read()
-            assert f"title = {ALPHA_BRAND.capitalize()}" not in content
-            assert f"title = {brand}" in content
+        check_coveragerc(
+            cloned_repo_dirs.DIR_REPO / ".coveragerc",
+            brand=brand,
+        )
 
         check_dotenv(
-            cloned_repo_dirs,
+            cloned_repo_dirs.DIR_REPO / ".env",
             heroku_app_name=heroku_app_name,
         )
 
@@ -165,7 +157,7 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
         )
 
         check_dockerfile(
-            cloned_repo_dirs,
+            cloned_repo_dirs.DIR_REPO / "Dockerfile",
             description=description,
             maintainer=maintainer,
         )
@@ -180,23 +172,53 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
         assert not target.is_dir()
 
 
+def check_run_config(
+    target: Path,
+    *,
+    brand: str,
+) -> None:
+    target = resolve_file(target)
+    with target.open("r") as stream:
+        tree = parse_xml(
+            stream,
+            forbid_dtd=True,
+            forbid_entities=True,
+            forbid_external=True,
+        )
+
+        node = tree.find("./configuration/module[1]")
+        assert node is not None
+        assert node.attrib["name"] == brand
+
+
+def check_coveragerc(
+    target: Path,
+    *,
+    brand: str,
+) -> None:
+    target = resolve_file(target)
+    rc = ConfigParser()
+    rc.read(target)
+    assert rc["html"]["title"] == brand
+
+
 def check_dotenv(
-    dirs: Any,
+    target: Path,
     *,
     heroku_app_name: str,
 ) -> None:
-    target = resolve_file(dirs.DIR_REPO / ".env")
+    target = resolve_file(target)
     env = dotenv_values(target)
     assert env["HEROKU_APP_NAME"] == heroku_app_name
 
 
 def check_dockerfile(
-    dirs: Any,
+    target: Path,
     *,
     description: str,
     maintainer: str,
 ) -> None:
-    target = resolve_file(dirs.DIR_REPO / "Dockerfile")
+    target = resolve_file(target)
     dockerfile = DockerfileParser(target.as_posix())
     assert ALPHA_DESCRIPTION not in dockerfile.content
     assert ALPHA_MAINTAINER not in dockerfile.content

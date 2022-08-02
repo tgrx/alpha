@@ -1,5 +1,6 @@
 import shutil
 import sys
+from configparser import ConfigParser
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -199,12 +200,13 @@ def rebrand_coveragerc(lc: LocalContext) -> None:
     need_rebranding = False
 
     with elastic_io(original), elastic_io() as modified:
-        for lo in original.readlines():
-            lm = lo
-            if lo.lower().strip() == f"title = {ALPHA_BRAND}":
-                need_rebranding = True
-                lm = f"title = {lc.brand}\n"
-            modified.write(lm)
+        rc = ConfigParser()
+        content = original.read()
+        rc.read_string(content)
+        if ALPHA_BRAND.lower() in rc["html"]["title"].lower():
+            need_rebranding = True
+            rc["html"]["title"] = lc.brand
+        rc.write(modified)
 
     end_if_rebranded(not need_rebranding, target)
 

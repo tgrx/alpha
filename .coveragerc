@@ -3,27 +3,25 @@ branch = True
 concurrency = greenlet
 data_file = .garbage/coverage/data_file.db
 omit = \
-    src/main/runner.py
+	src/main/runner.py
 relative_files = True
 source = src
 
-
 [report]
-exclude_lines =
-    @(abc\.)?abstractmethod
-    class .*\bProtocol\):
-    def __repr__
-    if .*\.MODE_DEBUG
-    if 0:
-    if __name__ == .__main__.:
-    pragma: no cover
-    raise AssertionError
-    raise NotImplementedError
+exclude_lines = 
+	@(abc\.)?abstractmethod
+	class .*\bProtocol\):
+	def __repr__
+	if .*\.MODE_DEBUG
+	if 0:
+	if __name__ == .__main__.:
+	pragma: no cover
+	raise AssertionError
+	raise NotImplementedError
 fail_under = 90
 skip_covered = False
 skip_empty = True
 sort = -Cover
-
 
 [html]
 directory = .garbage/coverage/html/
@@ -31,6 +29,6 @@ skip_covered = False
 skip_empty = True
 title = Alpha
 
-
 [xml]
 output = .garbage/coverage/report.xml
+
