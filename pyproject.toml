@@ -61,6 +61,7 @@ ignore_missing_imports = true
 module = [
     "asyncpg",
     "defusedxml.ElementTree",
+    "dockerfile_parse",
     "ruamel",
     "uvicorn",
 ]
@@ -68,7 +69,7 @@ module = [
 
 [tool.poetry]
 authors = ["Alexander Sidorov <alexander@sidorov.dev>"]
-description = "A template for web project"
+description = "The template for building a web project."
 license = "MIT"
 name = "alpha"
 version = "2022.06.15"

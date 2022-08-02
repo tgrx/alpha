@@ -21,14 +21,12 @@ from alpha import ALPHA_DOCKERHUB_IMAGE
 @attrs.define
 class LocalContext:
     brand: str
-    dockerfile_description: str = ""
-    dockerfile_maintainer: str = ""
+    description: str = ""
     dockerhub_image: str = ""
     github_username: str = ""
     heroku_app_maintainer_email: str = ""
     heroku_app_name: str = ""
-    project_description: str = ""
-    project_maintainer: str = ""
+    maintainer: str = ""
     remove_alpha: bool = False
     remove_docs: bool = False
     remove_sources: bool = False

@@ -5,7 +5,9 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
+import tomlkit
 from click.testing import CliRunner
+from dockerfile_parse import DockerfileParser
 
 from alpha import ALPHA_BRAND
 from alpha import ALPHA_DESCRIPTION
@@ -17,6 +19,7 @@ from alpha import ALPHA_OWNER
 from alpha.management.commands import rebranding
 from alpha.management.commands.rebranding_util import resolve_file
 from alpha.settings import Settings
+from alpha.util import yaml
 
 pytestmark = [
     pytest.mark.unit,
@@ -51,12 +54,12 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
 
     cmd_args = [
         "--yes",
+        f"--description={description}",
         f"--dockerhub-image={dockerhub_image}",
         f"--github-username={github_username}",
         f"--heroku-app-maintainer-email={heroku_app_maintainer_email}",
         f"--heroku-app-name={heroku_app_name}",
-        f"--project-description={description}",
-        f"--project-maintainer={maintainer}",
+        f"--maintainer={maintainer}",
         f"--remove-alpha",  # noqa: F541
         f"--remove-docs",  # noqa: F541
         f"--remove-sources",  # noqa: F541
@@ -148,37 +151,24 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
             assert f"# {ALPHA_BRAND.upper()}" not in content
             assert f"# {brand.upper()}" in content
 
-        target = resolve_file(cloned_repo_dirs.DIR_REPO / "docker-compose.yml")
-        with target.open("r") as stream:
-            content = stream.read()
-            assert ALPHA_DOCKERHUB_IMAGE not in content
-            assert dockerhub_image in content
-            assert f"container_name: {ALPHA_BRAND.lower()}-db" not in content
-            assert f"container_name: {ALPHA_BRAND.lower()}-dba" not in content
-            assert f"container_name: {ALPHA_BRAND.lower()}-qa" not in content
-            assert f"container_name: {ALPHA_BRAND.lower()}-web" not in content
-            assert f"container_name: {brand.lower()}-db" in content
-            assert f"container_name: {brand.lower()}-dba" in content
-            assert f"container_name: {brand.lower()}-qa" in content
-            assert f"container_name: {brand.lower()}-web" in content
-            assert f"{ALPHA_BRAND.lower()}-db" not in content
-            assert f"{ALPHA_BRAND.lower()}-dba" not in content
-            assert f"{ALPHA_BRAND.lower()}-qa" not in content
-            assert f"{ALPHA_BRAND.lower()}-web" not in content
-            assert f"{brand.lower()}-db" in content
-            assert f"{brand.lower()}-dba" in content
-            assert f"{brand.lower()}-qa" in content
-            assert f"{brand.lower()}-web" in content
+        check_docker_compose(
+            cloned_repo_dirs,
+            brand=brand,
+            dockerhub_image=dockerhub_image,
+        )
 
-        target = resolve_file(cloned_repo_dirs.DIR_REPO / "pyproject.toml")
-        with target.open("r") as stream:
-            content = stream.read()
-            assert f'authors = ["{ALPHA_MAINTAINER}"]' not in content
-            assert f'authors = ["{maintainer}"]' in content
-            assert f'description = "{ALPHA_DESCRIPTION}"' not in content
-            assert f'description = "{description}"' in content
-            assert f'name = "{ALPHA_BRAND.lower()}"' not in content
-            assert f'name = "{brand}"' in content
+        check_pyproject_toml(
+            cloned_repo_dirs,
+            brand=brand,
+            description=description,
+            maintainer=maintainer,
+        )
+
+        check_dockerfile(
+            cloned_repo_dirs,
+            description=description,
+            maintainer=maintainer,
+        )
 
         target = cloned_repo_dirs.DIR_DOCS
         assert not target.is_dir()
@@ -188,3 +178,78 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
 
         target = cloned_repo_dirs.DIR_SRC
         assert not target.is_dir()
+
+
+def check_dockerfile(
+    dirs: Any,
+    *,
+    description: str,
+    maintainer: str,
+) -> None:
+    target = resolve_file(dirs.DIR_REPO / "Dockerfile")
+    dockerfile = DockerfileParser(target.as_posix())
+    assert ALPHA_DESCRIPTION not in dockerfile.content
+    assert ALPHA_MAINTAINER not in dockerfile.content
+    labels = dockerfile.labels
+    assert labels["description"] == description
+    assert labels["org.opencontainers.image.authors"] == maintainer
+
+
+def check_pyproject_toml(
+    dirs: Any,
+    *,
+    maintainer: str,
+    description: str,
+    brand: str,
+) -> None:
+    target = resolve_file(dirs.DIR_REPO / "pyproject.toml")
+    with target.open("r") as stream:
+        dom: Any = tomlkit.load(stream)
+        poetry = dom["tool"]["poetry"]
+        assert maintainer in poetry["authors"]
+        assert poetry["description"] == description
+        assert poetry["name"] == brand
+
+
+def check_docker_compose(
+    dirs: Any,
+    *,
+    brand: str,
+    dockerhub_image: str,
+) -> None:
+    target = resolve_file(dirs.DIR_REPO / "docker-compose.yml")
+    with target.open("r") as stream:
+        dom = yaml.load(stream)
+
+        services = dom["services"]
+
+        web = services.get(f"{brand}-web")
+        assert web is not None
+        assert web["container_name"] == f"{brand}-web"
+        assert f"{brand}-db" in web["depends_on"]
+        assert f"{brand}-db" in web["environment"]["DATABASE_URL"]
+        assert web["image"] == f"{dockerhub_image}:dev"
+
+        db = services.get(f"{brand}-db")
+        assert db is not None
+        assert db["container_name"] == f"{brand}-db"
+        assert any(f"{brand}-db" in volume for volume in db["volumes"])
+
+        dba = services.get(f"{brand}-dba")
+        assert dba is not None
+        assert dba["container_name"] == f"{brand}-dba"
+        assert any(f"{brand}-db" in volume for volume in dba["volumes"])
+
+        qa = services.get(f"{brand}-qa")
+        assert qa is not None
+        assert qa["container_name"] == f"{brand}-qa"
+        assert f"{brand}-web" in qa["depends_on"]
+        assert f"{brand}-db" in qa["environment"]["DATABASE_URL"]
+        assert f"{brand}-web" in qa["environment"]["TEST_SERVICE_URL"]
+        assert qa["image"] == f"{dockerhub_image}:dev"
+
+        volumes = dom["volumes"]
+
+        db = volumes.get(f"{brand}-db")
+        assert db is not None
+        assert db["name"] == f"{brand}-db"

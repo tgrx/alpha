@@ -8,16 +8,6 @@ from alpha.management.commands.rebranding_util import LocalContext
 
 @click.command()
 @click.option(
-    "--dockerfile-description",
-    default="",
-    help="Dockerfile description",
-)
-@click.option(
-    "--dockerfile-maintainer",
-    default="",
-    help="Dockerfile maintainer",
-)
-@click.option(
     "--dockerhub-image",
     default="",
     help="Docker Hub repo/image",
@@ -38,14 +28,14 @@ from alpha.management.commands.rebranding_util import LocalContext
     help="Heroku app name",
 )
 @click.option(
-    "--project-description",
+    "--description",
     default="",
     help="Project description",
 )
 @click.option(
-    "--project-maintainer",
+    "--maintainer",
     default="",
-    help="Project maintainer",
+    help="Maintainer 'Name <email>'",
 )
 @click.option(
     "--remove-alpha",
@@ -91,6 +81,7 @@ def main(**kwargs: Any) -> None:
         rebranding_steps.rebrand_codeowners,
         rebranding_steps.rebrand_coveragerc,
         rebranding_steps.rebrand_docker_compose,
+        rebranding_steps.rebrand_dockerfile,
         rebranding_steps.rebrand_dotenv,
         rebranding_steps.rebrand_pyproject_toml,
         rebranding_steps.rebrand_readme_md,

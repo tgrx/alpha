@@ -1,13 +1,14 @@
 import shutil
 import sys
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
 import attrs
 import click
 import tomlkit
 from defusedxml.ElementTree import parse as parse_xml
-from ruamel.yaml import YAML
+from dockerfile_parse import DockerfileParser
 
 from alpha import ALPHA_BRAND
 from alpha import ALPHA_DESCRIPTION
@@ -30,8 +31,7 @@ from alpha.management.commands.rebranding_util import show_diff
 from alpha.management.commands.rebranding_util import step
 from alpha.management.commands.rebranding_util import target_to_buffer
 from alpha.management.commands.rebranding_util import warn
-
-yaml = YAML()
+from alpha.util import yaml
 
 
 def display_summary(lc: LocalContext) -> None:
@@ -51,41 +51,6 @@ def display_summary(lc: LocalContext) -> None:
     go = confirm(lc, return_on_disagree=True)
     if not go:
         sys.exit(0)
-
-
-@step
-def rebrand_codeowners(lc: LocalContext) -> None:
-    """
-    Rebrand code owners
-    """
-
-    assert lc.github_username, "Github username is not specified"
-
-    target = resolve_file(dirs.DIR_REPO / "CODEOWNERS")
-
-    need_rebranding = False
-
-    with elastic_io(
-        target_to_buffer(target)
-    ) as original, elastic_io() as modified:
-        for line_original in original.readlines():
-            tokens_original = line_original.split(" ")
-            tokens_modified = []
-            for token in tokens_original:
-                if f"@{ALPHA_OWNER}" in token:
-                    token = token.replace(ALPHA_OWNER, lc.github_username)
-                    need_rebranding = True
-                tokens_modified.append(token)
-            line_modified = " ".join(tokens_modified)
-            modified.write(f"{line_modified}\n")
-
-    end_if_rebranded(not need_rebranding, target)
-
-    show_diff(target, original, modified)
-
-    confirm(lc)
-
-    buffer_to_target(modified, target)
 
 
 @step
@@ -188,6 +153,241 @@ def rebrand_ci_deploy_heroku(lc: LocalContext) -> None:
 
 
 @step
+def rebrand_codeowners(lc: LocalContext) -> None:
+    """
+    Rebrand code owners
+    """
+
+    assert lc.github_username, "Github username is not specified"
+
+    target = resolve_file(dirs.DIR_REPO / "CODEOWNERS")
+
+    need_rebranding = False
+
+    with elastic_io(
+        target_to_buffer(target)
+    ) as original, elastic_io() as modified:
+        for line_original in original.readlines():
+            tokens_original = line_original.split(" ")
+            tokens_modified = []
+            for token in tokens_original:
+                if f"@{ALPHA_OWNER}" in token:
+                    token = token.replace(ALPHA_OWNER, lc.github_username)
+                    need_rebranding = True
+                tokens_modified.append(token)
+            line_modified = " ".join(tokens_modified)
+            modified.write(f"{line_modified}\n")
+
+    end_if_rebranded(not need_rebranding, target)
+
+    show_diff(target, original, modified)
+
+    confirm(lc)
+
+    buffer_to_target(modified, target)
+
+
+@step
+def rebrand_coveragerc(lc: LocalContext) -> None:
+    """
+    Rebrand .coveragerc
+    """
+
+    target = resolve_file(dirs.DIR_REPO / ".coveragerc")
+    original = target_to_buffer(target)
+
+    need_rebranding = False
+
+    with elastic_io(original), elastic_io() as modified:
+        for lo in original.readlines():
+            lm = lo
+            if lo.lower().strip() == f"title = {ALPHA_BRAND}":
+                need_rebranding = True
+                lm = f"title = {lc.brand}\n"
+            modified.write(lm)
+
+    end_if_rebranded(not need_rebranding, target)
+
+    show_diff(target, original, modified)
+
+    confirm(lc)
+
+    buffer_to_target(modified, target)
+
+
+@step
+def rebrand_docker_compose(lc: LocalContext) -> None:
+    """
+    Rebrand docker-compose.yml
+    """
+
+    assert lc.dockerhub_image, "Dockerhub image is not specified"
+
+    target = resolve_file(dirs.DIR_REPO / "docker-compose.yml")
+
+    with elastic_io(target_to_buffer(target)) as original:
+        dom = yaml.load(original)
+
+    helper = DockerComposeRebranding(lc, dom)
+
+    need_rebranding = helper.rebrand()
+
+    end_if_rebranded(not need_rebranding, target)
+
+    with elastic_io() as modified:
+        yaml.dump(dom, modified)
+
+    show_diff(target, original, modified)
+
+    confirm(lc)
+
+    buffer_to_target(modified, target)
+
+
+@step
+def rebrand_dockerfile(lc: LocalContext) -> None:
+    assert lc.description, "dockerfile description is not set"
+    assert lc.maintainer, "dockerfile maintainer is not set"
+
+    target = resolve_file(dirs.DIR_REPO / "Dockerfile")
+    original = target_to_buffer(target)
+
+    need_rebranding = False
+
+    with TemporaryDirectory() as tmpdir:
+        with elastic_io(original), elastic_io() as modified:
+            tmp_dockerfile_path = Path(tmpdir) / "Dockerfile"
+            buffer_to_target(original, tmp_dockerfile_path)
+            dockerfile = DockerfileParser(tmp_dockerfile_path.as_posix())
+
+            label = "description"
+            description = dockerfile.labels.get(label)
+            if description == ALPHA_DESCRIPTION:
+                need_rebranding = True
+                dockerfile.labels[label] = lc.description
+
+            label = "org.opencontainers.image.authors"
+            authors = dockerfile.labels.get(label)
+            if authors == ALPHA_MAINTAINER:
+                need_rebranding = True
+                dockerfile.labels[label] = lc.maintainer
+
+        end_if_rebranded(not need_rebranding, target)
+
+        modified.write(dockerfile.content)
+
+    show_diff(target, original, modified)
+
+    confirm(lc)
+
+    buffer_to_target(modified, target)
+
+
+@step
+def rebrand_dotenv(lc: LocalContext) -> None:
+    """
+    Rebrand .env
+    """
+
+    assert lc.heroku_app_name, "Heroku app name is not set"
+
+    target = resolve_file(dirs.DIR_REPO / ".env")
+    original = target_to_buffer(target)
+
+    need_rebranding = False
+
+    line_to_change = f'HEROKU_APP_NAME="{ALPHA_HEROKU_APP_NAME}"'
+    with elastic_io(original), elastic_io() as modified:
+        for lo in original.readlines():
+            lm = lo
+            if lo.strip() == line_to_change:
+                need_rebranding = True
+                lm = f'HEROKU_APP_NAME="{lc.heroku_app_name}"\n'
+            modified.write(lm)
+
+    end_if_rebranded(not need_rebranding, target)
+
+    show_diff(target, original, modified)
+
+    confirm(lc)
+
+    buffer_to_target(modified, target)
+
+
+@step
+def rebrand_pyproject_toml(lc: LocalContext) -> None:
+    assert lc.description, "Project description is not set"
+    assert lc.maintainer, "Project maintainer is not set"
+
+    target = resolve_file(dirs.DIR_REPO / "pyproject.toml")
+
+    need_rebranding = False
+
+    with elastic_io(
+        target_to_buffer(target)
+    ) as original, elastic_io() as modified:
+        # `Any`: mypy does not understand tomlkit types
+        dom: Any = tomlkit.load(original)
+
+        poetry = dom["tool"]["poetry"]
+
+        if poetry["name"] == ALPHA_BRAND.lower():
+            need_rebranding = True
+            poetry["name"] = lc.brand
+
+        if poetry["description"] == ALPHA_DESCRIPTION:
+            need_rebranding = True
+            poetry["description"] = lc.description
+
+        authors = []
+        for author in poetry["authors"]:
+            if author == ALPHA_MAINTAINER:
+                need_rebranding = True
+                author = lc.maintainer
+            authors.append(author)
+        poetry["authors"].clear()
+        poetry["authors"].extend(sorted(authors))
+
+        tomlkit.dump(dom, modified)
+
+    end_if_rebranded(not need_rebranding, target)
+
+    show_diff(target, original, modified)
+
+    confirm(lc)
+
+    buffer_to_target(modified, target)
+
+
+@step
+def rebrand_readme_md(lc: LocalContext) -> None:
+    target = resolve_file(dirs.DIR_REPO / "README.md")
+    original = target_to_buffer(target)
+
+    need_rebranding = False
+
+    with elastic_io(original), elastic_io() as modified:
+        for lo in original.readlines():
+            if ALPHA_BRAND.upper() in lo:
+                need_rebranding = True
+                lm = lo.replace(ALPHA_BRAND.upper(), lc.brand.upper())
+            elif ALPHA_DESCRIPTION in lo:
+                need_rebranding = True
+                lm = lo.replace(ALPHA_DESCRIPTION, lc.description)
+            else:
+                lm = lo
+            modified.write(lm)
+
+    end_if_rebranded(not need_rebranding, target)
+
+    show_diff(target, original, modified)
+
+    confirm(lc)
+
+    buffer_to_target(modified, target)
+
+
+@step
 def rebrand_run(lc: LocalContext) -> None:
     """
     Rebrand Pycharm run configurations
@@ -236,164 +436,6 @@ def rebrand_run(lc: LocalContext) -> None:
         do_rebrand = confirm(lc, return_on_disagree=True)
         if do_rebrand:
             buffer_to_target(modified, target)
-
-
-@step
-def rebrand_coveragerc(lc: LocalContext) -> None:
-    """
-    Rebrand .coveragerc
-    """
-
-    target = resolve_file(dirs.DIR_REPO / ".coveragerc")
-    original = target_to_buffer(target)
-
-    need_rebranding = False
-
-    with elastic_io(original), elastic_io() as modified:
-        for lo in original.readlines():
-            lm = lo
-            if lo.lower().strip() == f"title = {ALPHA_BRAND}":
-                need_rebranding = True
-                lm = f"title = {lc.brand}\n"
-            modified.write(lm)
-
-    end_if_rebranded(not need_rebranding, target)
-
-    show_diff(target, original, modified)
-
-    confirm(lc)
-
-    buffer_to_target(modified, target)
-
-
-@step
-def rebrand_dotenv(lc: LocalContext) -> None:
-    """
-    Rebrand .env
-    """
-
-    assert lc.heroku_app_name, "Heroku app name is not set"
-
-    target = resolve_file(dirs.DIR_REPO / ".env")
-    original = target_to_buffer(target)
-
-    need_rebranding = False
-
-    line_to_change = f'HEROKU_APP_NAME="{ALPHA_HEROKU_APP_NAME}"'
-    with elastic_io(original), elastic_io() as modified:
-        for lo in original.readlines():
-            lm = lo
-            if lo.strip() == line_to_change:
-                need_rebranding = True
-                lm = f'HEROKU_APP_NAME="{lc.heroku_app_name}"\n'
-            modified.write(lm)
-
-    end_if_rebranded(not need_rebranding, target)
-
-    show_diff(target, original, modified)
-
-    confirm(lc)
-
-    buffer_to_target(modified, target)
-
-
-@step
-def rebrand_docker_compose(lc: LocalContext) -> None:
-    """
-    Rebrand docker-compose.yml
-    """
-
-    assert lc.dockerhub_image, "Dockerhub image is not specified"
-
-    target = resolve_file(dirs.DIR_REPO / "docker-compose.yml")
-
-    with elastic_io(target_to_buffer(target)) as original:
-        dom = yaml.load(original)
-
-    helper = DockerComposeRebranding(lc, dom)
-
-    need_rebranding = helper.rebrand()
-
-    end_if_rebranded(not need_rebranding, target)
-
-    with elastic_io() as modified:
-        yaml.dump(dom, modified)
-
-    show_diff(target, original, modified)
-
-    confirm(lc)
-
-    buffer_to_target(modified, target)
-
-
-@step
-def rebrand_pyproject_toml(lc: LocalContext) -> None:
-    assert lc.project_description, "Project description is not set"
-    assert lc.project_maintainer, "Project maintainer is not set"
-
-    target = resolve_file(dirs.DIR_REPO / "pyproject.toml")
-
-    need_rebranding = False
-
-    with elastic_io(
-        target_to_buffer(target)
-    ) as original, elastic_io() as modified:
-        # `Any`: mypy does not understand tomlkit types
-        dom: Any = tomlkit.load(original)
-
-        poetry = dom["tool"]["poetry"]
-
-        if poetry["name"] == ALPHA_BRAND.lower():
-            need_rebranding = True
-            poetry["name"] = lc.brand
-
-        if poetry["description"] == ALPHA_DESCRIPTION:
-            need_rebranding = True
-            poetry["description"] = lc.project_description
-
-        authors = []
-        for author in poetry["authors"]:
-            if author == ALPHA_MAINTAINER:
-                need_rebranding = True
-                author = lc.project_maintainer
-            authors.append(author)
-        poetry["authors"].clear()
-        poetry["authors"].extend(sorted(authors))
-
-        tomlkit.dump(dom, modified)
-
-    end_if_rebranded(not need_rebranding, target)
-
-    show_diff(target, original, modified)
-
-    confirm(lc)
-
-    buffer_to_target(modified, target)
-
-
-@step
-def rebrand_readme_md(lc: LocalContext) -> None:
-    target = resolve_file(dirs.DIR_REPO / "README.md")
-    original = target_to_buffer(target)
-
-    need_rebranding = False
-
-    line_to_change = f"# {ALPHA_BRAND.upper()}"
-    with elastic_io(original), elastic_io() as modified:
-        for lo in original.readlines():
-            lm = lo
-            if lo.strip() == line_to_change:
-                need_rebranding = True
-                lm = f"# {lc.brand.upper()}\n"
-            modified.write(lm)
-
-    end_if_rebranded(not need_rebranding, target)
-
-    show_diff(target, original, modified)
-
-    confirm(lc)
-
-    buffer_to_target(modified, target)
 
 
 @step

@@ -5,7 +5,7 @@ ARG version
 
 FROM --platform=linux/amd64 python:${python_version}-slim
 
-LABEL description="The template for building a web project"
+LABEL description="The template for building a web project."
 LABEL org.opencontainers.image.authors="Alexander Sidorov <alexander@sidorov.dev>"
 LABEL version=${version}
 
