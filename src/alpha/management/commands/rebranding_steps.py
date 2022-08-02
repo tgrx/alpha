@@ -21,17 +21,17 @@ from alpha import ALPHA_OWNER
 from alpha import dirs
 from alpha.management.commands.rebranding_util import DockerComposeRebranding
 from alpha.management.commands.rebranding_util import LocalContext
-from alpha.management.commands.rebranding_util import buffer_to_target
 from alpha.management.commands.rebranding_util import confirm
-from alpha.management.commands.rebranding_util import elastic_io
 from alpha.management.commands.rebranding_util import end_if_rebranded
-from alpha.management.commands.rebranding_util import info
 from alpha.management.commands.rebranding_util import resolve_dir
 from alpha.management.commands.rebranding_util import resolve_file
 from alpha.management.commands.rebranding_util import show_diff
 from alpha.management.commands.rebranding_util import step
-from alpha.management.commands.rebranding_util import target_to_buffer
-from alpha.management.commands.rebranding_util import warn
+from alpha.util import buffer_to_target
+from alpha.util import elastic_io
+from alpha.util import info
+from alpha.util import target_to_buffer
+from alpha.util import warn
 from alpha.util import yaml
 
 

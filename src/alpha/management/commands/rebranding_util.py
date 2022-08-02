@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Any
 from typing import Callable
 from typing import Generator
-from typing import Optional
 from typing import ParamSpec
 
 import attrs
@@ -17,6 +16,9 @@ from ruamel.yaml import CommentedMap
 
 from alpha import ALPHA_BRAND
 from alpha import ALPHA_DOCKERHUB_IMAGE
+from alpha.util import elastic_io
+from alpha.util import info
+from alpha.util import warn
 
 
 @attrs.define
@@ -42,16 +44,6 @@ class LocalContext:
             f" must differ from {ALPHA_BRAND!r}"
         )
         assert self.brand.lower() != ALPHA_BRAND.lower(), err
-
-
-def warn(message: str) -> None:
-    sign = click.style(r"_!_ ", fg="yellow")
-    click.echo(f"{sign} {message}")
-
-
-def info(message: str) -> None:
-    sign = click.style(r"(i) ", fg="bright_green")
-    click.echo(f"{sign} {message}")
 
 
 def confirm(
@@ -149,19 +141,6 @@ def file_banner(target: Path) -> Generator[None, None, None]:
         click.echo()
 
 
-@contextmanager
-def elastic_io(
-    buffer: Optional[io.StringIO] = None,
-) -> Generator[io.StringIO, None, None]:
-    buffer = buffer or io.StringIO()
-
-    buffer.seek(0)
-    try:
-        yield buffer
-    finally:
-        buffer.seek(0)
-
-
 def show_diff(
     target: Path,
     original: io.StringIO,
@@ -191,19 +170,6 @@ def resolve_dir(path: Path) -> Path:
     path = path.resolve()
     assert path.is_dir(), f"not a dir: {path.as_posix()!r}"
     return path
-
-
-def target_to_buffer(target: Path) -> io.StringIO:
-    with elastic_io(io.StringIO()) as buffer, target.open("r") as stream:
-        buffer.write(stream.read())
-
-    return buffer
-
-
-def buffer_to_target(buffer: io.StringIO, target: Path) -> None:
-    with elastic_io(buffer), target.open("w") as stream:
-        buffer.seek(0)
-        stream.write(buffer.read())
 
 
 class DockerComposeRebranding:
