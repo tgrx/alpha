@@ -2,6 +2,7 @@ import click
 
 from alpha.management.commands import db
 from alpha.management.commands import heroku
+from alpha.management.commands import rebranding
 from alpha.management.common import ManagementContext
 from alpha.management.common import show_ads
 
@@ -22,12 +23,13 @@ def main(ctx: click.Context, *, verbose: int = 0) -> None:
     mc = ManagementContext(verbose=verbose)
     ctx.obj = mc
 
-    if mc.verbose > 1:  # user requests spam!
+    if mc.verbose > 1:  # user requests spam!  # pragma: no cover
         show_ads()
 
 
 main.add_command(db.main, "db")
 main.add_command(heroku.main, "heroku")
+main.add_command(rebranding.main, "rebranding")
 
 if __name__ == "__main__":
     main()

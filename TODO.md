@@ -8,3 +8,5 @@ when your work is on hold.
 Please keep them under the line.
 
 ---
+
+1. rebranding: display_summary: use attrs.fields to get a dict and compare with default values

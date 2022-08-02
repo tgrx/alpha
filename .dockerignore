@@ -1,6 +1,4 @@
 **/*.secrets.*
-**/*Dockerfile*
-**/.coverage
 **/.gitignore
 **/__pycache__/
 .dockerignore
@@ -12,7 +10,6 @@
 .run/
 .venv/
 .vscode/
-docker-compose.yml
 heroku.Dockerfile
 heroku.yml
 tmp/

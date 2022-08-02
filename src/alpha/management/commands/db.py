@@ -19,6 +19,7 @@ pass_local_context = click.make_pass_decorator(LocalContext)
     "--from-url",
     help="Uses given URL as DATABASE_URL.",
     metavar="<URL>",
+    show_default="DATABASE_URL env",
     type=str,
 )
 @click.pass_context
@@ -90,6 +91,7 @@ def echo_password(lc: LocalContext) -> None:
     default=False,
     help="Include port in output.",
     is_flag=True,
+    show_default="off",
 )
 @pass_local_context
 def echo_host(lc: LocalContext, *, port: bool = False) -> None:

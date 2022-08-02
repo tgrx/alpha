@@ -9,13 +9,14 @@ site_dir: '../.garbage/mkdocs/site/'
 nav:
   - 'About': 'index.md'
   - 'Development':
+      - 'Commits, PRs': 'dev/pr.md'
       - 'Contributing': 'dev/contributing.md'
       - 'Issues': 'dev/issues.md'
-      - 'Commits, PRs': 'dev/pr.md'
       - 'Versioning': 'dev/versioning.md'
   - 'Usage':
     - 'Alpha Management Tool': 'usage/alpha-management-tool.md'
     - 'Envs': 'usage/envs.md'
+    - 'Rebranding': 'usage/rebranding.md'
 
 theme:
   name: 'material'

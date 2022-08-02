@@ -1,0 +1,7 @@
+ALPHA_BRAND = "alpha"
+ALPHA_OWNER = "tgrx"
+ALPHA_MAINTAINER_EMAIL = "alexander@sidorov.dev"
+ALPHA_MAINTAINER = f"Alexander Sidorov <{ALPHA_MAINTAINER_EMAIL}>"
+ALPHA_DESCRIPTION = "The template for building a web project."
+ALPHA_DOCKERHUB_IMAGE = "alexandersidorov/alpha"
+ALPHA_HEROKU_APP_NAME = "alphasrv"

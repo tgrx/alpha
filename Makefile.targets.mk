@@ -1,6 +1,7 @@
 .PHONY: setup
 setup: setup-python
 	$(call log, configuring the project)
+	install -d -m 0755 "$(DIR_GARBAGE)/docker-compose"
 
 
 .PHONY: setup-python
@@ -68,7 +69,7 @@ format:
 
 
 .PHONY: qa
-qa: clean-coverage tests coverage code-typing code-format code-linters
+qa: clean-garbage tests coverage code-typing code-format code-linters
 	$(call log, QA checks)
 
 
@@ -91,10 +92,28 @@ coverage:
 	coverage xml
 
 
-.PHONY: clean-coverage
-clean-coverage:
+.PHONY: clean-garbage-coverage
+clean-garbage-coverage:
 	$(call log, cleaning Coverage garbage)
 	coverage erase
+	rm -rf "$(DIR_GARBAGE)/coverage"
+
+
+.PHONY: clean-garbage-mypy
+clean-garbage-mypy:
+	$(call log, cleaning Mypy garbage)
+	rm -rf "$(DIR_GARBAGE)/mypy"
+
+
+.PHONY: clean-garbage-pytest
+clean-garbage-pytest:
+	$(call log, cleaning Mypy garbage)
+	rm -rf "$(DIR_GARBAGE)/pytest"
+
+
+.PHONY: clean-garbage
+clean-garbage: clean-garbage-mypy clean-garbage-pytest clean-garbage-coverage
+	$(call log, cleaning garbage)
 
 
 .PHONY: code-typing
