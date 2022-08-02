@@ -145,11 +145,11 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
             assert f'HEROKU_APP_NAME="{ALPHA_HEROKU_APP_NAME}"' not in content
             assert f'HEROKU_APP_NAME="{heroku_app_name}"' in content
 
-        target = resolve_file(cloned_repo_dirs.DIR_REPO / "README.md")
-        with target.open("r") as stream:
-            content = stream.read()
-            assert f"# {ALPHA_BRAND.upper()}" not in content
-            assert f"# {brand.upper()}" in content
+        check_readme_md(
+            cloned_repo_dirs,
+            brand=brand,
+            description=description,
+        )
 
         check_docker_compose(
             cloned_repo_dirs,
@@ -253,3 +253,16 @@ def check_docker_compose(
         db = volumes.get(f"{brand}-db")
         assert db is not None
         assert db["name"] == f"{brand}-db"
+
+
+def check_readme_md(
+    dirs: Any,
+    *,
+    brand: str,
+    description: str,
+) -> None:
+    target = resolve_file(dirs.DIR_REPO / "README.md")
+    with target.open("r") as stream:
+        content = stream.read()
+        assert f"# {brand.upper()}" in content
+        assert description in content
