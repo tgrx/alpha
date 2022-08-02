@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from functools import partial
 from functools import wraps
 from pathlib import Path
+from typing import Any
 from typing import Callable
 from typing import Generator
 from typing import Optional
@@ -353,4 +354,14 @@ class DockerComposeRebranding:
                     item = item.replace(self._cur_brand, self._new_brand)
             new.append(item)
 
-        node[attr] = sorted(new)
+        node[attr] = sorted(new, key=self.__sort_key_list_node_item)
+
+    @staticmethod
+    def __sort_key_list_node_item(item: Any) -> Any:
+        if isinstance(item, str):
+            return str
+
+        if isinstance(item, CommentedMap):
+            return sorted(item.items())
+
+        return None

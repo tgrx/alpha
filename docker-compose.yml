@@ -41,7 +41,7 @@ services:
     depends_on:
     - alpha-web
     container_name: alpha-qa
-    entrypoint: [make, qa]
+    entrypoint: [make, wait-for-db, qa]
     environment:
       DATABASE_URL: postgresql://e7a36973:a4f7a8c8@alpha-db:5432/8fbbc147
       MODE_DEBUG: 1
@@ -51,6 +51,12 @@ services:
     - type: bind
       source: ./.garbage/docker-compose/
       target: /app/.garbage
+    - type: bind
+      source: ./.github
+      target: /app/.github
+    - type: bind
+      source: ./.run
+      target: /app/.run
 volumes:
   alpha-db:
     name: alpha-db
