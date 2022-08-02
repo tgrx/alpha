@@ -8,6 +8,7 @@ import pytest
 import tomlkit
 from click.testing import CliRunner
 from dockerfile_parse import DockerfileParser
+from dotenv import dotenv_values
 
 from alpha import ALPHA_BRAND
 from alpha import ALPHA_DESCRIPTION
@@ -139,11 +140,10 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
             assert f"title = {ALPHA_BRAND.capitalize()}" not in content
             assert f"title = {brand}" in content
 
-        target = resolve_file(cloned_repo_dirs.DIR_REPO / ".env")
-        with target.open("r") as stream:
-            content = stream.read()
-            assert f'HEROKU_APP_NAME="{ALPHA_HEROKU_APP_NAME}"' not in content
-            assert f'HEROKU_APP_NAME="{heroku_app_name}"' in content
+        check_dotenv(
+            cloned_repo_dirs,
+            heroku_app_name=heroku_app_name,
+        )
 
         check_readme_md(
             cloned_repo_dirs,
@@ -178,6 +178,16 @@ def test_rebrand_codeowners_full(cloned_repo_dirs: Any) -> None:
 
         target = cloned_repo_dirs.DIR_SRC
         assert not target.is_dir()
+
+
+def check_dotenv(
+    dirs: Any,
+    *,
+    heroku_app_name: str,
+) -> None:
+    target = resolve_file(dirs.DIR_REPO / ".env")
+    env = dotenv_values(target)
+    assert env["HEROKU_APP_NAME"] == heroku_app_name
 
 
 def check_dockerfile(
