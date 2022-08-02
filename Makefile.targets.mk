@@ -1,6 +1,7 @@
 .PHONY: setup
 setup: setup-python
 	$(call log, configuring the project)
+	install -d -m 0755 "$(DIR_GARBAGE)/docker-compose"
 
 
 .PHONY: setup-python
