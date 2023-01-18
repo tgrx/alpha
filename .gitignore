@@ -5,6 +5,7 @@
 *.py[cod]
 *~
 .DS_Store
+.env/
 .garbage/
 .idea/
 .secrets.*
