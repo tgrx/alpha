@@ -9,9 +9,8 @@ services:
       - docs.alpha
     ports:
       - "8000:8000"
-    restart: unless-stopped
     volumes:
-      - ./:/docs/
+      - ./:/docs/:rw
 networks:
   docs.alpha:
     driver: bridge

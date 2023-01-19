@@ -19,9 +19,8 @@ services:
       - webapp.alpha
     ports:
       - 8000:8000
-    restart: unless-stopped
     volumes:
-      - ./:/app:rw
+      - ./:/app/:rw
   db:
     build:
       context: ../db/
@@ -35,9 +34,8 @@ services:
       - webapp.alpha
     ports:
       - "5432:5432"
-    restart: unless-stopped
     volumes:
-      - .local/services/db/local/data/:/var/lib/postgresql/data
+      - .local/services/db/local/data/:/var/lib/postgresql/data/:rw
 networks:
   webapp.alpha:
     driver: bridge

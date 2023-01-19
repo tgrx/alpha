@@ -1,67 +1,47 @@
 version: '3.9'
 services:
-  alpha-web:
+  webapp:
     build:
       context: services/webapp/
       args:
         - python_version=3.10.9
         - version=dev
-    container_name: alpha-web
+    container_name: webapp.alpha
     depends_on:
-      - alpha-db
+      - db
     entrypoint: [ make, wait-for-db, run ]
     environment:
-      DATABASE_URL: postgresql://e7a36973:a4f7a8c8@alpha-db:5432/8fbbc147
+      DATABASE_URL: postgresql://alpha:alpha@db:5432/alpha
       MODE_DEBUG: 1
-    image: alexandersidorov/alpha:dev
+    image: alpha:dev
     networks:
       - alpha
     ports:
       - 8000:80
-    restart: unless-stopped
-  alpha-db:
+    volumes:
+      - ./services/webapp/:/app/:rw
+  db:
     build:
-      context: services/webapp/
-    container_name: alpha-db
+      context: services/db/
+    container_name: db.alpha
     environment:
-      POSTGRES_USER: e7a36973
-      POSTGRES_PASSWORD: a4f7a8c8
-      POSTGRES_DB: 8fbbc147
-    image: alexandersidorov/alpha-db:dev
+      POSTGRES_USER: alpha
+      POSTGRES_PASSWORD: alpha
+      POSTGRES_DB: alpha
+    image: db.alpha:dev
     networks:
       - alpha
-    restart: unless-stopped
     volumes:
-      - ./services/db/local/data/:/var/lib/postgresql/data
-
-#  alpha-dba:
-#    container_name: alpha-dba
-#    image: adminer
-#    restart: unless-stopped
-#    ports:
-#      - 8082:8080
-#    volumes:
-#      - alpha-db:/var/lib/postgresql/data
-#  alpha-qa:
-#    depends_on:
-#      - alpha-web
-#    container_name: alpha-qa
-#    entrypoint: [ make, wait-for-db, qa ]
-#    environment:
-#      DATABASE_URL: postgresql://e7a36973:a4f7a8c8@alpha-db:5432/8fbbc147
-#      MODE_DEBUG: 1
-#      TEST_SERVICE_URL: http://alpha-web
-#    image: alexandersidorov/alpha:dev
-#    volumes:
-#      - type: bind
-#        source: ./.garbage/docker-compose/
-#        target: /app/.garbage
-#      - type: bind
-#        source: ./.github
-#        target: /app/.github
-#      - type: bind
-#        source: ./.run
-#        target: /app/.run
+      - ./.local/services/db/data/:/var/lib/postgresql/data:rw
+  docs:
+    build:
+      context: services/docs/
+    container_name: docs.alpha
+    image: docs.alpha:dev
+    networks:
+      - alpha
+    volumes:
+      - ./services/docs/:/docs/:rw
 networks:
   alpha:
     driver: bridge
