@@ -1,0 +1,17 @@
+version: '3'
+services:
+  docs:
+    build:
+      context: .
+    container_name: docs.docs.alpha
+    image: docs.alpha:docs
+    networks:
+      - docs.alpha
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    volumes:
+      - ./:/docs/
+networks:
+  docs.alpha:
+    driver: bridge
