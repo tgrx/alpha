@@ -99,7 +99,6 @@ def test_set_config_vars(
     }
 
     request_payload = {
-        "PYTHONPATH": "src",
         "SENTRY_DSN": sentry,
     }
 
@@ -129,7 +128,6 @@ def test_set_config_vars_dry_run(
     run_subcommand: partial,
 ) -> None:
     request_payload = {
-        "PYTHONPATH": "src",
         "SENTRY_DSN": sentry,
     }
 

@@ -1,5 +1,4 @@
 from typing import Any
-from typing import Optional
 
 import click
 import httpx
@@ -48,7 +47,6 @@ def set_config_vars(mc: ManagementContext, *, dry_run: bool = False) -> None:
     payload = {
         name: value
         for name, value in {
-            "PYTHONPATH": "src",
             "SENTRY_DSN": mc.settings.SENTRY_DSN,
         }.items()
         if value is not None
@@ -89,7 +87,7 @@ def call_api(
     *,
     method: str = "get",
     path: str = "",
-    payload: Optional[dict] = None,
+    payload: dict | None = None,
 ) -> httpx.Response:
     headers = {
         "Accept": "application/vnd.heroku+json; version=3",
