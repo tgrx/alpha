@@ -2,66 +2,66 @@ version: '3.9'
 services:
   alpha-web:
     build:
-      context: .
+      context: services/webapp/
       args:
-      - python_version=3.10.4
-      - version=dev
+        - python_version=3.10.9
+        - version=dev
     container_name: alpha-web
     depends_on:
-    - alpha-db
-    entrypoint: [make, wait-for-db, run]
+      - alpha-db
+    entrypoint: [ make, wait-for-db, run ]
     environment:
       DATABASE_URL: postgresql://e7a36973:a4f7a8c8@alpha-db:5432/8fbbc147
       MODE_DEBUG: 1
     image: alexandersidorov/alpha:dev
+    networks:
+      - alpha
     ports:
-    - 8080:80
+      - 8000:80
     restart: unless-stopped
   alpha-db:
+    build:
+      context: services/webapp/
     container_name: alpha-db
     environment:
       POSTGRES_USER: e7a36973
       POSTGRES_PASSWORD: a4f7a8c8
       POSTGRES_DB: 8fbbc147
-    image: postgres:14.3-alpine
-    ports:
-    - 8081:5432
+    image: alexandersidorov/alpha-db:dev
+    networks:
+      - alpha
     restart: unless-stopped
     volumes:
-    - alpha-db:/var/lib/postgresql/data
-  alpha-dba:
-    container_name: alpha-dba
-    image: adminer
-    restart: unless-stopped
-    ports:
-    - 8082:8080
-    volumes:
-    - alpha-db:/var/lib/postgresql/data
-  alpha-qa:
-    depends_on:
-    - alpha-web
-    container_name: alpha-qa
-    entrypoint: [make, wait-for-db, qa]
-    environment:
-      DATABASE_URL: postgresql://e7a36973:a4f7a8c8@alpha-db:5432/8fbbc147
-      MODE_DEBUG: 1
-      TEST_SERVICE_URL: http://alpha-web
-    image: alexandersidorov/alpha:dev
-    volumes:
-    - type: bind
-      source: ./.garbage/docker-compose/
-      target: /app/.garbage
-    - type: bind
-      source: ./.github
-      target: /app/.github
-    - type: bind
-      source: ./.run
-      target: /app/.run
-volumes:
-  alpha-db:
-    name: alpha-db
-    driver: local
-    driver_opts:
-      type: tmpfs
-      device: tmpfs
-      o: size=256m
+      - ./services/db/local/data/:/var/lib/postgresql/data
+
+#  alpha-dba:
+#    container_name: alpha-dba
+#    image: adminer
+#    restart: unless-stopped
+#    ports:
+#      - 8082:8080
+#    volumes:
+#      - alpha-db:/var/lib/postgresql/data
+#  alpha-qa:
+#    depends_on:
+#      - alpha-web
+#    container_name: alpha-qa
+#    entrypoint: [ make, wait-for-db, qa ]
+#    environment:
+#      DATABASE_URL: postgresql://e7a36973:a4f7a8c8@alpha-db:5432/8fbbc147
+#      MODE_DEBUG: 1
+#      TEST_SERVICE_URL: http://alpha-web
+#    image: alexandersidorov/alpha:dev
+#    volumes:
+#      - type: bind
+#        source: ./.garbage/docker-compose/
+#        target: /app/.garbage
+#      - type: bind
+#        source: ./.github
+#        target: /app/.github
+#      - type: bind
+#        source: ./.run
+#        target: /app/.run
+networks:
+  alpha:
+    driver: bridge

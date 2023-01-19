@@ -1,0 +1,43 @@
+version: '3.9'
+services:
+  webapp:
+    build:
+      context: .
+      args:
+        - build=dev
+        - python_version=3.10.9
+        - version=webapp
+    container_name: webapp.webapp.alpha
+    depends_on:
+      - db
+    entrypoint: [ python, -m, webapp.runner ]
+    environment:
+      DATABASE_URL: postgresql://webapp:webapp@db:5432/webapp
+      MODE_DEBUG: 1
+    image: alpha:webapp
+    networks:
+      - webapp.alpha
+    ports:
+      - 8000:8000
+    restart: unless-stopped
+    volumes:
+      - ./:/app:rw
+  db:
+    build:
+      context: ../db/
+    container_name: webapp.db.alpha
+    environment:
+      POSTGRES_USER: webapp
+      POSTGRES_PASSWORD: webapp
+      POSTGRES_DB: webapp
+    image: db.alpha:webapp
+    networks:
+      - webapp.alpha
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - .local/services/db/local/data/:/var/lib/postgresql/data
+networks:
+  webapp.alpha:
+    driver: bridge

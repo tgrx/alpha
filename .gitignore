@@ -1,5 +1,6 @@
 !tmp/.gitkeep
 **/.coverage
+**/.env
 *.bak
 *.log
 *.py[cod]

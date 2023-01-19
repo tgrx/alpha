@@ -1,0 +1,31 @@
+[run]
+branch = True
+concurrency = greenlet
+data_file = .local/coverage/coverage.db
+relative_files = True
+source = .
+
+[report]
+exclude_lines = 
+	@(abc\.)?abstractmethod
+	class .*\bProtocol\):
+	def __repr__
+	if .*\.MODE_DEBUG
+	if 0:
+	if __name__ == .__main__.:
+	pragma: no cover
+	raise AssertionError
+	raise NotImplementedError
+fail_under = 90
+skip_covered = False
+skip_empty = True
+sort = -Cover
+
+[html]
+directory = .local/coverage/html/
+skip_covered = False
+skip_empty = True
+title = Alpha
+
+[xml]
+output = .local/coverage/report.xml
