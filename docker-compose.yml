@@ -1,25 +1,25 @@
 version: '3.9'
 services:
-  webapp:
-    build:
-      context: services/webapp/
-      args:
-        - python_version=3.10.9
-        - version=dev
-    container_name: webapp.alpha
-    depends_on:
-      - db
-    entrypoint: [ make, wait-for-db, run ]
-    environment:
-      DATABASE_URL: postgresql://alpha:alpha@db:5432/alpha
-      MODE_DEBUG: 1
-    image: alpha:dev
-    networks:
-      - alpha
-    ports:
-      - 8000:80
-    volumes:
-      - ./services/webapp/:/app/:rw
+#  webapp:
+#    build:
+#      context: services/webapp/
+#      args:
+#        - python_version=3.10.9
+#        - version=dev
+#    container_name: webapp.alpha
+#    depends_on:
+#      - db
+#    entrypoint: [ make, wait-for-db, run ]
+#    environment:
+#      DATABASE_URL: postgresql://alpha:alpha@db:5432/alpha
+#      MODE_DEBUG: 1
+#    image: alpha:dev
+#    networks:
+#      - alpha
+#    ports:
+#      - 8000:80
+#    volumes:
+#      - ./services/webapp/:/app/:rw
   db:
     build:
       context: services/db/
@@ -29,19 +29,40 @@ services:
       POSTGRES_PASSWORD: alpha
       POSTGRES_DB: alpha
     image: db.alpha:dev
+    ports:
+      - "5432:5432"
     networks:
       - alpha
     volumes:
       - ./.local/services/db/data/:/var/lib/postgresql/data:rw
-  docs:
+  dba:
     build:
-      context: services/docs/
-    container_name: docs.alpha
-    image: docs.alpha:dev
+      context: services/dba/
+    container_name: dba.alpha
+    depends_on:
+      - db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: alpha@alpha.dev
+      PGADMIN_DEFAULT_PASSWORD: alpha
+#      POSTGRES_DB: alpha
+#      POSTGRES_PASSWORD: alpha
+#      POSTGRES_USER: alpha
+    image: dba.alpha:dev
+    ports:
+      - "8801:80"
     networks:
       - alpha
-    volumes:
-      - ./services/docs/:/docs/:rw
+#    volumes:
+#      - ./.local/services/db/data/:/var/lib/postgresql/data:rw
+#  docs:
+#    build:
+#      context: services/docs/
+#    container_name: docs.alpha
+#    image: docs.alpha:dev
+#    networks:
+#      - alpha
+#    volumes:
+#      - ./services/docs/:/docs/:rw
 networks:
   alpha:
     driver: bridge

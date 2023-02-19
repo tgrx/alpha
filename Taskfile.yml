@@ -1,0 +1,228 @@
+version: '3'
+
+output: 'prefixed'
+
+tasks:
+
+#  code-format:
+#    cmds:
+#      - poetry run black .
+#      - poetry run isort --virtual-env="{{.DIR_VENV}}" .
+#      - task: code-lint-black
+#      - task: code-lint-isort
+#    desc: format code with black & isort
+#    dir: "{{.USER_WORKING_DIR}}"
+#
+#  code-lint:
+#    cmds:
+#      - test -f "{{.DIR_LOCAL}}/ok.code-lint-black"
+#      - test -f "{{.DIR_LOCAL}}/ok.code-lint-flake8"
+#      - test -f "{{.DIR_LOCAL}}/ok.code-lint-isort"
+#      - test -f "{{.DIR_LOCAL}}/ok.code-lint-mypy"
+#      - echo 'all linters passed'
+#    deps:
+#      - code-lint-black
+#      - code-lint-isort
+#      - code-lint-mypy
+#      - code-lint-flake8
+#    desc: validate code using linters
+#    dir: "{{.USER_WORKING_DIR}}"
+#    silent: true
+#
+#  code-lint-black:
+#    cmds:
+#      - >
+#        rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+#        && poetry run black --check .
+#        && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+#    dir: "{{.USER_WORKING_DIR}}"
+#    ignore_error: true
+#    internal: true
+#  code-lint-isort:
+#    cmds:
+#      - >
+#        rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+#        && poetry run isort --check-only --virtual-env="{{.DIR_VENV}}" .
+#        && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+#    dir: "{{.USER_WORKING_DIR}}"
+#    ignore_error: true
+#    internal: true
+#  code-lint-mypy:
+#    cmds:
+#      - >
+#        rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+#        && poetry run mypy --config-file="{{.ROOT_DIR}}/pyproject.toml"
+#        && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+#    dir: "{{.USER_WORKING_DIR}}"
+#    ignore_error: true
+#    internal: true
+#  code-lint-flake8:
+#    cmds:
+#      - >
+#        rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+#        && poetry run flake8 --config="{{.ROOT_DIR}}/.flake8" .
+#        && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+#    dir: "{{.USER_WORKING_DIR}}"
+#    ignore_error: true
+#    internal: true
+#
+#  default:
+#    cmds:
+#      - pyenv install --skip-existing "{{.PYTHON_VERSION}}"
+#      - pip install --upgrade pip
+#      - pip install --ignore-installed poetry=="{{.POETRY_VERSION}}"
+#      - poetry env use "{{.PYTHON_VERSION}}"
+#      - poetry install --with dev
+#      - echo "ROOT_DIR={{.ROOT_DIR}}"
+#      - echo "USER_WORKING_DIR={{.USER_WORKING_DIR}}"
+#      - echo "DIR_LOCAL={{.DIR_LOCAL}}"
+#      - echo "DIR_VENV={{.DIR_VENV}}"
+#      - echo "PYTHON_VERSION={{.PYTHON_VERSION}}"
+#      - echo "POETRY_VERSION={{.POETRY_VERSION}}"
+#    desc: "setup developer's toolchain: Pyenv, Python, Poetry, venv"
+#    dir: "{{.ROOT_DIR}}"
+#
+#  docker-build:
+#    cmds:
+#      - docker-compose build
+#    desc: build images for services in docker-compose.yml
+#    dir: "{{.ROOT_DIR}}"
+#    preconditions:
+#      - docker info
+#    run: once
+#
+#  docker-down:
+#    cmds:
+#      - docker-compose down --remove-orphans
+#    desc: stop & remove containers, volumes, networks
+#    dir: "{{.ROOT_DIR}}"
+#    preconditions:
+#      - docker info
+#    run: once
+#
+#  docker-up:
+#    cmds:
+#      - docker-compose up -d {{.CLI_ARGS}}
+#    desc: "run services: all / or `-- [<service>, ...]`"
+#    dir: "{{.ROOT_DIR}}"
+#    preconditions:
+#      - docker info
+#    status:
+#      - docker-compose exec -it webapp echo 'webapp works'
+#    run: once
+#
+#  git-align:
+#    cmds:
+#      - git stash
+#      - git checkout main
+#      - git pull
+#      - git checkout "{{.GIT_CURRENT_BRANCH}}"
+#      - git merge main
+#      - git stash apply
+#    desc: align your current branch with `main`
+#    run: once
+#
+#  github-build-task:
+#    cmds:
+#      - >
+#        docker run --rm -it
+#        -v $(pwd):/app/:rw
+#        -e GOBIN=/app/.github/bin
+#        golang:bullseye@sha256:a0b51fe882f269828b63e7f69e6925f85afc548cf7cf967ecbfbcce6afe6f235
+#        go install github.com/go-task/task/v3/cmd/task@latest
+#    desc: build Task app for Ubuntu / Github Actions
+#    dir: "{{.ROOT_DIR}}"
+#
+#  run-server-dev:
+#    cmds:
+#      - poetry run python manage.py runserver
+#    deps:
+#      - db-migrate
+#      - db-loaddata
+#    desc: run development server on http://localhost:8000
+#    dir: "{{.ROOT_DIR}}"
+#    run: once
+#
+#  run-server-prod:
+#    cmds:
+#      - poetry run uvicorn project.asgi:application
+#        --host 0.0.0.0
+#        --lifespan off
+#        --loop asyncio
+#        --port ${PORT:-8000}
+#        --workers 4
+#        --ws none
+#    deps:
+#      - db-migrate
+#      - db-loaddata
+#    desc: run Uvicorn on http://localhost:8000
+#    dir: "{{.ROOT_DIR}}"
+#    run: once
+#
+#  run-tests:
+#    cmds:
+#      - poetry run pytest .
+#      - poetry run python manage.py test
+#    deps:
+#      - db-migrate
+#      - db-loaddata
+#    desc: run tests
+#    env:
+#      DJANGO_SETTINGS_MODULE: "project.settings"
+#    dir: "{{.USER_WORKING_DIR}}"
+#    run: once
+#
+#  run-tests-coverage:
+#    cmds:
+#      - poetry run coverage html
+#    deps:
+#      - run-tests
+#    desc: calculate tests coverage
+#    dir: "{{.ROOT_DIR}}"
+#    generates:
+#      - "{{.ROOT_DIR}}/{{.VENV}}/coverage/html/**/*"
+#    run: once
+#
+#  su:
+#    cmds:
+#      - >
+#        poetry run
+#        python manage.py createsuperuser
+#        --no-input
+#        --username=1
+#        --email="superuser@server.local"
+#    deps:
+#      - db-migrate
+#    desc: install superuser "1:1" into db
+#    env:
+#      DJANGO_SUPERUSER_PASSWORD: "1"
+#    run: once
+
+
+  docker-down:
+    cmds:
+      - docker compose down --remove-orphans
+    desc: stop all services
+    dir: "{{.ROOT_DIR}}"
+    preconditions:
+      - docker info
+    run: once
+
+  docker-up:
+    cmds:
+      - docker compose up --detach --remove-orphans --wait
+    desc: start all ( `-- [<service> ...]`) services
+    dir: "{{.ROOT_DIR}}"
+    preconditions:
+      - docker info
+    run: once
+
+
+vars:
+  DIR_LOCAL:
+    sh: (cd "{{.ROOT_DIR}}"/.local && pwd)
+  GIT_CURRENT_BRANCH:
+    sh: git branch --show-current || echo 'main'
+
+env:
+  PYTHONPATH: "{{.ROOT_DIR}}"

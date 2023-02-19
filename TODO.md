@@ -9,4 +9,5 @@ Please keep them under the line.
 
 ---
 
-1. rebranding: display_summary: use attrs.fields to get a dict and compare with default values
+1. use pgAdmin 4 as dba
+2. 

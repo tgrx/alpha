@@ -1,0 +1,17 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Alpha DB",
+      "Group": "Alpha",
+      "Host": "db",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "alpha",
+      "KerberosAuthentication": false,
+      "ConnectionParameters": {
+        "sslmode": "prefer",
+        "passfile": "/pgadmin4/.pgpass"
+      }
+    }
+  }
+}
