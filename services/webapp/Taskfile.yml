@@ -11,7 +11,7 @@ tasks:
       - task: code-lint-black
       - task: code-lint-isort
     desc: format code with black & isort
-    dir: "{{.TASKFILE_DIR}}"
+    dir: "{{.USER_WORKING_DIR}}"
 
   code-lint:
     cmds:
@@ -26,7 +26,7 @@ tasks:
       - code-lint-mypy
       - code-lint-flake8
     desc: validate code using linters
-    dir: "{{.TASKFILE_DIR}}"
+    dir: "{{.USER_WORKING_DIR}}"
     silent: true
 
   code-lint-black:
@@ -35,7 +35,7 @@ tasks:
         rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
         && poetry run black --check .
         && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
-    dir: "{{.TASKFILE_DIR}}"
+    dir: "{{.USER_WORKING_DIR}}"
     ignore_error: true
     internal: true
   code-lint-isort:
@@ -44,7 +44,7 @@ tasks:
         rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
         && poetry run isort --check-only --virtual-env="{{.DIR_VENV}}" .
         && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
-    dir: "{{.TASKFILE_DIR}}"
+    dir: "{{.USER_WORKING_DIR}}"
     ignore_error: true
     internal: true
   code-lint-mypy:
@@ -52,8 +52,8 @@ tasks:
       - >
         rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
         && poetry run mypy --config-file="{{.ROOT_DIR}}/pyproject.toml"
-        && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
-    dir: "{{.TASKFILE_DIR}}"
+        && touch "{{.USER_WORKING_DIR}}/ok.{{.TASK}}"
+    dir: "{{.USER_WORKING_DIR}}"
     ignore_error: true
     internal: true
   code-lint-flake8:
@@ -62,7 +62,7 @@ tasks:
         rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
         && poetry run flake8 --config="{{.ROOT_DIR}}/.flake8" .
         && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
-    dir: "{{.TASKFILE_DIR}}"
+    dir: "{{.USER_WORKING_DIR}}"
     ignore_error: true
     internal: true
 
@@ -81,7 +81,7 @@ tasks:
       - echo "PYTHON_VERSION={{.PYTHON_VERSION}}"
       - echo "POETRY_VERSION={{.POETRY_VERSION}}"
     desc: "setup developer's toolchain: Pyenv, Python, Poetry, venv"
-    dir: "{{.TASKFILE_DIR}}"
+    dir: "{{.USER_WORKING_DIR}}"
 
   run-server-dev:
     cmds:
@@ -90,7 +90,7 @@ tasks:
       - db-migrate
       - db-loaddata
     desc: run development server on http://localhost:8000
-    dir: "{{.TASKFILE_DIR}}"
+    dir: "{{.ROOT_DIR}}"
     run: once
 
   run-server-prod:
@@ -106,7 +106,7 @@ tasks:
       - db-migrate
       - db-loaddata
     desc: run Uvicorn on http://localhost:8000
-    dir: "{{.TASKFILE_DIR}}"
+    dir: "{{.ROOT_DIR}}"
     run: once
 
   run-tests:
@@ -119,7 +119,7 @@ tasks:
     desc: run tests
     env:
       DJANGO_SETTINGS_MODULE: "project.settings"
-    dir: "{{.TASKFILE_DIR}}"
+    dir: "{{.USER_WORKING_DIR}}"
     run: once
 
   run-tests-coverage:
@@ -128,20 +128,20 @@ tasks:
     deps:
       - run-tests
     desc: calculate tests coverage
-    dir: "{{.TASKFILE_DIR}}"
+    dir: "{{.USER_WORKING_DIR}}"
     generates:
       - "{{.DIR_LOCAL}}/coverage/html/**/*"
     run: once
 
 vars:
   DIR_LOCAL:
-    sh: (cd "{{.TASKFILE_DIR}}"/.local && pwd)
+    sh: (cd "{{.ROOT_DIR}}"/.local && pwd)
   DIR_VENV:
-    sh: (cd "{{.TASKFILE_DIR}}"/"$(poetry env info --path)" && pwd)
+    sh: (cd "{{.ROOT_DIR}}/$(poetry env info --path)" && pwd)
   POETRY_VERSION:
-    sh: cat "{{.TASKFILE_DIR}}/.poetry-version"
+    sh: cat "{{.ROOT_DIR}}/.poetry-version"
   PYTHON_VERSION:
-    sh: cat "{{.TASKFILE_DIR}}/.python-version"
+    sh: cat "{{.ROOT_DIR}}/.python-version"
 
 env:
-  PYTHONPATH: "{{.TASKFILE_DIR}}"
+  PYTHONPATH: "{{.ROOT_DIR}}"

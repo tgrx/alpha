@@ -3,13 +3,6 @@ version: '3'
 output: 'prefixed'
 
 
-includes:
-
-  webapp:
-    dir: ./services/webapp
-    taskfile: ./services/webapp/Taskfile.yml
-
-
 tasks:
 
   git-align:
@@ -53,10 +46,5 @@ tasks:
     run: once
 
 vars:
-  DIR_LOCAL:
-    sh: (cd "{{.ROOT_DIR}}"/.local && pwd)
   GIT_CURRENT_BRANCH:
     sh: git branch --show-current || echo 'main'
-
-env:
-  PYTHONPATH: "{{.ROOT_DIR}}"
