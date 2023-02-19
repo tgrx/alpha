@@ -44,25 +44,22 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: alpha@alpha.dev
       PGADMIN_DEFAULT_PASSWORD: alpha
-#      POSTGRES_DB: alpha
-#      POSTGRES_PASSWORD: alpha
-#      POSTGRES_USER: alpha
     image: dba.alpha:dev
     ports:
       - "8801:80"
     networks:
       - alpha
-#    volumes:
-#      - ./.local/services/db/data/:/var/lib/postgresql/data:rw
-#  docs:
-#    build:
-#      context: services/docs/
-#    container_name: docs.alpha
-#    image: docs.alpha:dev
-#    networks:
-#      - alpha
-#    volumes:
-#      - ./services/docs/:/docs/:rw
+  docs:
+    build:
+      context: services/docs/
+    container_name: docs.alpha
+    image: docs.alpha:dev
+    networks:
+      - alpha
+    ports:
+      - "8802:8000"
+    volumes:
+      - ./services/docs/:/docs/:rw
 networks:
   alpha:
     driver: bridge
