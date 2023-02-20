@@ -102,6 +102,11 @@ jobs:
 
   unit-tests:
     name: ☯️ Unit tests are passed.
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
     needs:
       - toolchain
     runs-on: ${{ needs.toolchain.outputs.runs-on }}
