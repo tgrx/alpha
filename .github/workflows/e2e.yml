@@ -1,0 +1,30 @@
+name: Webapp - Dev - 🐧
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+env:
+  CACHE_CUSTOM_KEY: 0
+
+
+jobs:
+  full:
+    name: XXX.
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: dc build
+        uses: isbang/compose-action@v1.4.1
+
+      - name: run tests
+        run: |
+          docker compose exec -it webapp task run-tests-coverage
