@@ -119,24 +119,6 @@ jobs:
 
     runs-on: ${{ needs.toolchain.outputs.runs-on }}
 
-    services:
-      postgres:
-        image: postgres:15.1
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-retries 5
-          --health-timeout 5s
-        env:
-          POSTGRES_DB: ci
-          POSTGRES_PASSWORD: ci
-          POSTGRES_USER: ci
-
-    env:
-      DATABASE_URL: postgres://ci:ci@postgres:5432/ci
-
     steps:
 #      - name: 🧩 Envs are set up.
 #        id: env-setup
