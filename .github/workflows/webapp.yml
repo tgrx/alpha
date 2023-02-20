@@ -76,6 +76,8 @@ jobs:
           echo "# ~~~~ python ~~~~"
           which python
           python --version
+          echo "# ~~~~ shims ~~~~"
+          ls -la "$(pyenv root)/shims"
 
 #      - name: 🛠️ Developer toolchain is set.
 #        run: task
