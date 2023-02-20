@@ -2,7 +2,6 @@ import uvicorn
 
 from alpha.logging import logger
 from alpha.settings import Settings
-from alpha.util import info
 from webapp.asgi import application
 
 settings = Settings()
@@ -25,7 +24,7 @@ def run() -> None:
         port=settings.PORT,
         test_url=settings.TEST_SERVICE_URL,
     )
-    info(banner)
+    print(banner)  # noqa: T201
 
     try:
         uvicorn.run(
@@ -37,7 +36,7 @@ def run() -> None:
     except KeyboardInterrupt:
         logger.debug("stopping server")
     finally:
-        info("server has been shut down")
+        print("server has been shut down")  # noqa: T201
 
 
 if __name__ == "__main__":

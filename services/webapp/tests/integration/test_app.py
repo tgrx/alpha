@@ -63,7 +63,10 @@ async def test_web_app(web_client: httpx.AsyncClient) -> None:
             payload,
             scope__asgi__spec_version="2.3",
         )
-    except (httpx.ConnectError, httpx.TimeoutException) as err:
+    except (  # pragma: no cover
+        httpx.ConnectError,
+        httpx.TimeoutException,
+    ) as err:
         raise AssertionError(
             f"unable to connect to server @ {web_client.base_url}"
         ) from err

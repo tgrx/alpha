@@ -16,7 +16,7 @@ DIR_SCRIPTS = DIR_APP / "scripts"
 
 def _resolve() -> None:
     global _resolved
-    if _resolved:
+    if _resolved:  # pragma: no cover
         return
 
     import sys

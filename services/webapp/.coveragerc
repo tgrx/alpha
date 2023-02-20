@@ -2,6 +2,8 @@
 branch = True
 concurrency = greenlet
 data_file = .local/coverage/coverage.db
+omit =
+    webapp/runner.py
 relative_files = True
 source = .
 
