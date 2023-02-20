@@ -86,7 +86,8 @@ tasks:
   run-server-dev:
     cmds:
       - >
-        poetry run uvicorn webapp.asgi:application
+        poetry run
+        uvicorn webapp.asgi:application
         --host 0.0.0.0
         --lifespan off
         --loop asyncio
@@ -98,9 +99,20 @@ tasks:
     dir: "{{.ROOT_DIR}}"
     run: once
 
+  run-server-prod:
+    cmds:
+      - >
+        poetry run
+        gunicorn
+        --config="{{.ROOT_DIR}}/config/gunicorn.conf.py"
+        webapp.asgi:application
+    desc: run Gunicorn on http://host:$PORT
+    dir: "{{.ROOT_DIR}}"
+    run: once
+
   run-tests:
     cmds:
-      - poetry run pytest .
+      - poetry run pytest {{.CLI_ARGS}} .
     desc: run tests
     dir: "{{.USER_WORKING_DIR}}"
     run: once
@@ -109,7 +121,8 @@ tasks:
     cmds:
       - poetry run coverage html
     deps:
-      - run-tests
+      - task: run-tests
+        vars: { CLI_ARGS: "--cov-fail-under=0" }
     desc: calculate tests coverage
     dir: "{{.USER_WORKING_DIR}}"
     generates:
