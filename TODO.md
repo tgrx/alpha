@@ -9,4 +9,5 @@ Please keep them under the line.
 
 ---
 
-1. brew cache on macos CI
+1. ci for macos
+2. build webapp image, then run dc up and tests
