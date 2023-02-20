@@ -16,6 +16,9 @@ on:
 #  PYTHONPATH: "src"
 #  TEST_SERVICE_URL: "http://localhost:8000"
 
+env:
+  PYENV_ROOT: "$GITHUB_WORKSPACE/.local/pyenv"
+
 jobs:
   build:
     name: 📦 Package is built.
@@ -25,12 +28,6 @@ jobs:
           - ubuntu-latest
           - macos-latest
     runs-on: ${{ matrix.os }}
-#    outputs:
-#      cache-key: ${{ steps.cache-key.outputs.value }}
-#      python-location: ${{ env.pythonLocation }}
-#      python-version: ${{ matrix.python-version }}
-    env:
-      PYENV_ROOT: "${GITHUB_WORKSPACE}/.local/pyenv"
     steps:
       - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v3
@@ -38,7 +35,7 @@ jobs:
       - name: 🧩 Task is installed - 🐧.
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          echo "${GITHUB_WORKSPACE}/.github/bin" >> ${GITHUB_PATH}
+          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
       - name: 🧩 Task is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
@@ -48,7 +45,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           curl https://pyenv.run | bash
-          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
+          echo "$PYENV_ROOT/bin" >> $GITHUB_PATH
           eval "$(pyenv init -)"
       - name: 🐍 Pyenv is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}

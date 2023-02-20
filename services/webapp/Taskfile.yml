@@ -133,7 +133,7 @@ vars:
   DIR_LOCAL:
     sh: (cd "{{.ROOT_DIR}}"/.local && pwd)
   DIR_VENV:
-    sh: (cd "$(poetry env info --path)" && pwd)
+    sh: (cd "$(poetry env info --path)" && pwd) || echo '.venv'
   POETRY_VERSION:
     sh: cat "{{.ROOT_DIR}}/.poetry-version"
   PYTHON_VERSION:
