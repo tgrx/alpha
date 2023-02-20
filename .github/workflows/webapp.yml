@@ -32,17 +32,27 @@ jobs:
     steps:
       - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v3
-      - name: 🧩 Environment variables are configured.
+
+      - name: 🧩 Task is installed - 🐧.
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           echo "${GITHUB_WORKSPACE}/.github/bin" >> ${GITHUB_PATH}
+      - name: 🧩 Task is installed - 🍏.
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew install go-task/tap/go-task
+
       - name: 🐍 Pyenv is installed - 🐧.
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: echo "pyenv on linux"
       - name: 🐍 Pyenv is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
         run: echo "pyenv on macos"
+
       - name: 🐍 Task works.
-        run: task -l
+        run: |
+          which task
+          task -l
         working-directory: services/webapp/
 #      - name: 🐍 Developer toolchain is set.
 #        run: task
