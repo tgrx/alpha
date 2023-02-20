@@ -38,10 +38,10 @@ jobs:
 #        run: |
 #          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
 #          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
-#
-#      - name: 📥 Code is pulled from repo.
-#        uses: actions/checkout@v3
-#
+
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
 #      - name: 🧩 Task is installed - 🍏.
 #        if: ${{ matrix.os == 'macos-latest' }}
 #        run: |
@@ -85,11 +85,11 @@ jobs:
 #          poetry env info
 #        working-directory: services/webapp/
 
-        - name: xxx
-          run: |
-            echo "value=cache-local-${{ matrix.os }}-${{ hashFiles('poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}"
-            ls -la .
-          working-directory: services/webapp/
+      - name: xxx
+        run: |
+          echo "value=cache-local-${{ matrix.os }}-${{ hashFiles('poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}"
+          ls -la .
+        working-directory: services/webapp/
 
 #      - name: 🔑 Runtime cache key is calculated.
 #        id: cache-key
