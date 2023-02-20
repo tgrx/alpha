@@ -68,10 +68,14 @@ jobs:
           echo "# ~~~~ pyenv ~~~~"
           which pyenv
           pyenv --version
+          echo "# ~~~~ python ~~~~"
+          which python
+          python --version
+          
 
-      - name: 🛠️ Developer toolchain is set.
-        run: task
-        working-directory: services/webapp/
+#      - name: 🛠️ Developer toolchain is set.
+#        run: task
+#        working-directory: services/webapp/
 
 #      - name: 🐍 Developer toolchain is set.
 #        run: task
