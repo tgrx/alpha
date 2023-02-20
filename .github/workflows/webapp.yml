@@ -69,14 +69,14 @@ jobs:
           brew install go-task/tap/go-task
 
       - name: 🐍 Pyenv is installed - 🐧.
-        if: ${{ matrix.os == 'ubuntu-latest' && !steps.toolchain.outputs.cache-hit }}
+        if: ${{ matrix.os == 'ubuntu-latest' && !steps.cache-toolchain.outputs.cache-hit }}
         run: |
           curl https://pyenv.run | bash
           eval "$(pyenv init --path)"
           echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
           pyenv rehash
       - name: 🐍 Pyenv is installed - 🍏.
-        if: ${{ matrix.os == 'macos-latest' && !steps.toolchain.outputs.cache-hit }}
+        if: ${{ matrix.os == 'macos-latest' && !steps.cache-toolchain.outputs.cache-hit }}
         run: |
           brew update
           brew install pyenv
