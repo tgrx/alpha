@@ -18,17 +18,22 @@ env:
 
 
 jobs:
+
   toolchain:
     name: 🛠️ Toolchain is built.
+
     strategy:
       matrix:
         os:
           - ubuntu-latest
           - macos-latest
+
     runs-on: ${{ matrix.os }}
+
     outputs:
       runs-on: ${{ matrix.os }}
       cache-key: ${{ steps.cache-key.outputs.value }}
+
     steps:
 
       - name: 📥 Code is pulled from repo.
@@ -102,14 +107,18 @@ jobs:
 
   unit-tests:
     name: ☯️ Unit tests are passed.
+
     strategy:
       matrix:
         os:
           - ubuntu-latest
           - macos-latest
+
     needs:
       - toolchain
+
     runs-on: ${{ needs.toolchain.outputs.runs-on }}
+
     services:
       postgres:
         image: postgres:15.1
@@ -124,8 +133,10 @@ jobs:
           POSTGRES_DB: ci
           POSTGRES_PASSWORD: ci
           POSTGRES_USER: ci
+
     env:
       DATABASE_URL: postgres://ci:ci@postgres:5432/ci
+
     steps:
 #      - name: 🧩 Envs are set up.
 #        id: env-setup
@@ -161,10 +172,12 @@ jobs:
       - name: 🚀 Web server is up.
         if: ${{ steps.restore-toolchain.outputs.cache-hit }}
         run: task run-server-dev &
+        working-directory: services/webapp/
 
       - name: ☯️ Unit tests are passed.
         if: ${{ steps.restore-toolchain.outputs.cache-hit }}
         run: task run-tests-coverage
+        working-directory: services/webapp/
 
 #  check-code-typing:
 #    name: ☯️ Code typing checks are passed.
