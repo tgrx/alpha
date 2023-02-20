@@ -52,7 +52,7 @@ tasks:
       - >
         rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
         && poetry run mypy --config-file="{{.ROOT_DIR}}/pyproject.toml"
-        && touch "{{.USER_WORKING_DIR}}/ok.{{.TASK}}"
+        && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
     dir: "{{.USER_WORKING_DIR}}"
     ignore_error: true
     internal: true
@@ -85,26 +85,15 @@ tasks:
 
   run-server-dev:
     cmds:
-      - poetry run python manage.py runserver
-    deps:
-      - db-migrate
-      - db-loaddata
-    desc: run development server on http://localhost:8000
-    dir: "{{.ROOT_DIR}}"
-    run: once
-
-  run-server-prod:
-    cmds:
-      - poetry run uvicorn project.asgi:application
+      - >
+        poetry run uvicorn webapp.asgi:application
         --host 0.0.0.0
         --lifespan off
         --loop asyncio
         --port ${PORT:-8000}
-        --workers 4
+        --reload
+        --workers 1
         --ws none
-    deps:
-      - db-migrate
-      - db-loaddata
     desc: run Uvicorn on http://localhost:8000
     dir: "{{.ROOT_DIR}}"
     run: once
@@ -112,13 +101,7 @@ tasks:
   run-tests:
     cmds:
       - poetry run pytest .
-      - poetry run python manage.py test
-    deps:
-      - db-migrate
-      - db-loaddata
     desc: run tests
-    env:
-      DJANGO_SETTINGS_MODULE: "project.settings"
     dir: "{{.USER_WORKING_DIR}}"
     run: once
 
@@ -137,7 +120,7 @@ vars:
   DIR_LOCAL:
     sh: (cd "{{.ROOT_DIR}}"/.local && pwd)
   DIR_VENV:
-    sh: (cd "{{.ROOT_DIR}}/$(poetry env info --path)" && pwd)
+    sh: (cd "$(poetry env info --path)" && pwd)
   POETRY_VERSION:
     sh: cat "{{.ROOT_DIR}}/.poetry-version"
   PYTHON_VERSION:

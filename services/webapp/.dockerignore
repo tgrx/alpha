@@ -1,0 +1,9 @@
+**/*.py[cod]
+.env
+.env.dist
+.flake8
+.local/
+.poetry-version
+.python-version
+Dockerfile
+poetry.toml

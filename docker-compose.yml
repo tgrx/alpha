@@ -1,25 +1,26 @@
 version: '3.9'
 services:
-#  webapp:
-#    build:
-#      context: services/webapp/
-#      args:
-#        - python_version=3.10.9
-#        - version=dev
-#    container_name: webapp.alpha
-#    depends_on:
-#      - db
-#    entrypoint: [ make, wait-for-db, run ]
-#    environment:
-#      DATABASE_URL: postgresql://alpha:alpha@db:5432/alpha
-#      MODE_DEBUG: 1
-#    image: alpha:dev
-#    networks:
-#      - alpha
-#    ports:
-#      - 8000:80
-#    volumes:
-#      - ./services/webapp/:/app/:rw
+  webapp:
+    build:
+      context: services/webapp/
+      args:
+        - python_version=3.10.10
+        - version=dev
+    container_name: webapp.alpha
+    depends_on:
+      - db
+    entrypoint: [ task, run-server-prod ]
+    environment:
+      DATABASE_URL: postgresql://alpha:alpha@db:5432/alpha
+      PORT: 80
+      MODE_DEBUG: 1
+    image: alpha:dev
+    networks:
+      - alpha
+    ports:
+      - "8000:80"
+    volumes:
+      - ./services/webapp/:/app/:rw
   db:
     build:
       context: services/db/

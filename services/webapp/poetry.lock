@@ -127,6 +127,22 @@ docs = ["Sphinx (>=4.1.2,<4.2.0)", "sphinx-rtd-theme (>=0.5.2,<0.6.0)", "sphinxc
 test = ["flake8 (>=5.0.4,<5.1.0)", "uvloop (>=0.15.3)"]
 
 [[package]]
+name = "asyncpg-stubs"
+version = "0.27.0"
+description = "asyncpg stubs"
+category = "main"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "asyncpg_stubs-0.27.0-py3-none-any.whl", hash = "sha256:271ea4787dd0e61ff3bffdeb542204af0584c13488a50c318f511c98722ca9e6"},
+    {file = "asyncpg_stubs-0.27.0.tar.gz", hash = "sha256:2e805aeb2ed7b5577b70f7a6e95d5bf897a806a65726197bc15396378bb881d5"},
+]
+
+[package.dependencies]
+asyncpg = ">=0.27,<0.28"
+typing-extensions = ">=4.2.0,<5.0.0"
+
+[[package]]
 name = "attrs"
 version = "22.2.0"
 description = "Classes Without Boilerplate"
@@ -2993,5 +3009,5 @@ files = [
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.10"
-content-hash = "1434b748f22822820829f2faa6089b8af69926e67a150f7c84f5c2efeb938f3c"
+python-versions = "3.10.10"
+content-hash = "7cd9a225cb4fcd7ad38738df0b8833f97b59eb02f8b1aa1fa55cd4901b0d652d"

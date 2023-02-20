@@ -38,7 +38,7 @@ tasks:
 
   docker-up:
     cmds:
-      - docker compose up --detach --remove-orphans --wait
+      - docker compose up --detach --remove-orphans --wait {{.CLI_ARGS}}
     desc: start all ( `-- [<service> ...]`) services
     dir: "{{.ROOT_DIR}}"
     preconditions:

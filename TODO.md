@@ -9,5 +9,5 @@ Please keep them under the line.
 
 ---
 
-1. use pgAdmin 4 as dba
-2. 
+1. increase tests coverage
+2. run-server-prod: use gunicorn
