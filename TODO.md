@@ -9,5 +9,4 @@ Please keep them under the line.
 
 ---
 
-1. increase tests coverage
-2. typer for cli scripts
+1. brew cache on macos CI

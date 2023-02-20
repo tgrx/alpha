@@ -120,26 +120,9 @@ jobs:
     runs-on: ${{ needs.toolchain.outputs.runs-on }}
 
     steps:
-#      - name: 🧩 Envs are set up.
-#        id: env-setup
-#        run: |
-#          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
-
-#      - name: 🧩 Envs are set up - 🐧.
-#        id: env-setup-linux
-#        if: ${{ matrix.os == 'ubuntu-latest' }}
-#        run: |
-#          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
-#          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
 
       - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v3
-
-#      - name: 🧩 Task is installed - 🍏.
-#        if: ${{ matrix.os == 'macos-latest' }}
-#        run: |
-#          brew update
-#          brew install go-task/tap/go-task
 
       - name: 📦 Toolchain is restored from cache.
         id: restore-toolchain
@@ -151,13 +134,29 @@ jobs:
             .local
             services/webapp/.local
 
+      - name: 🧩 Envs are set up.
+        id: env-setup
+        run: |
+          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
+
+      - name: 🧩 Envs are set up - 🐧.
+        id: env-setup-linux
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
+
+      - name: 🧩 Task is installed - 🍏.
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew update
+          brew install go-task/tap/go-task
+
       - name: 🚀 Web server is up.
-        if: ${{ steps.restore-toolchain.outputs.cache-hit }}
         run: task run-server-dev &
         working-directory: services/webapp/
 
       - name: ☯️ Unit tests are passed.
-        if: ${{ steps.restore-toolchain.outputs.cache-hit }}
         run: task run-tests-coverage
         working-directory: services/webapp/
 
