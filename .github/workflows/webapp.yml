@@ -62,6 +62,7 @@ jobs:
 
       - name: 🛂 Versions.
         run: |
+          eval "$(pyenv init -)"
           echo "# ~~~~ task ~~~~"
           which task
           task --version
