@@ -28,20 +28,23 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       PYENV_ROOT: .local/pyenv
-      PYENV_DEBUG: 1
     steps:
       - name: 🧩 Envs are set up.
         id: env-setup
         run: |
           echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
 
-      - name: 📥 Code is pulled from repo.
-        uses: actions/checkout@v3
-
-      - name: 🧩 Task is installed - 🐧.
+      - name: 🧩 Envs are set up - 🐧.
+        id: env-setup-linux
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
+          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
+
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
       - name: 🧩 Task is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
@@ -51,7 +54,6 @@ jobs:
       - name: 🐍 Pyenv is installed - 🐧.
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
           curl https://pyenv.run | bash
           eval "$(pyenv init --path)"
           echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
@@ -64,7 +66,6 @@ jobs:
 
       - name: 🛂 Versions.
         run: |
-          tree "$(pyenv root)"
           echo ${PATH}
           echo "# ~~~~ task ~~~~"
           which task
