@@ -64,7 +64,7 @@ jobs:
 
       - name: 🛂 Versions.
         run: |
-          ls -la "$(pyenv root)/shims"
+          tree "$(pyenv root)"
           echo ${PATH}
           echo "# ~~~~ task ~~~~"
           which task
