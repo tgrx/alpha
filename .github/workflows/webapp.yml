@@ -57,12 +57,14 @@ jobs:
           curl https://pyenv.run | bash
           eval "$(pyenv init --path)"
           echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
+          pyenv rehash
       - name: 🐍 Pyenv is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
           brew update
           brew install pyenv
           echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
+          pyenv rehash
 
       - name: 🛂 Versions.
         run: |
