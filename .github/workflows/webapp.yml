@@ -28,6 +28,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       PYENV_ROOT: .local/pyenv
+      PYENV_DEBUG: 1
     steps:
       - name: 🧩 Envs are set up.
         id: env-setup
@@ -50,8 +51,8 @@ jobs:
       - name: 🐍 Pyenv is installed - 🐧.
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          curl https://pyenv.run | bash
           echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
+          curl https://pyenv.run | bash
           eval "$(pyenv init --path)"
           echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
       - name: 🐍 Pyenv is installed - 🍏.
