@@ -98,8 +98,9 @@ jobs:
         uses: actions/cache@v3
         with:
           key: ${{ steps.cache-key.outputs.value }}
-          path: .local
-        working-directory: services/webapp/
+          path: |
+            .local
+            services/webapp/.local
 
 #  run-tests:
 #    name: ☯️ Tests are passed.
