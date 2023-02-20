@@ -83,7 +83,9 @@ jobs:
           ls -la "$(pyenv root)/shims"
 
       - name: 🛠️ Developer toolchain is set.
-        run: task
+        run: |
+          task
+          poetry env info
         working-directory: services/webapp/
 
 #      - name: 🐍 Developer toolchain is set.
