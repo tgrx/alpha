@@ -19,6 +19,8 @@ services:
       - alpha
     ports:
       - "8000:80"
+    tmpfs:
+      - /app/.local/
     volumes:
       - ./services/webapp/:/app/:rw
   db:
