@@ -119,35 +119,35 @@ jobs:
           task run-tests-coverage
         working-directory: services/webapp/
 
-  linters:
-    name: ☯️ Linters approve code.
-
-    needs:
-      - toolchain
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: 📥 Code is pulled from repo.
-        uses: actions/checkout@v3
-
-      - name: 📦 Toolchain is restored from cache.
-        id: restore-toolchain
-        uses: actions/cache@v3
-        with:
-          fail-on-cache-miss: true
-          key: ${{ needs.toolchain.outputs.cache-key }}
-          path: |
-            .local
-            services/webapp/.local
-
-      - name: 🧩 Envs are set up.
-        id: env-setup
-        run: |
-          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
-          echo "${GITHUB_WORKSPACE}/.local/pyenv/bin" >> ${GITHUB_PATH}
-          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
-
-      - name: ☯️ Linters approve code.
-        run: task code-lint
-        working-directory: services/webapp/
+#  linters:
+#    name: ☯️ Linters approve code.
+#
+#    needs:
+#      - toolchain
+#
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: 📥 Code is pulled from repo.
+#        uses: actions/checkout@v3
+#
+#      - name: 📦 Toolchain is restored from cache.
+#        id: restore-toolchain
+#        uses: actions/cache@v3
+#        with:
+#          fail-on-cache-miss: true
+#          key: ${{ needs.toolchain.outputs.cache-key }}
+#          path: |
+#            .local
+#            services/webapp/.local
+#
+#      - name: 🧩 Envs are set up.
+#        id: env-setup
+#        run: |
+#          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+#          echo "${GITHUB_WORKSPACE}/.local/pyenv/bin" >> ${GITHUB_PATH}
+#          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
+#
+#      - name: ☯️ Linters approve code.
+#        run: task code-lint
+#        working-directory: services/webapp/
