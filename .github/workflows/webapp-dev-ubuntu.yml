@@ -7,18 +7,12 @@ on:
       - main
   workflow_dispatch:
 
+
 env:
   CACHE_CUSTOM_KEY: 0
-#  DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
-#  PGPASSFILE: config/.pgpass
-#  POETRY_VIRTUALENVS_CREATE: false
-#  POETRY_VIRTUALENVS_IN_PROJECT: false
-#  PYTHONPATH: "src"
-#  TEST_SERVICE_URL: "http://localhost:8000"
 
 
 jobs:
-
   toolchain:
     name: 🛠️ Toolchain is built.
 
@@ -83,8 +77,8 @@ jobs:
           poetry env info
         working-directory: services/webapp/
 
-  unit-tests:
-    name: ☯️ Unit tests are passed.
+  tests:
+    name: ☯️ Tests are passed.
 
     needs:
       - toolchain
@@ -117,72 +111,43 @@ jobs:
         working-directory: services/webapp/
 
       - name: ☯️ Unit tests are passed.
-        run: task run-tests-coverage
+        run: |
+          which task
+          which pyenv
+          which poetry
+          poetry info
+          task run-tests-coverage
         working-directory: services/webapp/
 
-#  check-code-typing:
-#    name: ☯️ Code typing checks are passed.
-#    needs:
-#      - build
-#    runs-on: ${{ needs.build.outputs.runs-on }}
-#    steps:
-#      - name: 📥 Code is pulled from repo.
-#        uses: actions/checkout@v2
-#      - name: 🐍 Python runtime is set up.
-#        uses: actions/setup-python@v2
-#        with:
-#          architecture: 'x64'
-#          python-version: ${{ needs.build.outputs.python-version }}
-#      - name: 📦 Runtime is restored from cache.
-#        id: restore-build
-#        uses: actions/cache@v2
-#        with:
-#          key: ${{ needs.build.outputs.cache-key }}
-#          path: ${{ needs.build.outputs.python-location }}
-#      - name: ☯️ Code typing checks are passed.
-#        if: ${{ steps.restore-build.outputs.cache-hit }}
-#        run: make code-typing
-#  check-code-format:
-#    name: ☯️ Code format checks are passed.
-#    needs:
-#      - build
-#    runs-on: ${{ needs.build.outputs.runs-on }}
-#    steps:
-#      - name: 📥 Code is pulled from repo.
-#        uses: actions/checkout@v2
-#      - name: 🐍 Python runtime is set up.
-#        uses: actions/setup-python@v2
-#        with:
-#          architecture: 'x64'
-#          python-version: ${{ needs.build.outputs.python-version }}
-#      - name: 📦 Runtime is restored from cache.
-#        id: restore-build
-#        uses: actions/cache@v2
-#        with:
-#          key: ${{ needs.build.outputs.cache-key }}
-#          path: ${{ needs.build.outputs.python-location }}
-#      - name: ☯️ Code format checks are passed.
-#        if: ${{ steps.restore-build.outputs.cache-hit }}
-#        run: make code-format
-#  run-code-linters:
-#    name: ☯️ Linters approve the code.
-#    needs:
-#      - build
-#    runs-on: ${{ needs.build.outputs.runs-on }}
-#    steps:
-#      - name: 📥 Code is pulled from repo.
-#        uses: actions/checkout@v2
-#      - name: 🐍 Python runtime is set up.
-#        uses: actions/setup-python@v2
-#        with:
-#          architecture: 'x64'
-#          python-version: ${{ needs.build.outputs.python-version }}
-#      - name: 📦 Runtime is restored from cache.
-#        id: restore-build
-#        uses: actions/cache@v2
-#        with:
-#          key: ${{ needs.build.outputs.cache-key }}
-#          path: ${{ needs.build.outputs.python-location }}
-#      - name: ☯️ Linters approve the code.
-#        if: ${{ steps.restore-build.outputs.cache-hit }}
-#        run: make code-linters
+  linters:
+    name: ☯️ Linters approve code.
+
+    needs:
+      - toolchain
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: 📦 Toolchain is restored from cache.
+        id: restore-toolchain
+        uses: actions/cache@v3
+        with:
+          fail-on-cache-miss: true
+          key: ${{ needs.toolchain.outputs.cache-key }}
+          path: |
+            .local
+            services/webapp/.local
+
+      - name: 🧩 Envs are set up.
+        id: env-setup
+        run: |
+          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/.local/pyenv/bin" >> ${GITHUB_PATH}
+          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
+
+      - name: ☯️ Linters approve code.
+        run: task code-lint
+        working-directory: services/webapp/
