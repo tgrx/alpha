@@ -12,17 +12,18 @@ services:
     entrypoint: [ task, run-server-prod ]
     environment:
       DATABASE_URL: postgresql://alpha:alpha@db:5432/alpha
-      PORT: 80
       MODE_DEBUG: 1
+      PORT: 80
+      TEST_SERVICE_URL: http://webapp:80
     image: alpha:dev
     networks:
       - alpha
     ports:
       - "8000:80"
     tmpfs:
-      - /app/.local/
+      - /app/.local/:mode=777,size=10m,uid=1000,gid=1000
     volumes:
-      - ./services/webapp/:/app/:rw
+      - ./services/webapp/:/app/:ro
   db:
     build:
       context: services/db/

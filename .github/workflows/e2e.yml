@@ -1,4 +1,4 @@
-name: E2E
+name: 💎 E2E
 
 on:
   pull_request:
@@ -8,13 +8,9 @@ on:
   workflow_dispatch:
 
 
-env:
-  CACHE_CUSTOM_KEY: 0
-
-
 jobs:
-  full:
-    name: XXX.
+  docker-compose:
+    name: 🏆 docker compose tests are passed.
 
     runs-on: ubuntu-latest
 
@@ -22,9 +18,9 @@ jobs:
       - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v3
 
-      - name: dc build
+      - name: 📦 docker compose is built and run.
         uses: isbang/compose-action@v1.4.1
 
-      - name: run tests
+      - name: 🧪 tests are passed.
         run: |
           docker compose exec -it webapp task run-tests-coverage
