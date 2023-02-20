@@ -47,8 +47,8 @@ jobs:
       - name: 🧩 Envs are set up.
         run: |
           echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/.local/pyenv/bin" >> ${GITHUB_PATH}
           echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
-          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
 
       - name: 🐍 Pyenv is installed.
         if: ${{ !steps.cache-toolchain.outputs.cache-hit }}
@@ -109,8 +109,8 @@ jobs:
         id: env-setup
         run: |
           echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/.local/pyenv/bin" >> ${GITHUB_PATH}
           echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
-          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
 
       - name: 🚀 Web server is up.
         run: task run-server-dev &
