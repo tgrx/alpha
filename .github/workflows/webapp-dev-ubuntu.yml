@@ -28,7 +28,7 @@ jobs:
       - name: 🔑 Toolchain cache key is calculated.
         id: cache-key
         run: |
-          echo "value=cache-toolchain-ubuntu-${{ hashFiles('services/webapp/poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}" >> $GITHUB_OUTPUT
+          echo "value=cache-toolchain-ubuntu-${{ hashFiles('services/webapp/poetry.lock', 'services/webapp/.poetry-version', 'services/webapp/.python-version') }}-${{ env.CACHE_CUSTOM_KEY }}" >> $GITHUB_OUTPUT
       - name: 📦 Toolchain is cached and restored.
         id: cache-toolchain
         uses: actions/cache@v3

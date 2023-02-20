@@ -1,238 +1,162 @@
-#name: Webapp
-#
-#on:
-#  pull_request:
-#  push:
-#    branches:
-#      - main
-#  workflow_dispatch:
-#
-#env:
-#  CACHE_CUSTOM_KEY: 0
-##  DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
-##  PGPASSFILE: config/.pgpass
-##  POETRY_VIRTUALENVS_CREATE: false
-##  POETRY_VIRTUALENVS_IN_PROJECT: false
-##  PYTHONPATH: "src"
-##  TEST_SERVICE_URL: "http://localhost:8000"
-#
-#
-#jobs:
-#
-#  toolchain:
-#    name: 🛠️ Toolchain is built.
-#
-#    strategy:
-#      matrix:
-#        os:
-#          - ubuntu-latest
-#          - macos-latest
-#
-#    runs-on: ${{ matrix.os }}
-#
-#    outputs:
-#      runs-on: ${{ matrix.os }}
-#      cache-key: ${{ steps.cache-key.outputs.value }}
-#
-#    steps:
-#
-#      - name: 📥 Code is pulled from repo.
-#        uses: actions/checkout@v3
-#
-#      - name: 🔑 Toolchain cache key is calculated.
-#        id: cache-key
-#        run: |
-#          echo "value=cache-toolchain-${{ matrix.os }}-${{ hashFiles('services/webapp/poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}" >> $GITHUB_OUTPUT
-#      - name: 📦 Toolchain is cached and restored.
-#        id: cache-toolchain
-#        uses: actions/cache@v3
-#        with:
-#          key: ${{ steps.cache-key.outputs.value }}
-#          path: |
-#            .local
-#            services/webapp/.local
-#
-#      - name: 🧩 Envs are set up.
-#        run: |
-#          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
-#
-#      - name: 🧩 Envs are set up - 🐧.
-#        if: ${{ matrix.os == 'ubuntu-latest' }}
-#        run: |
-#          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
-#          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
-#
-#      - name: 🧩 Task is installed - 🐧.
-#        if: ${{ matrix.os == 'ubuntu-latest' }}
-#        run: |
-#          chmod +x "${GITHUB_WORKSPACE}/.github/bin/task"
-#
-#      - name: 🧩 Task is installed - 🍏.
-#        if: ${{ matrix.os == 'macos-latest' }}
-#        run: |
-#          brew update
-#          brew install go-task/tap/go-task
-#
-#      - name: 🐍 Pyenv is installed - 🐧.
-#        if: ${{ matrix.os == 'ubuntu-latest' && !steps.cache-toolchain.outputs.cache-hit }}
-#        run: |
-#          curl https://pyenv.run | bash
-#          eval "$(pyenv init --path)"
-#      - name: 🐍 Pyenv is installed - 🍏.
-#        if: ${{ matrix.os == 'macos-latest' }}
-#        run: |
-#          brew update
-#          brew install pyenv
-#      - name: 🐍 Pyenv is rehashed.
-#        run: |
-#          echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
-#          pyenv rehash
-#
-#      - name: 🛂 Checkpoint.
-#        run: |
-#          echo ${PATH}
-#          echo "# ~~~~ task ~~~~"
-#          which task
-#          task --version
-#          echo "# ~~~~ pyenv ~~~~"
-#          which pyenv
-#          pyenv --version
-#          echo "# ~~~~ python ~~~~"
-#          which python
-#          python --version
-#          echo "# ~~~~ shims ~~~~"
-#          echo "$(pyenv root)/shims"
-#          ls -la "$(pyenv root)/shims"
-#
-#      - name: 🛠️ Developer toolchain is set.
-#        run: |
-#          task
-#          poetry env info
-#        working-directory: services/webapp/
-#
-#  unit-tests:
-#    name: ☯️ Unit tests are passed.
-#
-#    strategy:
-#      matrix:
-#        os:
-#          - ubuntu-latest
-#          - macos-latest
-#
-#    needs:
-#      - toolchain
-#
-#    runs-on: ${{ needs.toolchain.outputs.runs-on }}
-#
-#    steps:
-#
-#      - name: 📥 Code is pulled from repo.
-#        uses: actions/checkout@v3
-#
-#      - name: 📦 Toolchain is restored from cache.
-#        id: restore-toolchain
-#        uses: actions/cache@v3
-#        with:
-#          fail-on-cache-miss: true
-#          key: ${{ needs.toolchain.outputs.cache-key }}
-#          path: |
-#            .local
-#            services/webapp/.local
-#
-#      - name: 🧩 Envs are set up.
-#        id: env-setup
-#        run: |
-#          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
-#
-#      - name: 🧩 Envs are set up - 🐧.
-#        id: env-setup-linux
-#        if: ${{ matrix.os == 'ubuntu-latest' }}
-#        run: |
-#          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
-#          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
-#
-#      - name: 🧩 Task is installed - 🐧.
-#        if: ${{ matrix.os == 'ubuntu-latest' }}
-#        run: |
-#          chmod +x "${GITHUB_WORKSPACE}/.github/bin/task"
-#
-#      - name: 🧩 Task is installed - 🍏.
-#        if: ${{ matrix.os == 'macos-latest' }}
-#        run: |
-#          brew update
-#          brew install go-task/tap/go-task
-#
-#      - name: 🚀 Web server is up.
-#        run: task run-server-dev &
-#        working-directory: services/webapp/
-#
-#      - name: ☯️ Unit tests are passed.
-#        run: task run-tests-coverage
-#        working-directory: services/webapp/
-#
-##  check-code-typing:
-##    name: ☯️ Code typing checks are passed.
-##    needs:
-##      - build
-##    runs-on: ${{ needs.build.outputs.runs-on }}
-##    steps:
-##      - name: 📥 Code is pulled from repo.
-##        uses: actions/checkout@v2
-##      - name: 🐍 Python runtime is set up.
-##        uses: actions/setup-python@v2
-##        with:
-##          architecture: 'x64'
-##          python-version: ${{ needs.build.outputs.python-version }}
-##      - name: 📦 Runtime is restored from cache.
-##        id: restore-build
-##        uses: actions/cache@v2
-##        with:
-##          key: ${{ needs.build.outputs.cache-key }}
-##          path: ${{ needs.build.outputs.python-location }}
-##      - name: ☯️ Code typing checks are passed.
-##        if: ${{ steps.restore-build.outputs.cache-hit }}
-##        run: make code-typing
-##  check-code-format:
-##    name: ☯️ Code format checks are passed.
-##    needs:
-##      - build
-##    runs-on: ${{ needs.build.outputs.runs-on }}
-##    steps:
-##      - name: 📥 Code is pulled from repo.
-##        uses: actions/checkout@v2
-##      - name: 🐍 Python runtime is set up.
-##        uses: actions/setup-python@v2
-##        with:
-##          architecture: 'x64'
-##          python-version: ${{ needs.build.outputs.python-version }}
-##      - name: 📦 Runtime is restored from cache.
-##        id: restore-build
-##        uses: actions/cache@v2
-##        with:
-##          key: ${{ needs.build.outputs.cache-key }}
-##          path: ${{ needs.build.outputs.python-location }}
-##      - name: ☯️ Code format checks are passed.
-##        if: ${{ steps.restore-build.outputs.cache-hit }}
-##        run: make code-format
-##  run-code-linters:
-##    name: ☯️ Linters approve the code.
-##    needs:
-##      - build
-##    runs-on: ${{ needs.build.outputs.runs-on }}
-##    steps:
-##      - name: 📥 Code is pulled from repo.
-##        uses: actions/checkout@v2
-##      - name: 🐍 Python runtime is set up.
-##        uses: actions/setup-python@v2
-##        with:
-##          architecture: 'x64'
-##          python-version: ${{ needs.build.outputs.python-version }}
-##      - name: 📦 Runtime is restored from cache.
-##        id: restore-build
-##        uses: actions/cache@v2
-##        with:
-##          key: ${{ needs.build.outputs.cache-key }}
-##          path: ${{ needs.build.outputs.python-location }}
-##      - name: ☯️ Linters approve the code.
-##        if: ${{ steps.restore-build.outputs.cache-hit }}
-##        run: make code-linters
+name: Webapp - Dev - 🍏
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+env:
+  CACHE_CUSTOM_KEY: 0
+
+
+jobs:
+  toolchain:
+    name: 🛠️ Toolchain is built.
+
+    runs-on: macos-latest
+
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.value }}
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: 🔑 Toolchain cache key is calculated.
+        id: cache-key
+        run: |
+          echo "value=cache-toolchain-macos-${{ hashFiles('services/webapp/poetry.lock', 'services/webapp/.poetry-version', 'services/webapp/.python-version') }}-${{ env.CACHE_CUSTOM_KEY }}" >> $GITHUB_OUTPUT
+      - name: 📦 Toolchain is cached and restored.
+        id: cache-toolchain
+        uses: actions/cache@v3
+        with:
+          key: ${{ steps.cache-key.outputs.value }}
+          path: |
+            .local
+            services/webapp/.local
+
+      - name: 🧩 Envs are set up.
+        run: |
+          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
+
+      - name: 🧩 Task and Pyenv are installed.
+        run: |
+          brew update
+          brew install go-task/tap/go-task pyenv
+
+      - name: 🐍 Pyenv is rehashed.
+        run: |
+          echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
+          pyenv rehash
+
+      - name: 🛂 Checkpoint.
+        run: |
+          echo ${PATH}
+          echo "# ~~~~ task ~~~~"
+          which task
+          task --version
+          echo "# ~~~~ pyenv ~~~~"
+          which pyenv
+          pyenv --version
+          echo "# ~~~~ python ~~~~"
+          which python
+          python --version
+          echo "# ~~~~ shims ~~~~"
+          echo "$(pyenv root)/shims"
+          ls -la "$(pyenv root)/shims"
+
+      - name: 🛠️ Developer toolchain is set.
+        run: |
+          task
+          poetry env info
+        working-directory: services/webapp/
+
+  unit-tests:
+    name: ☯️ Tests are passed.
+
+    needs:
+      - toolchain
+
+    runs-on: macos-latest
+
+    steps:
+
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: 📦 Toolchain is restored from cache.
+        id: restore-toolchain
+        uses: actions/cache@v3
+        with:
+          fail-on-cache-miss: true
+          key: ${{ needs.toolchain.outputs.cache-key }}
+          path: |
+            .local
+            services/webapp/.local
+
+      - name: 🧩 Envs are set up.
+        id: env-setup
+        run: |
+          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
+
+      - name: 🧩 Task and Pyenv are installed.
+        run: |
+          brew update
+          brew install go-task/tap/go-task pyenv
+
+      - name: 🐍 Pyenv is rehashed.
+        run: |
+          echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
+          pyenv rehash
+
+      - name: 🚀 Web server is up.
+        run: task run-server-dev &
+        working-directory: services/webapp/
+
+      - name: ☯️ Unit tests are passed.
+        run: task run-tests-coverage
+        working-directory: services/webapp/
+
+  linters:
+    name: ☯️ Linters approve code.
+
+    needs:
+      - toolchain
+
+    runs-on: macos-latest
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: 📦 Toolchain is restored from cache.
+        id: restore-toolchain
+        uses: actions/cache@v3
+        with:
+          fail-on-cache-miss: true
+          key: ${{ needs.toolchain.outputs.cache-key }}
+          path: |
+            .local
+            services/webapp/.local
+
+      - name: 🧩 Envs are set up.
+        id: env-setup
+        run: |
+          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
+
+      - name: 🧩 Task and Pyenv are installed.
+        run: |
+          brew update
+          brew install go-task/tap/go-task pyenv
+
+      - name: 🐍 Pyenv is rehashed.
+        run: |
+          echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
+          pyenv rehash
+
+      - name: ☯️ Linters approve code.
+        run: task code-lint
+        working-directory: services/webapp/
