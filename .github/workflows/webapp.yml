@@ -51,18 +51,17 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           curl https://pyenv.run | bash
-          echo "$PYENV_ROOT/bin"
-          echo "$PYENV_ROOT/bin" >> $GITHUB_PATH
-          eval "$(pyenv init -)"
+          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
+          echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
       - name: 🐍 Pyenv is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
           brew update
           brew install pyenv
+          echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
 
       - name: 🛂 Versions.
         run: |
-          echo "$(pyenv root)/shims"
           echo "# ~~~~ task ~~~~"
           which task
           task --version
