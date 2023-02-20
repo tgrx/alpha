@@ -37,23 +37,32 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           echo "${GITHUB_WORKSPACE}/.github/bin" >> ${GITHUB_PATH}
+          which task
+          task --version
       - name: 🧩 Task is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
           brew install go-task/tap/go-task
+          which task
+          task --version
 
       - name: 🐍 Pyenv is installed - 🐧.
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: echo "pyenv on linux"
+        run: |
+          curl https://pyenv.run | bash
+          which pyenv
+          pyenv --version
       - name: 🐍 Pyenv is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
-        run: echo "pyenv on macos"
-
-      - name: 🐍 Task works.
         run: |
-          which task
-          task -l
+          brew install pyenv
+          which pyenv
+          pyenv --version
+
+      - name: 🐍 Developer toolchain is set.
+        run: task
         working-directory: services/webapp/
+
 #      - name: 🐍 Developer toolchain is set.
 #        run: task
 #        working-directory: services/webapp/
