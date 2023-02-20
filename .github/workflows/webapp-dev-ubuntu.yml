@@ -1,4 +1,4 @@
-name: Webapp
+name: Webapp - Dev - 🐧
 
 on:
   pull_request:
@@ -22,27 +22,19 @@ jobs:
   toolchain:
     name: 🛠️ Toolchain is built.
 
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     outputs:
-      runs-on: ${{ matrix.os }}
       cache-key: ${{ steps.cache-key.outputs.value }}
 
     steps:
-
       - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v3
 
       - name: 🔑 Toolchain cache key is calculated.
         id: cache-key
         run: |
-          echo "value=cache-toolchain-${{ matrix.os }}-${{ hashFiles('services/webapp/poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}" >> $GITHUB_OUTPUT
+          echo "value=cache-toolchain-ubuntu-${{ hashFiles('services/webapp/poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}" >> $GITHUB_OUTPUT
       - name: 📦 Toolchain is cached and restored.
         id: cache-toolchain
         uses: actions/cache@v3
@@ -54,35 +46,16 @@ jobs:
 
       - name: 🧩 Envs are set up.
         run: |
-          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
-
-      - name: 🧩 Envs are set up - 🐧.
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
           echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
           echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
 
-      - name: 🧩 Task is installed - 🐧.
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          chmod +x "${GITHUB_WORKSPACE}/.github/bin/task"
-
-      - name: 🧩 Task is installed - 🍏.
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          brew update
-          brew install go-task/tap/go-task
-
-      - name: 🐍 Pyenv is installed - 🐧.
-        if: ${{ matrix.os == 'ubuntu-latest' && !steps.cache-toolchain.outputs.cache-hit }}
+      - name: 🐍 Pyenv is installed.
+        if: ${{ !steps.cache-toolchain.outputs.cache-hit }}
         run: |
           curl https://pyenv.run | bash
           eval "$(pyenv init --path)"
-      - name: 🐍 Pyenv is installed - 🍏.
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          brew update
-          brew install pyenv
+
       - name: 🐍 Pyenv is rehashed.
         run: |
           echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
@@ -113,19 +86,12 @@ jobs:
   unit-tests:
     name: ☯️ Unit tests are passed.
 
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
-
     needs:
       - toolchain
 
-    runs-on: ${{ needs.toolchain.outputs.runs-on }}
+    runs-on: ubuntu-latest
 
     steps:
-
       - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v3
 
@@ -142,25 +108,9 @@ jobs:
       - name: 🧩 Envs are set up.
         id: env-setup
         run: |
-          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
-
-      - name: 🧩 Envs are set up - 🐧.
-        id: env-setup-linux
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
           echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
           echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
-
-      - name: 🧩 Task is installed - 🐧.
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          chmod +x "${GITHUB_WORKSPACE}/.github/bin/task"
-
-      - name: 🧩 Task is installed - 🍏.
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          brew update
-          brew install go-task/tap/go-task
 
       - name: 🚀 Web server is up.
         run: task run-server-dev &
