@@ -62,7 +62,7 @@ jobs:
 
       - name: 🛂 Versions.
         run: |
-          eval "$(pyenv init -)"
+          echo "$(pyenv root)/shims"
           echo "# ~~~~ task ~~~~"
           which task
           task --version
