@@ -122,7 +122,7 @@ tasks:
       - poetry run coverage html
     deps:
       - task: run-tests
-        vars: { CLI_ARGS: "--cov-fail-under=0" }
+        vars: { CLI_ARGS: "{{.CLI_ARGS}} --cov-fail-under=0" }
     desc: calculate tests coverage
     dir: "{{.USER_WORKING_DIR}}"
     generates:
