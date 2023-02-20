@@ -88,29 +88,19 @@ jobs:
           poetry env info
         working-directory: services/webapp/
 
-#      - name: 🐍 Developer toolchain is set.
-#        run: task
-#        working-directory: services/webapp/
-#      - name: 🔑 Runtime cache key is calculated.
-#        id: cache-key
-#        run: |
-#          echo "value=cache-runtime-${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}"
-#      - name: 📦 Runtime is cached and restored.
-#        id: cache-runtime
-#        uses: actions/cache@v2
-#        with:
-#          key: ${{ steps.cache-key.outputs.value }}
-#          path: ${{ env.pythonLocation }}
-#      - name: 🔌 Poetry is installed.
-#        if: ${{ !steps.cache-runtime.outputs.cache-hit }}
-#        run: |
-#          pip install pipx
-#          pipx install poetry
-#      - name: 🔋 Dependencies are installed.
-#        if: ${{ !steps.cache-runtime.outputs.cache-hit }}
-#        run: |
-#          poetry export --dev --format=requirements.txt --output=requirements.txt --without-hashes
-#          pip install --requirement requirements.txt
+      - name: 🔑 Runtime cache key is calculated.
+        id: cache-key
+        run: |
+          echo "value=cache-local-${{ matrix.os }}-${{ hashFiles('poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}" >> $GITHUB_OUTPUT
+        working-directory: services/webapp/
+      - name: 📦 Runtime is cached and restored.
+        id: cache-runtime
+        uses: actions/cache@v3
+        with:
+          key: ${{ steps.cache-key.outputs.value }}
+          path: .local
+        working-directory: services/webapp/
+
 #  run-tests:
 #    name: ☯️ Tests are passed.
 #    needs:
