@@ -74,6 +74,7 @@ RUN addgroup --system --gid ${GROUP_ID} ${USERNAME} \
         --uid=${USER_ID} \
         ${USERNAME} \
     && install --owner ${USERNAME} --group ${USERNAME} --directory "${DIR_APP}" \
+    && install --owner ${USERNAME} --group ${USERNAME} --directory "${DIR_APP}/.local" \
     && install --owner ${USERNAME} --group ${USERNAME} --directory "${DIR_CACHE}"
 
 WORKDIR "${DIR_APP}"
