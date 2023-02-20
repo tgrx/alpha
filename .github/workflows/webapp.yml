@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "${GITHUB_WORKSPACE}/.github/bin" >> ${GITHUB_PATH}
           which task
-          task --version
+#          task --version
       - name: 🧩 Task is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
