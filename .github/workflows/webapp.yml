@@ -16,8 +16,6 @@ on:
 #  PYTHONPATH: "src"
 #  TEST_SERVICE_URL: "http://localhost:8000"
 
-env:
-  PYENV_ROOT: "$GITHUB_WORKSPACE/.local/pyenv"
 
 jobs:
   build:
@@ -28,42 +26,48 @@ jobs:
           - ubuntu-latest
           - macos-latest
     runs-on: ${{ matrix.os }}
+    env:
+      PYENV_ROOT: "$GITHUB_WORKSPACE/.local/pyenv"
     steps:
-      - name: 📥 Code is pulled from repo.
-        uses: actions/checkout@v3
+      - name: check envs
+        run: |
+          echo "GITHUB_WORKSPACE=${GITHUB_WORKSPACE}"
+          echo "PYENV_ROOT=${PYENV_ROOT}"
+#      - name: 📥 Code is pulled from repo.
+#        uses: actions/checkout@v3
 
-      - name: 🧩 Task is installed - 🐧.
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
-      - name: 🧩 Task is installed - 🍏.
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          brew install go-task/tap/go-task
-
-      - name: 🐍 Pyenv is installed - 🐧.
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          curl https://pyenv.run | bash
-          echo "$PYENV_ROOT/bin" >> $GITHUB_PATH
-          eval "$(pyenv init -)"
-      - name: 🐍 Pyenv is installed - 🍏.
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          brew install pyenv
-
-      - name: 🛂 Versions.
-        run: |
-          echo "# ~~~~ task ~~~~"
-          which task
-          task --version
-          echo "# ~~~~ pyenv ~~~~"
-          which pyenv
-          pyenv --version
-
-      - name: 🛠️ Developer toolchain is set.
-        run: task
-        working-directory: services/webapp/
+#      - name: 🧩 Task is installed - 🐧.
+#        if: ${{ matrix.os == 'ubuntu-latest' }}
+#        run: |
+#          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+#      - name: 🧩 Task is installed - 🍏.
+#        if: ${{ matrix.os == 'macos-latest' }}
+#        run: |
+#          brew install go-task/tap/go-task
+#
+#      - name: 🐍 Pyenv is installed - 🐧.
+#        if: ${{ matrix.os == 'ubuntu-latest' }}
+#        run: |
+#          curl https://pyenv.run | bash
+#          echo "$PYENV_ROOT/bin" >> $GITHUB_PATH
+#          eval "$(pyenv init -)"
+#      - name: 🐍 Pyenv is installed - 🍏.
+#        if: ${{ matrix.os == 'macos-latest' }}
+#        run: |
+#          brew install pyenv
+#
+#      - name: 🛂 Versions.
+#        run: |
+#          echo "# ~~~~ task ~~~~"
+#          which task
+#          task --version
+#          echo "# ~~~~ pyenv ~~~~"
+#          which pyenv
+#          pyenv --version
+#
+#      - name: 🛠️ Developer toolchain is set.
+#        run: task
+#        working-directory: services/webapp/
 
 #      - name: 🐍 Developer toolchain is set.
 #        run: task
