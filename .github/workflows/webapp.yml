@@ -74,7 +74,7 @@ jobs:
           curl https://pyenv.run | bash
           eval "$(pyenv init --path)"
       - name: 🐍 Pyenv is installed - 🍏.
-        if: ${{ matrix.os == 'macos-latest' && !steps.cache-toolchain.outputs.cache-hit }}
+        if: ${{ matrix.os == 'macos-latest' }}
         run: |
           brew update
           brew install pyenv
