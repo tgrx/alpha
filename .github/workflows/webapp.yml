@@ -29,6 +29,8 @@ jobs:
 #      cache-key: ${{ steps.cache-key.outputs.value }}
 #      python-location: ${{ env.pythonLocation }}
 #      python-version: ${{ matrix.python-version }}
+    env:
+      PYENV_ROOT: "${GITHUB_WORKSPACE}/.local/pyenv"
     steps:
       - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v3
@@ -46,6 +48,8 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           curl https://pyenv.run | bash
+          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
+          eval "$(pyenv init -)"
       - name: 🐍 Pyenv is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
