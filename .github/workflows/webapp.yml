@@ -30,20 +30,32 @@ jobs:
       runs-on: ${{ matrix.os }}
       cache-key: ${{ steps.cache-key.outputs.value }}
     steps:
+
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: 🔑 Toolchain cache key is calculated.
+        id: cache-key
+        run: |
+          echo "value=cache-toolchain-${{ matrix.os }}-${{ hashFiles('services/webapp/poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}" >> $GITHUB_OUTPUT
+      - name: 📦 Toolchain is cached and restored.
+        id: cache-toolchain
+        uses: actions/cache@v3
+        with:
+          key: ${{ steps.cache-key.outputs.value }}
+          path: |
+            .local
+            services/webapp/.local
+
       - name: 🧩 Envs are set up.
-        id: env-setup
         run: |
           echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
 
       - name: 🧩 Envs are set up - 🐧.
-        id: env-setup-linux
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
           echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
-
-      - name: 📥 Code is pulled from repo.
-        uses: actions/checkout@v3
 
       - name: 🧩 Task is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
@@ -52,14 +64,14 @@ jobs:
           brew install go-task/tap/go-task
 
       - name: 🐍 Pyenv is installed - 🐧.
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && !steps.restore-toolchain.outputs.cache-hit }}
         run: |
           curl https://pyenv.run | bash
           eval "$(pyenv init --path)"
           echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
           pyenv rehash
       - name: 🐍 Pyenv is installed - 🍏.
-        if: ${{ matrix.os == 'macos-latest' }}
+        if: ${{ matrix.os == 'macos-latest' && !steps.restore-toolchain.outputs.cache-hit }}
         run: |
           brew update
           brew install pyenv
@@ -87,20 +99,6 @@ jobs:
           task
           poetry env info
         working-directory: services/webapp/
-
-      - name: 🔑 Runtime cache key is calculated.
-        id: cache-key
-        run: |
-          echo "value=cache-local-${{ matrix.os }}-${{ hashFiles('services/webapp/poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}" >> $GITHUB_OUTPUT
-        working-directory: services/webapp/
-      - name: 📦 Runtime is cached and restored.
-        id: cache-toolchain
-        uses: actions/cache@v3
-        with:
-          key: ${{ steps.cache-key.outputs.value }}
-          path: |
-            .local
-            services/webapp/.local
 
   unit-tests:
     name: ☯️ Unit tests are passed.
@@ -145,7 +143,7 @@ jobs:
 #          brew update
 #          brew install go-task/tap/go-task
 
-      - name: 📦 Runtime is restored from cache.
+      - name: 📦 Toolchain is restored from cache.
         id: restore-toolchain
         uses: actions/cache@v3
         with:
