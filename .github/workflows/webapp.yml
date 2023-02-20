@@ -1,12 +1,12 @@
-#name: QA
-#
-#on:
-#  pull_request:
-#  push:
-#    branches:
-#      - main
-#  workflow_dispatch:
-#
+name: Webapp
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
 #env:
 #  CACHE_CUSTOM_KEY: 0
 #  DATABASE_URL: "postgres://ci:ci@localhost:5432/ci?sslmode=disable"
@@ -15,45 +15,42 @@
 #  POETRY_VIRTUALENVS_IN_PROJECT: false
 #  PYTHONPATH: "src"
 #  TEST_SERVICE_URL: "http://localhost:8000"
-#
-#jobs:
-#  code-lint:
-#    name: 🏆 Linters approve code.
-#    strategy:
-#      matrix:
-#        os:
-#          - ubuntu-latest
-#          - macos-latest
-#        python-version:
-#          - 3.10.10
-#    runs-on: ${{ matrix.os }}
-#
-#  build:
-#    name: 📦 Package is built.
-#    strategy:
-#      matrix:
-#        os:
-#          - ubuntu-latest
-#        python-version:
-#          - 3.10.10
-#    runs-on: ${{ matrix.os }}
+
+jobs:
+  build:
+    name: 📦 Package is built.
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    runs-on: ${{ matrix.os }}
 #    outputs:
 #      cache-key: ${{ steps.cache-key.outputs.value }}
 #      python-location: ${{ env.pythonLocation }}
 #      python-version: ${{ matrix.python-version }}
-#      runs-on: ${{ matrix.os }}
-#    steps:
-#      - name: 📥 Code is pulled from repo.
-#        uses: actions/checkout@v2
-#      - name: 🐍 Python runtime is set up.
-#        uses: actions/setup-python@v2
-#        with:
-#          architecture: 'x64'
-#          python-version: ${{ matrix.python-version }}
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+      - name: 🧩 Environment variables are configured.
+        run: |
+          echo "${GITHUB_WORKSPACE}/.github/bin" >> ${GITHUB_PATH}
+      - name: 🐍 Pyenv is installed - 🐧.
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: echo "pyenv on linux"
+      - name: 🐍 Pyenv is installed - 🍏.
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: echo "pyenv on macos"
+      - name: 🐍 Task works.
+        run: task -l
+        working-directory: services/webapp/
+#      - name: 🐍 Developer toolchain is set.
+#        run: task
+#        working-directory: services/webapp/
 #      - name: 🔑 Runtime cache key is calculated.
 #        id: cache-key
 #        run: |
-#          echo "::set-output name=value::cache-runtime-${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}"
+#          echo "value=cache-runtime-${{ matrix.os }}-${{ env.pythonLocation }}-${{ hashFiles('poetry.lock') }}-${{ env.CACHE_CUSTOM_KEY }}"
 #      - name: 📦 Runtime is cached and restored.
 #        id: cache-runtime
 #        uses: actions/cache@v2
