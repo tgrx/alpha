@@ -44,6 +44,7 @@ jobs:
       - name: 🧩 Task is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
+          brew update
           brew install go-task/tap/go-task
 
       - name: 🐍 Pyenv is installed - 🐧.
@@ -56,6 +57,7 @@ jobs:
       - name: 🐍 Pyenv is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
+          brew update
           brew install pyenv
 
       - name: 🛂 Versions.
