@@ -52,6 +52,7 @@ jobs:
         run: |
           curl https://pyenv.run | bash
           echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
+          eval "$(pyenv init --path)"
           echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
       - name: 🐍 Pyenv is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
