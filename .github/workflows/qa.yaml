@@ -17,6 +17,17 @@ env:
   TEST_SERVICE_URL: "http://localhost:8000"
 
 jobs:
+  code-lint:
+    name: 🏆 Linters approve code.
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+        python-version:
+          - 3.10.10
+    runs-on: ${{ matrix.os }}
+
   build:
     name: 📦 Package is built.
     strategy:
@@ -24,7 +35,7 @@ jobs:
         os:
           - ubuntu-latest
         python-version:
-          - 3.10.4
+          - 3.10.10
     runs-on: ${{ matrix.os }}
     outputs:
       cache-key: ${{ steps.cache-key.outputs.value }}
