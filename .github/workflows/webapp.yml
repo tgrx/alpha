@@ -33,7 +33,6 @@ jobs:
         id: env-setup
         run: |
           echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
-          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
 
       - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v3
@@ -52,6 +51,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           curl https://pyenv.run | bash
+          echo "${PYENV_ROOT}/bin" >> ${GITHUB_PATH}
           echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
       - name: 🐍 Pyenv is installed - 🍏.
         if: ${{ matrix.os == 'macos-latest' }}
@@ -62,6 +62,7 @@ jobs:
 
       - name: 🛂 Versions.
         run: |
+          ls -la "$(pyenv root)/shims"
           echo ${PATH}
           echo "# ~~~~ task ~~~~"
           which task
@@ -73,9 +74,9 @@ jobs:
           which python
           python --version
 
-      - name: 🛠️ Developer toolchain is set.
-        run: task
-        working-directory: services/webapp/
+#      - name: 🛠️ Developer toolchain is set.
+#        run: task
+#        working-directory: services/webapp/
 
 #      - name: 🐍 Developer toolchain is set.
 #        run: task
