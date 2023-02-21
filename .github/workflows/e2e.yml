@@ -60,7 +60,7 @@ jobs:
           docker image inspect ${{ steps.image-traits.outputs.tag }}
         working-directory: services/webapp
 
-      - name: Upload image
+      - name: Upload image as artifact
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
           image: ${{ steps.image-traits.outputs.tag }}
@@ -75,8 +75,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Code is pulled from repo.
-        uses: actions/checkout@v3
+#      - name: 📥 Code is pulled from repo.
+#        uses: actions/checkout@v3
 
 #      - name: ⚙️ QEMU is set up.
 #        uses: docker/setup-qemu-action@v2
@@ -89,6 +89,11 @@ jobs:
         with:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: Download image
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: ${{ needs.webapp-image.outputs.tag }}
 
       - name: Image is pulled from artifact.
         run: >
