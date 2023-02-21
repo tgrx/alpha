@@ -1,10 +1,10 @@
 name: 💎 E2E
 
 on:
-#  pull_request:
-#  push:
-#    branches:
-#      - main
+  pull_request:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 
@@ -43,8 +43,8 @@ jobs:
           echo "pip-version=$(cat .pip-version)" >> ${GITHUB_OUTPUT}
           echo "poetry-version=$(cat .poetry-version)" >> ${GITHUB_OUTPUT}
           echo "python-version=$(cat .python-version)" >> ${GITHUB_OUTPUT}
-          echo "tag=alpha:ci-${{ github.ref_name }}" >> ${GITHUB_OUTPUT}
-          echo "version=ci-${{ github.ref_name }}" >> ${GITHUB_OUTPUT}
+          echo "tag=alpha:ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
+          echo "version=ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
         working-directory: services/webapp
 
       - name: 💎 Webapp image is built.
