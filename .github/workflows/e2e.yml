@@ -62,6 +62,8 @@ jobs:
           docker image inspect ${{ steps.image-traits.outputs.tag }}
           &&
           docker save ${{ steps.image-traits.outputs.tag }} --output ${{ steps.image-traits.outputs.artifact }}
+          &&
+          stat ${{ steps.image-traits.outputs.artifact }}
         working-directory: services/webapp
 
       - name: upload image as artifact
