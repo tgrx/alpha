@@ -17,7 +17,7 @@ services:
       MODE_DEBUG: 1
       PORT: 80
       TEST_SERVICE_URL: http://webapp:80
-    image: alpha:${VERSION:-dev}
+    image: alpha:${WEBAPP_VERSION:-dev}
     networks:
       - alpha
     ports:
