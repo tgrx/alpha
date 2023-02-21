@@ -69,8 +69,8 @@ tasks:
   default:
     cmds:
       - pyenv install --skip-existing "{{.PYTHON_VERSION}}"
-      - pip install --upgrade pip
-      - pip install --ignore-installed poetry=="{{.POETRY_VERSION}}"
+      - pip install --upgrade "pip=={{.PIP_VERSION}}"
+      - pip install --ignore-installed "poetry=={{.POETRY_VERSION}}"
       - poetry env use "{{.PYTHON_VERSION}}"
       - poetry install --with dev
       - echo "ROOT_DIR={{.ROOT_DIR}}"
@@ -134,10 +134,13 @@ vars:
     sh: (cd "{{.ROOT_DIR}}"/.local && pwd)
   DIR_VENV:
     sh: (cd "$(poetry env info --path)" && pwd) || echo '.venv'
+  PIP_VERSION:
+    sh: cat "{{.ROOT_DIR}}/.pip-version"
   POETRY_VERSION:
     sh: cat "{{.ROOT_DIR}}/.poetry-version"
   PYTHON_VERSION:
     sh: cat "{{.ROOT_DIR}}/.python-version"
+
 
 env:
   PYTHONPATH: "{{.ROOT_DIR}}"
