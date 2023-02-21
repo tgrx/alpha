@@ -60,11 +60,16 @@ jobs:
           docker image inspect ${{ steps.image-traits.outputs.tag }}
         working-directory: services/webapp
 
-      - name: Upload image as artifact
-        uses: ishworkh/docker-image-artifact-upload@v1
+      - name: export image as tar
+        run: |
+          docker save ${{ steps.image-traits.outputs.tag }} --output /tmp/${{ steps.image-traits.outputs.tag }}.tar
+
+      - name: upload image as artifact
+        uses: actions/upload-artifact@v3
         with:
-          image: ${{ steps.image-traits.outputs.tag }}
-          retention_days: "2"
+          name: ${{ steps.image-traits.outputs.tag }}
+          path: /tmp/${{ steps.image-traits.outputs.tag }}.tar
+          retention-days: 1
 
   docker-compose:
     name: 🏆 docker compose tests are passed.
@@ -90,14 +95,15 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
 
-      - name: Download image
-        uses: ishworkh/docker-image-artifact-download@v1
+      - name: Download image from artifact
+        uses: actions/download-artifact@v3
         with:
-          image: ${{ needs.webapp-image.outputs.tag }}
+          name: ${{ needs.webapp-image.outputs.tag }}
+          path: /tmp/${{ needs.webapp-image.outputs.tag }}.tar
 
-      - name: Image is pulled from artifact.
+      - name: Image is pulled from tar.
         run: >
-          docker pull ${{ needs.webapp-image.outputs.tag }}
+          docker load --input /tmp/${{ needs.webapp-image.outputs.tag }}.tar
           &&
           docker inspect ${{ needs.webapp-image.outputs.tag }}
 
