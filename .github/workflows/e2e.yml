@@ -91,7 +91,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
 
       - name: Image is pulled from artifact.
-        run: |
+        run: >
           docker pull ${{ needs.webapp-image.outputs.tag }}
           &&
           docker inspect ${{ needs.webapp-image.outputs.tag }}
