@@ -9,8 +9,68 @@ on:
 
 
 jobs:
+  webapp-image:
+    name: 💎 Webapp image is built.
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      pip-version: ${{ steps.image-traits.outputs.pip-version }}
+      poetry-version: ${{ steps.image-traits.outputs.poetry-version }}
+      python-version: ${{ steps.image-traits.outputs.python-version }}
+      tag: ${{ steps.image-traits.outputs.tag }}
+      version: ${{ steps.image-traits.outputs.version }}
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: ⚙️ QEMU is set up.
+        uses: docker/setup-qemu-action@v2
+
+      - name: ⚙️ Docker BuildX is set up.
+        uses: docker/setup-buildx-action@v2
+
+      - name: 🔑 Job is logged in DockerHub.
+        uses: docker/login-action@v2
+        with:
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: Image tag is set.
+        id: image-traits
+        run:
+          echo "pip-version=$(cat .pip-version)" >> ${GITHUB_OUTPUT}
+          echo "poetry-version=$(cat .poetry-version)" >> ${GITHUB_OUTPUT}
+          echo "python-version=$(cat .python-version)" >> ${GITHUB_OUTPUT}
+          echo "tag=alpha:${{ github.sha }}" >> ${GITHUB_OUTPUT}
+          echo "version=${{ github.sha }}" >> ${GITHUB_OUTPUT}
+        working-directory: services/webapp
+
+      - name: 💎 Webapp image is built.
+        run: |
+          docker build
+          --build-arg PIP_VERSION=${{ steps.image-traits.outputs.pip-version }}
+          --build-arg POETRY_VERSION=${{ steps.image-traits.outputs.poetry-version }}
+          --build-arg PYTHON_VERSION=${{ steps.image-traits.outputs.python-version }}
+          --build-arg VERSION=${{ steps.image-traits.outputs.version }}
+          --tag=${{ steps.image-traits.outputs.tag }}
+          .
+          &&
+          docker image inspect ${{ steps.image-traits.outputs.tag }}
+        working-directory: services/webapp
+
+      - name: Upload image
+        uses: ishworkh/docker-image-artifact-upload@v1
+        with:
+          image: ${{ steps.image-traits.outputs.tag }}
+          retention_days: "2"
+
   docker-compose:
     name: 🏆 docker compose tests are passed.
+
+    needs:
+      - webapp-image
 
     runs-on: ubuntu-latest
 
@@ -18,8 +78,31 @@ jobs:
       - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v3
 
+#      - name: ⚙️ QEMU is set up.
+#        uses: docker/setup-qemu-action@v2
+#
+#      - name: ⚙️ Docker BuildX is set up.
+#        uses: docker/setup-buildx-action@v2
+
+      - name: 🔑 Job is logged in DockerHub.
+        uses: docker/login-action@v2
+        with:
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: Image is pulled from artifact.
+        run: |
+          docker pull ${{ needs.webapp-image.outputs.tag }}
+          &&
+          docker inspect ${{ needs.webapp-image.outputs.tag }}
+
       - name: 📦 docker compose is built and run.
         uses: isbang/compose-action@v1.4.1
+        env:
+          WEBAPP_PIP_VERSION: ${{ needs.webapp-image.outputs.pip-version }}
+          WEBAPP_POETRY_VERSION: ${{ needs.webapp-image.outputs.poetry-version }}
+          WEBAPP_PYTHON_VERSION: ${{ needs.webapp-image.outputs.python-version }}
+          WEBAPP_VERSION: ${{ needs.webapp-image.outputs.version }}
 
       - name: 🧪 tests are passed.
         run: |

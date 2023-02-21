@@ -4,8 +4,10 @@ services:
     build:
       context: services/webapp/
       args:
-        - python_version=3.10.10
-        - version=dev
+        - PIP_VERSION=${WEBAPP_PIP_VERSION:-23.0.1}
+        - POETRY_VERSION=${WEBAPP_POETRY_VERSION:-1.3.2}
+        - PYTHON_VERSION=${WEBAPP_PYTHON_VERSION:-3.10.10}
+        - VERSION=${WEBAPP_VERSION:-dev}
     container_name: webapp.alpha
     depends_on:
       - db
@@ -15,7 +17,7 @@ services:
       MODE_DEBUG: 1
       PORT: 80
       TEST_SERVICE_URL: http://webapp:80
-    image: alpha:dev
+    image: alpha:${VERSION:-dev}
     networks:
       - alpha
     ports:
