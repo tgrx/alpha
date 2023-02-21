@@ -81,8 +81,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-#      - name: 📥 Code is pulled from repo.
-#        uses: actions/checkout@v3
 
 #      - name: ⚙️ QEMU is set up.
 #        uses: docker/setup-qemu-action@v2
@@ -106,6 +104,9 @@ jobs:
           docker load --input ${{ needs.webapp-image.outputs.artifact }}
           &&
           docker inspect ${{ needs.webapp-image.outputs.tag }}
+
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
 
       - name: 📦 docker compose is built and run.
         uses: isbang/compose-action@v1.4.1
