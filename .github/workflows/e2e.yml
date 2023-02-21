@@ -43,8 +43,8 @@ jobs:
           echo "pip-version=$(cat .pip-version)" >> ${GITHUB_OUTPUT}
           echo "poetry-version=$(cat .poetry-version)" >> ${GITHUB_OUTPUT}
           echo "python-version=$(cat .python-version)" >> ${GITHUB_OUTPUT}
-          echo "tag=alpha:${{ github.sha }}" >> ${GITHUB_OUTPUT}
-          echo "version=${{ github.sha }}" >> ${GITHUB_OUTPUT}
+          echo "tag=alpha:ci-${{ github.ref_name }}" >> ${GITHUB_OUTPUT}
+          echo "version=ci-${{ github.ref_name }}" >> ${GITHUB_OUTPUT}
         working-directory: services/webapp
 
       - name: 💎 Webapp image is built.
@@ -68,7 +68,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.image-traits.outputs.tag }}
-          path: /tmp/${{ steps.image-traits.outputs.tag }}.tar
+          path: /tmp/image-alpha-${{ steps.image-traits.outputs.version }}.tar
           retention-days: 1
 
   docker-compose:
@@ -99,11 +99,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ needs.webapp-image.outputs.tag }}
-          path: /tmp/${{ needs.webapp-image.outputs.tag }}.tar
+          path: /tmp/image-alpha-${{ steps.image-traits.outputs.version }}.tar
 
       - name: Image is pulled from tar.
         run: >
-          docker load --input /tmp/${{ needs.webapp-image.outputs.tag }}.tar
+          docker load --input /tmp/image-alpha-${{ steps.image-traits.outputs.version }}.tar
           &&
           docker inspect ${{ needs.webapp-image.outputs.tag }}
 
