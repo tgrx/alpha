@@ -61,14 +61,13 @@ jobs:
           &&
           docker image inspect ${{ steps.image-traits.outputs.tag }}
           &&
-          docker save ${{ steps.image-traits.outputs.tag }} --output ${{ steps.image-traits.outputs.artifact }}
-          &&
-          stat ${{ steps.image-traits.outputs.artifact }}
+          docker save ${{ steps.image-traits.outputs.tag }} --output ${GITHUB_WORKSPACE}/${{ steps.image-traits.outputs.artifact }}
         working-directory: services/webapp
 
       - name: upload image as artifact
         uses: actions/upload-artifact@v3
         with:
+          if-no-files-found: error
           name: ${{ steps.image-traits.outputs.artifact }}
           path: ${{ steps.image-traits.outputs.artifact }}
           retention-days: 1
