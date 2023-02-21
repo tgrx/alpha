@@ -48,7 +48,7 @@ jobs:
         working-directory: services/webapp
 
       - name: 💎 Webapp image is built.
-        run: |
+        run: >
           docker build
           --build-arg PIP_VERSION=${{ steps.image-traits.outputs.pip-version }}
           --build-arg POETRY_VERSION=${{ steps.image-traits.outputs.poetry-version }}
