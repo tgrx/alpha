@@ -39,7 +39,7 @@ jobs:
 
       - name: Image tag is set.
         id: image-traits
-        run:
+        run: |
           echo "pip-version=$(cat .pip-version)" >> ${GITHUB_OUTPUT}
           echo "poetry-version=$(cat .poetry-version)" >> ${GITHUB_OUTPUT}
           echo "python-version=$(cat .python-version)" >> ${GITHUB_OUTPUT}
