@@ -20,7 +20,6 @@ jobs:
       poetry-version: ${{ steps.image-traits.outputs.poetry-version }}
       python-version: ${{ steps.image-traits.outputs.python-version }}
       tag: ${{ steps.image-traits.outputs.tag }}
-      tar: ${{ steps.image-traits.outputs.tar }}
       version: ${{ steps.image-traits.outputs.version }}
 
     steps:
@@ -42,12 +41,11 @@ jobs:
       - name: Image tag is set.
         id: image-traits
         run: |
-          echo "artifact=image-alpha-ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
+          echo "artifact=image-alpha-webapp-ci-${{ github.head_ref }}.tar" >> ${GITHUB_OUTPUT}
           echo "pip-version=$(cat .pip-version)" >> ${GITHUB_OUTPUT}
           echo "poetry-version=$(cat .poetry-version)" >> ${GITHUB_OUTPUT}
           echo "python-version=$(cat .python-version)" >> ${GITHUB_OUTPUT}
           echo "tag=alpha:ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
-          echo "tar=/tmp/image-alpha-${{ github.head_ref }}".tar >> ${GITHUB_OUTPUT}
           echo "version=ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
         working-directory: services/webapp
 
@@ -63,14 +61,14 @@ jobs:
           &&
           docker image inspect ${{ steps.image-traits.outputs.tag }}
           &&
-          docker save ${{ steps.image-traits.outputs.tag }} --output ${{ steps.image-traits.outputs.tar }}
+          docker save ${{ steps.image-traits.outputs.tag }} --output ${{ steps.image-traits.outputs.artifact }}
         working-directory: services/webapp
 
       - name: upload image as artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.image-traits.outputs.artifact }}
-          path: ${{ steps.image-traits.outputs.tar }}
+          path: ${{ steps.image-traits.outputs.artifact }}
           retention-days: 1
 
   docker-compose:
@@ -101,11 +99,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ needs.webapp-image.outputs.artifact }}
-          path: ${{ needs.webapp-image.outputs.tar }}
 
       - name: Image is pulled from tar.
         run: >
-          docker load --input ${{ needs.webapp-image.outputs.tar }}
+          docker load --input ${{ needs.webapp-image.outputs.artifact }}
           &&
           docker inspect ${{ needs.webapp-image.outputs.tag }}
 
