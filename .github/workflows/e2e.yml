@@ -41,11 +41,11 @@ jobs:
       - name: Image tag is set.
         id: image-traits
         run: |
-          echo "artifact=image-alpha-webapp-ci-${{ github.head_ref }}.tar" >> ${GITHUB_OUTPUT}
+          echo "artifact=image-webapp-alpha-ci-${{ github.head_ref }}.tar" >> ${GITHUB_OUTPUT}
           echo "pip-version=$(cat .pip-version)" >> ${GITHUB_OUTPUT}
           echo "poetry-version=$(cat .poetry-version)" >> ${GITHUB_OUTPUT}
           echo "python-version=$(cat .python-version)" >> ${GITHUB_OUTPUT}
-          echo "tag=alpha:ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
+          echo "tag=webapp.alpha:ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
           echo "version=ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
         working-directory: services/webapp
 
@@ -72,21 +72,24 @@ jobs:
           path: ${{ steps.image-traits.outputs.artifact }}
           retention-days: 1
 
-  docker-compose:
-    name: 🏆 docker compose tests are passed.
-
-    needs:
-      - webapp-image
+  db-image:
+    name: 💎 DB image is built.
 
     runs-on: ubuntu-latest
 
-    steps:
+    outputs:
+      artifact: ${{ steps.image-traits.outputs.artifact }}
+      tag: ${{ steps.image-traits.outputs.tag }}
 
-#      - name: ⚙️ QEMU is set up.
-#        uses: docker/setup-qemu-action@v2
-#
-#      - name: ⚙️ Docker BuildX is set up.
-#        uses: docker/setup-buildx-action@v2
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: ⚙️ QEMU is set up.
+        uses: docker/setup-qemu-action@v2
+
+      - name: ⚙️ Docker BuildX is set up.
+        uses: docker/setup-buildx-action@v2
 
       - name: 🔑 Job is logged in DockerHub.
         uses: docker/login-action@v2
@@ -94,12 +97,66 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
 
-      - name: Download image from artifact
+      - name: Image tag is set.
+        id: image-traits
+        run: |
+          echo "artifact=image-db-alpha-ci-${{ github.head_ref }}.tar" >> ${GITHUB_OUTPUT}
+          echo "tag=db.alpha:ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
+        working-directory: services/db
+
+      - name: 💎 DB image is built.
+        run: >
+          docker build
+          --tag=${{ steps.image-traits.outputs.tag }}
+          .
+          &&
+          docker image inspect ${{ steps.image-traits.outputs.tag }}
+          &&
+          docker save ${{ steps.image-traits.outputs.tag }} --output ${GITHUB_WORKSPACE}/${{ steps.image-traits.outputs.artifact }}
+        working-directory: services/db
+
+      - name: upload image as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: error
+          name: ${{ steps.image-traits.outputs.artifact }}
+          path: ${{ steps.image-traits.outputs.artifact }}
+          retention-days: 1
+
+  docker-compose:
+    name: 🏆 docker compose tests are passed.
+
+    needs:
+      - db-image
+      - webapp-image
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: 🔑 Job is logged in DockerHub.
+        uses: docker/login-action@v2
+        with:
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: DB image is downloaded as artifact.
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.db-image.outputs.artifact }}
+
+      - name: DB image is pulled from tar.
+        run: >
+          docker load --input ${{ needs.db-image.outputs.artifact }}
+          &&
+          docker inspect ${{ needs.db-image.outputs.tag }}
+
+      - name: Webapp image is downloaded as artifact.
         uses: actions/download-artifact@v3
         with:
           name: ${{ needs.webapp-image.outputs.artifact }}
 
-      - name: Image is pulled from tar.
+      - name: Webapp image is pulled from tar.
         run: >
           docker load --input ${{ needs.webapp-image.outputs.artifact }}
           &&
@@ -115,6 +172,11 @@ jobs:
           WEBAPP_POETRY_VERSION: ${{ needs.webapp-image.outputs.poetry-version }}
           WEBAPP_PYTHON_VERSION: ${{ needs.webapp-image.outputs.python-version }}
           WEBAPP_VERSION: ${{ needs.webapp-image.outputs.version }}
+        down-flags: "--volumes --remove-orphans"
+        up-flags: "--no-build --no-deps --remove-orphans --force-recreate"
+        services: |
+          db
+          webapp
 
       - name: 🧪 tests are passed.
         run: |
