@@ -172,11 +172,12 @@ jobs:
           WEBAPP_POETRY_VERSION: ${{ needs.webapp-image.outputs.poetry-version }}
           WEBAPP_PYTHON_VERSION: ${{ needs.webapp-image.outputs.python-version }}
           WEBAPP_VERSION: ${{ needs.webapp-image.outputs.version }}
-        down-flags: "--volumes --remove-orphans"
-        up-flags: "--no-build --no-deps --remove-orphans --force-recreate"
-        services: |
-          db
-          webapp
+        with:
+          down-flags: "--volumes --remove-orphans"
+          up-flags: "--no-build --no-deps --remove-orphans --force-recreate"
+          services: |
+            db
+            webapp
 
       - name: 🧪 tests are passed.
         run: |
