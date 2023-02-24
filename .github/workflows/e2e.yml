@@ -80,6 +80,7 @@ jobs:
     outputs:
       artifact: ${{ steps.image-traits.outputs.artifact }}
       tag: ${{ steps.image-traits.outputs.tag }}
+      version: ${{ steps.image-traits.outputs.version }}
 
     steps:
       - name: 📥 Code is pulled from repo.
@@ -102,11 +103,13 @@ jobs:
         run: |
           echo "artifact=image-db-alpha-ci-${{ github.head_ref }}.tar" >> ${GITHUB_OUTPUT}
           echo "tag=db.alpha:ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
+          echo "version=ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
         working-directory: services/db
 
       - name: 💎 DB image is built.
         run: >
           docker build
+          --build-arg VERSION=${{ steps.image-traits.outputs.version }}
           --tag=${{ steps.image-traits.outputs.tag }}
           .
           &&
@@ -168,6 +171,7 @@ jobs:
       - name: 📦 docker compose is built and run.
         uses: isbang/compose-action@v1.4.1
         env:
+          DB_VERSION: ${{ needs.db-image.outputs.version }}
           WEBAPP_PIP_VERSION: ${{ needs.webapp-image.outputs.pip-version }}
           WEBAPP_POETRY_VERSION: ${{ needs.webapp-image.outputs.poetry-version }}
           WEBAPP_PYTHON_VERSION: ${{ needs.webapp-image.outputs.python-version }}
