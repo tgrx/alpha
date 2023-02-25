@@ -8,7 +8,7 @@ on:
 jobs:
   webapp-image:
     name: 💎 Webapp image is built.
-    if: ${{ github.event_name == 'push' && github.ref_name != 'main' && github.event.head_commit.message.includes('ci:integration') }}
+    if: ${{ github.event_name == 'push' && github.ref_name != 'main' && contains(github.event.head_commit.message, 'ci:integration') }}
 
     runs-on: ubuntu-latest
 
