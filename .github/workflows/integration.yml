@@ -20,9 +20,9 @@ jobs:
     steps:
       - name: ✅ Run is requested.
         run: |
-          echo: "github.event_name == ${{ github.event_name }}"
-          echo: "github.ref_name == ${{ github.ref_name }}"
-          echo: "github.event.head_commit.message == ${{ github.event.head_commit.message }}"
+          echo "github.event_name == ${{ github.event_name }}"
+          echo "github.ref_name == ${{ github.ref_name }}"
+          echo "github.event.head_commit.message == ${{ contains(github.event.head_commit.message, 'ci:integration') }}"
 
 #  webapp-image:
 #    name: 💎 Webapp image is built.
