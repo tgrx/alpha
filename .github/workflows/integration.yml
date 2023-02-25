@@ -7,7 +7,7 @@ on:
 
 jobs:
   checks:
-    name: 🏁 Run is requested.
+    name: 🏁 Run is requested?
     if: >
       ${{
         github.event_name == 'workflow_dispatch' || (
@@ -16,9 +16,9 @@ jobs:
           && contains(github.event.head_commit.message, 'ci:integration')
         )
       }}
-#  steps:
-#    - name: 🏁 Run is requested.
-#      uses: actions/checkout@v3
+    steps:
+      - name: ✅ Run is requested.
+        run: echo "Run is requested"
 
   webapp-image:
     name: 💎 Webapp image is built.
