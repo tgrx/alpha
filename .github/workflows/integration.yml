@@ -15,8 +15,8 @@ jobs:
         run: |
           echo "github.event_name: ${{ github.event_name }}"
           echo "github.ref_name: ${{ github.ref_name }}"
-          echo "github.event.head_commit.message: ${{ contains(github.event.head_commit.message, 'ci:integration') }}"
-          echo "xxx: ${{github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref_name != 'main' && contains(github.event.head_commit.message, 'ci:integration'))}}"
+          echo "github.event.head_commit.message: ${{ github.event.head_commit.message }}"
+
 
 #  webapp-image:
 #    name: 💎 Webapp image is built.
