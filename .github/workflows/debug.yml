@@ -8,12 +8,12 @@ on:
 
 jobs:
   debug:
-    name: Debug
+    name: Contexts
 
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug.
+      - name: 👉 `github`
         run: |
           echo "github.action: ${{ github.action }}"
           echo "github.action_ref: ${{ github.action_ref }}"
