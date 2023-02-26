@@ -7,11 +7,11 @@ on:
 
 jobs:
   checks:
-    name: 🏁 Run is requested?
+    name: 🏁 Integration checks are requested?
     if: ${{github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref_name != 'main' && contains(github.event.head_commit.message, 'ci:integration'))}}
     runs-on: ubuntu-latest
     steps:
-      - name: ✅ Run is requested.
+      - name: 🛂 Run is requested.
         run: |
           echo "github.event_name:                ${{ github.event_name }}"
           echo "github.ref_name:                  ${{ github.ref_name }}"
@@ -48,7 +48,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
 
-      - name: Image tag is set.
+      - name: 🧩 Image traits are set.
         id: image-traits
         run: |
           echo "artifact=image-webapp-alpha-ci-${{ github.ref_name  }}.tar" >> ${GITHUB_OUTPUT}
@@ -59,7 +59,7 @@ jobs:
           echo "version=ci-${{ github.ref_name }}" >> ${GITHUB_OUTPUT}
         working-directory: services/webapp
 
-      - name: 💎 Webapp image is built.
+      - name: 💎 Image is built.
         run: >
           docker build
           --build-arg PIP_VERSION=${{ steps.image-traits.outputs.pip-version }}
@@ -74,7 +74,7 @@ jobs:
           docker save ${{ steps.image-traits.outputs.tag }} --output ${GITHUB_WORKSPACE}/${{ steps.image-traits.outputs.artifact }}
         working-directory: services/webapp
 
-      - name: upload image as artifact
+      - name: 💾 image is uploaded as artifact.
         uses: actions/upload-artifact@v3
         with:
           if-no-files-found: error
@@ -110,7 +110,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           username: ${{ secrets.DOCKERHUB_USERNAME }}
 
-      - name: Image tag is set.
+      - name: 🧩 Image traits are set.
         id: image-traits
         run: |
           echo "artifact=image-db-alpha-ci-${{ github.head_ref }}.tar" >> ${GITHUB_OUTPUT}
@@ -118,7 +118,7 @@ jobs:
           echo "version=ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
         working-directory: services/db
 
-      - name: 💎 DB image is built.
+      - name: 💎 Image is built.
         run: >
           docker build
           --build-arg VERSION=${{ steps.image-traits.outputs.version }}
@@ -130,7 +130,7 @@ jobs:
           docker save ${{ steps.image-traits.outputs.tag }} --output ${GITHUB_WORKSPACE}/${{ steps.image-traits.outputs.artifact }}
         working-directory: services/db
 
-      - name: upload image as artifact
+      - name: 💾 image is uploaded as artifact.
         uses: actions/upload-artifact@v3
         with:
           if-no-files-found: error
@@ -196,6 +196,6 @@ jobs:
             db
             webapp
 
-      - name: 🧪 tests are passed.
+      - name: 🛂 Tests are passed.
         run: |
           docker compose exec -it webapp task run-tests-coverage

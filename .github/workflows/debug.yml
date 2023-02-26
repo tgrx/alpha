@@ -8,7 +8,7 @@ on:
 
 jobs:
   debug:
-    name: Contexts
+    name: 📄 Contexts
 
     runs-on: ubuntu-latest
 

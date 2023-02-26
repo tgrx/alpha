@@ -1,10 +1,10 @@
 name: Webapp - Dev - 🐧
 
 on:
-#  pull_request:
-#  push:
-#    branches:
-#      - main
+  pull_request:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 
@@ -25,7 +25,7 @@ jobs:
       - name: 📥 Code is pulled from repo.
         uses: actions/checkout@v3
 
-      - name: 🔑 Toolchain cache key is calculated.
+      - name: 🔑 Cache key is calculated.
         id: cache-key
         run: |
           echo "value=cache-toolchain-ubuntu-${{ hashFiles('services/webapp/poetry.lock', 'services/webapp/.poetry-version', 'services/webapp/.python-version') }}-${{ env.CACHE_CUSTOM_KEY }}" >> $GITHUB_OUTPUT
@@ -40,7 +40,7 @@ jobs:
 
       - name: 🧩 Envs are set up.
         run: |
-          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/.github/bin" >> ${GITHUB_PATH}
           echo "${GITHUB_WORKSPACE}/.local/pyenv/bin" >> ${GITHUB_PATH}
           echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
 
@@ -78,7 +78,7 @@ jobs:
         working-directory: services/webapp/
 
   tests:
-    name: ☯️ Tests are passed.
+    name: 🛂 Tests are passed.
 
     needs:
       - toolchain
@@ -115,13 +115,13 @@ jobs:
         run: task run-server-dev &
         working-directory: services/webapp/
 
-      - name: ☯️ Unit tests are passed.
+      - name: 🛂 Unit tests are passed.
         run: |
           task run-tests-coverage
         working-directory: services/webapp/
 
   linters:
-    name: ☯️ Linters approve code.
+    name: 🛂 Linters approve code.
 
     needs:
       - toolchain
@@ -154,6 +154,6 @@ jobs:
           echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
           pyenv rehash
 
-      - name: ☯️ Linters approve code.
+      - name: 🛂 Linters approve code.
         run: task code-lint
         working-directory: services/webapp/
