@@ -1,0 +1,50 @@
+version: '3'
+
+output: 'prefixed'
+
+
+tasks:
+
+  git-align:
+    cmds:
+      - git stash
+      - git checkout main
+      - git pull
+      - git checkout "{{.GIT_CURRENT_BRANCH}}"
+      - git merge main
+      - git stash apply
+    desc: align your current branch with `main`
+    run: once
+
+  github-build-task:
+    cmds:
+      - >
+        docker run --rm -it
+        -v $(pwd):/app/:rw
+        -e GOBIN=/app/.github/bin
+        golang:bullseye@sha256:a0b51fe882f269828b63e7f69e6925f85afc548cf7cf967ecbfbcce6afe6f235
+        go install github.com/go-task/task/v3/cmd/task@latest
+    desc: build Task app for Ubuntu / Github Actions
+    dir: "{{.ROOT_DIR}}"
+
+  docker-down:
+    cmds:
+      - docker compose down --remove-orphans
+    desc: stop all services
+    dir: "{{.ROOT_DIR}}"
+    preconditions:
+      - docker info
+    run: once
+
+  docker-up:
+    cmds:
+      - docker compose up --detach --remove-orphans --wait {{.CLI_ARGS}}
+    desc: start all ( `-- [<service> ...]`) services
+    dir: "{{.ROOT_DIR}}"
+    preconditions:
+      - docker info
+    run: once
+
+vars:
+  GIT_CURRENT_BRANCH:
+    sh: git branch --show-current || echo 'main'

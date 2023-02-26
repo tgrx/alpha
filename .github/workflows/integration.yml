@@ -1,0 +1,272 @@
+name: Integration
+
+on:
+  push:
+  workflow_dispatch:
+
+
+jobs:
+  checks:
+    name: 🏁 Integration checks are requested?
+    if: >
+      ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || contains(github.event.head_commit.message, 'ci:integration')))}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛂 Run is requested.
+        run: |
+          echo "github.event_name:                ${{ github.event_name }}"
+          echo "github.ref_name:                  ${{ github.ref_name }}"
+          echo "github.event.head_commit.message: ${{ github.event.head_commit.message }}"
+
+  image-db:
+    name: 💎 DB image is built.
+    needs:
+      - checks
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      artifact: ${{ steps.image-traits.outputs.artifact }}
+      tag: ${{ steps.image-traits.outputs.tag }}
+      version: ${{ steps.image-traits.outputs.version }}
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: ⚙️ QEMU is set up.
+        uses: docker/setup-qemu-action@v2
+
+      - name: ⚙️ Docker BuildX is set up.
+        uses: docker/setup-buildx-action@v2
+
+      - name: 🔑 Job is logged in DockerHub.
+        uses: docker/login-action@v2
+        with:
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: 🧩 Image traits are set.
+        id: image-traits
+        run: |
+          echo "artifact=image-db-alpha-ci-${{ github.head_ref }}.tar" >> ${GITHUB_OUTPUT}
+          echo "tag=db.alpha:ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
+          echo "version=ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
+        working-directory: services/db
+
+      - name: 💎 Image is built.
+        run: >
+          docker build
+          --build-arg VERSION=${{ steps.image-traits.outputs.version }}
+          --tag=${{ steps.image-traits.outputs.tag }}
+          .
+          &&
+          docker image inspect ${{ steps.image-traits.outputs.tag }}
+          &&
+          docker save ${{ steps.image-traits.outputs.tag }} --output ${GITHUB_WORKSPACE}/${{ steps.image-traits.outputs.artifact }}
+        working-directory: services/db
+
+      - name: 💾 image is uploaded as artifact.
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: error
+          name: ${{ steps.image-traits.outputs.artifact }}
+          path: ${{ steps.image-traits.outputs.artifact }}
+          retention-days: 1
+
+  image-docs:
+    name: 💎 Docs image is built.
+    needs:
+      - checks
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      artifact: ${{ steps.image-traits.outputs.artifact }}
+      pip-version: ${{ steps.image-traits.outputs.pip-version }}
+      tag: ${{ steps.image-traits.outputs.tag }}
+      version: ${{ steps.image-traits.outputs.version }}
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: ⚙️ QEMU is set up.
+        uses: docker/setup-qemu-action@v2
+
+      - name: ⚙️ Docker BuildX is set up.
+        uses: docker/setup-buildx-action@v2
+
+      - name: 🔑 Job is logged in DockerHub.
+        uses: docker/login-action@v2
+        with:
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: 🧩 Image traits are set.
+        id: image-traits
+        run: |
+          echo "artifact=image-docs-alpha-ci-${{ github.head_ref }}.tar" >> ${GITHUB_OUTPUT}
+          echo "pip-version=$(cat .pip-version)" >> ${GITHUB_OUTPUT}
+          echo "tag=docs.alpha:ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
+          echo "version=ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
+        working-directory: services/docs
+
+      - name: 💎 Image is built.
+        run: >
+          docker build
+          --build-arg PIP_VERSION=${{ steps.image-traits.outputs.pip-version }}
+          --build-arg VERSION=${{ steps.image-traits.outputs.version }}
+          --tag=${{ steps.image-traits.outputs.tag }}
+          .
+          &&
+          docker image inspect ${{ steps.image-traits.outputs.tag }}
+          &&
+          docker save ${{ steps.image-traits.outputs.tag }} --output ${GITHUB_WORKSPACE}/${{ steps.image-traits.outputs.artifact }}
+        working-directory: services/docs
+
+      - name: 💾 image is uploaded as artifact.
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: error
+          name: ${{ steps.image-traits.outputs.artifact }}
+          path: ${{ steps.image-traits.outputs.artifact }}
+          retention-days: 1
+
+  image-webapp:
+    name: 💎 Webapp image is built.
+    needs:
+      - checks
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      artifact: ${{ steps.image-traits.outputs.artifact }}
+      pip-version: ${{ steps.image-traits.outputs.pip-version }}
+      poetry-version: ${{ steps.image-traits.outputs.poetry-version }}
+      python-version: ${{ steps.image-traits.outputs.python-version }}
+      tag: ${{ steps.image-traits.outputs.tag }}
+      version: ${{ steps.image-traits.outputs.version }}
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: ⚙️ QEMU is set up.
+        uses: docker/setup-qemu-action@v2
+
+      - name: ⚙️ Docker BuildX is set up.
+        uses: docker/setup-buildx-action@v2
+
+      - name: 🔑 Job is logged in DockerHub.
+        uses: docker/login-action@v2
+        with:
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: 🧩 Image traits are set.
+        id: image-traits
+        run: |
+          echo "artifact=image-webapp-alpha-ci-${{ github.ref_name  }}.tar" >> ${GITHUB_OUTPUT}
+          echo "pip-version=$(cat .pip-version)" >> ${GITHUB_OUTPUT}
+          echo "poetry-version=$(cat .poetry-version)" >> ${GITHUB_OUTPUT}
+          echo "python-version=$(cat .python-version)" >> ${GITHUB_OUTPUT}
+          echo "tag=webapp.alpha:ci-${{ github.ref_name }}" >> ${GITHUB_OUTPUT}
+          echo "version=ci-${{ github.ref_name }}" >> ${GITHUB_OUTPUT}
+        working-directory: services/webapp
+
+      - name: 💎 Image is built.
+        run: >
+          docker build
+          --build-arg PIP_VERSION=${{ steps.image-traits.outputs.pip-version }}
+          --build-arg POETRY_VERSION=${{ steps.image-traits.outputs.poetry-version }}
+          --build-arg PYTHON_VERSION=${{ steps.image-traits.outputs.python-version }}
+          --build-arg VERSION=${{ steps.image-traits.outputs.version }}
+          --tag=${{ steps.image-traits.outputs.tag }}
+          .
+          &&
+          docker image inspect ${{ steps.image-traits.outputs.tag }}
+          &&
+          docker save ${{ steps.image-traits.outputs.tag }} --output ${GITHUB_WORKSPACE}/${{ steps.image-traits.outputs.artifact }}
+        working-directory: services/webapp
+
+      - name: 💾 image is uploaded as artifact.
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: error
+          name: ${{ steps.image-traits.outputs.artifact }}
+          path: ${{ steps.image-traits.outputs.artifact }}
+          retention-days: 1
+
+  docker-compose:
+    name: 🏆 docker compose tests are passed.
+
+    needs:
+      - checks
+      - image-db
+      - image-docs
+      - image-webapp
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: 🔑 Job is logged in DockerHub.
+        uses: docker/login-action@v2
+        with:
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: DB image is downloaded as artifact.
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.image-db.outputs.artifact }}
+      - name: DB image is pulled from tar.
+        run: >
+          docker load --input ${{ needs.image-db.outputs.artifact }}
+          &&
+          docker inspect ${{ needs.image-db.outputs.tag }}
+
+      - name: Docs image is downloaded as artifact.
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.image-docs.outputs.artifact }}
+      - name: Docs image is pulled from tar.
+        run: >
+          docker load --input ${{ needs.image-docs.outputs.artifact }}
+          &&
+          docker inspect ${{ needs.image-docs.outputs.tag }}
+
+      - name: Webapp image is downloaded as artifact.
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.image-webapp.outputs.artifact }}
+      - name: Webapp image is pulled from tar.
+        run: >
+          docker load --input ${{ needs.image-webapp.outputs.artifact }}
+          &&
+          docker inspect ${{ needs.image-webapp.outputs.tag }}
+
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: 📦 docker compose is built and run.
+        uses: isbang/compose-action@v1.4.1
+        env:
+          DB_VERSION: ${{ needs.image-db.outputs.version }}
+          DOCS_VERSION: ${{ needs.image-docs.outputs.version }}
+          WEBAPP_PIP_VERSION: ${{ needs.image-webapp.outputs.pip-version }}
+          WEBAPP_POETRY_VERSION: ${{ needs.image-webapp.outputs.poetry-version }}
+          WEBAPP_PYTHON_VERSION: ${{ needs.image-webapp.outputs.python-version }}
+          WEBAPP_VERSION: ${{ needs.image-webapp.outputs.version }}
+        with:
+          down-flags: "--volumes --remove-orphans"
+          up-flags: "--no-build --no-deps --remove-orphans --force-recreate"
+          services: |
+            db
+            docs
+            webapp
+
+      - name: 🛂 Tests are passed.
+        run: |
+          docker compose exec -it webapp task run-tests-coverage

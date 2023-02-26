@@ -1,0 +1,159 @@
+name: Services - Webapp
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+env:
+  CACHE_CUSTOM_KEY: 0
+
+
+jobs:
+  toolchain:
+    name: 🛠️ Toolchain is built.
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.value }}
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: 🔑 Cache key is calculated.
+        id: cache-key
+        run: |
+          echo "value=cache-toolchain-ubuntu-${{ hashFiles('services/webapp/poetry.lock', 'services/webapp/.poetry-version', 'services/webapp/.python-version') }}-${{ env.CACHE_CUSTOM_KEY }}" >> $GITHUB_OUTPUT
+      - name: 📦 Toolchain is cached and restored.
+        id: cache-toolchain
+        uses: actions/cache@v3
+        with:
+          key: ${{ steps.cache-key.outputs.value }}
+          path: |
+            .local
+            services/webapp/.local
+
+      - name: 🧩 Envs are set up.
+        run: |
+          echo "${GITHUB_WORKSPACE}/.github/bin" >> ${GITHUB_PATH}
+          echo "${GITHUB_WORKSPACE}/.local/pyenv/bin" >> ${GITHUB_PATH}
+          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
+
+      - name: 🐍 Pyenv is installed.
+        if: ${{ !steps.cache-toolchain.outputs.cache-hit }}
+        run: |
+          curl https://pyenv.run | bash
+          eval "$(pyenv init --path)"
+
+      - name: 🐍 Pyenv is rehashed.
+        run: |
+          echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
+          pyenv rehash
+
+      - name: 🛂 Checkpoint.
+        run: |
+          echo ${PATH}
+          echo "# ~~~~ task ~~~~"
+          which task
+          task --version
+          echo "# ~~~~ pyenv ~~~~"
+          which pyenv
+          pyenv --version
+          echo "# ~~~~ python ~~~~"
+          which python
+          python --version
+          echo "# ~~~~ shims ~~~~"
+          echo "$(pyenv root)/shims"
+          ls -la "$(pyenv root)/shims"
+
+      - name: 🛠️ Developer toolchain is set.
+        run: |
+          task
+          poetry env info
+        working-directory: services/webapp/
+
+  tests:
+    name: 🛂 Tests are passed.
+
+    needs:
+      - toolchain
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: 📦 Toolchain is restored from cache.
+        id: restore-toolchain
+        uses: actions/cache@v3
+        with:
+          fail-on-cache-miss: true
+          key: ${{ needs.toolchain.outputs.cache-key }}
+          path: |
+            .local
+            services/webapp/.local
+
+      - name: 🧩 Envs are set up.
+        id: env-setup
+        run: |
+          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/.local/pyenv/bin" >> ${GITHUB_PATH}
+          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
+
+      - name: 🐍 Pyenv is rehashed.
+        run: |
+          echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
+          pyenv rehash
+
+      - name: 🚀 Web server is up.
+        run: task run-server-dev &
+        working-directory: services/webapp/
+
+      - name: 🛂 Unit tests are passed.
+        run: |
+          task run-tests-coverage
+        working-directory: services/webapp/
+
+  linters:
+    name: 🛂 Linters approve code.
+
+    needs:
+      - toolchain
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: 📦 Toolchain is restored from cache.
+        id: restore-toolchain
+        uses: actions/cache@v3
+        with:
+          fail-on-cache-miss: true
+          key: ${{ needs.toolchain.outputs.cache-key }}
+          path: |
+            .local
+            services/webapp/.local
+
+      - name: 🧩 Envs are set up.
+        id: env-setup
+        run: |
+          echo "$GITHUB_WORKSPACE/.github/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/.local/pyenv/bin" >> ${GITHUB_PATH}
+          echo "PYENV_ROOT=${GITHUB_WORKSPACE}/.local/pyenv" >> ${GITHUB_ENV}
+
+      - name: 🐍 Pyenv is rehashed.
+        run: |
+          echo "$(pyenv root)/shims" >> ${GITHUB_PATH}
+          pyenv rehash
+
+      - name: 🛂 Linters approve code.
+        run: task code-lint
+        working-directory: services/webapp/

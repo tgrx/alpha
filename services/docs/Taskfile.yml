@@ -1,0 +1,14 @@
+version: '3'
+
+output: 'prefixed'
+
+tasks:
+
+  deploy-github:
+    cmds:
+      - mkdocs gh-deploy --force
+    desc: deploy docs to Github Pages
+    dir: "{{.ROOT_DIR}}"
+
+env:
+  PYTHONPATH: "{{.ROOT_DIR}}"

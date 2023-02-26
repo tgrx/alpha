@@ -1,0 +1,146 @@
+version: '3'
+
+output: 'prefixed'
+
+tasks:
+
+  code-format:
+    cmds:
+      - poetry run black .
+      - poetry run isort --virtual-env="{{.DIR_VENV}}" .
+      - task: code-lint-black
+      - task: code-lint-isort
+    desc: format code with black & isort
+    dir: "{{.USER_WORKING_DIR}}"
+
+  code-lint:
+    cmds:
+      - test -f "{{.DIR_LOCAL}}/ok.code-lint-black"
+      - test -f "{{.DIR_LOCAL}}/ok.code-lint-flake8"
+      - test -f "{{.DIR_LOCAL}}/ok.code-lint-isort"
+      - test -f "{{.DIR_LOCAL}}/ok.code-lint-mypy"
+      - echo 'all linters passed'
+    deps:
+      - code-lint-black
+      - code-lint-isort
+      - code-lint-mypy
+      - code-lint-flake8
+    desc: validate code using linters
+    dir: "{{.USER_WORKING_DIR}}"
+    silent: true
+
+  code-lint-black:
+    cmds:
+      - >
+        rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+        && poetry run black --check .
+        && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+    dir: "{{.USER_WORKING_DIR}}"
+    ignore_error: true
+    internal: true
+  code-lint-isort:
+    cmds:
+      - >
+        rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+        && poetry run isort --check-only --virtual-env="{{.DIR_VENV}}" .
+        && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+    dir: "{{.USER_WORKING_DIR}}"
+    ignore_error: true
+    internal: true
+  code-lint-mypy:
+    cmds:
+      - >
+        rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+        && poetry run mypy --config-file="{{.ROOT_DIR}}/pyproject.toml"
+        && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+    dir: "{{.USER_WORKING_DIR}}"
+    ignore_error: true
+    internal: true
+  code-lint-flake8:
+    cmds:
+      - >
+        rm -f "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+        && poetry run flake8 --config="{{.ROOT_DIR}}/.flake8" .
+        && touch "{{.DIR_LOCAL}}/ok.{{.TASK}}"
+    dir: "{{.USER_WORKING_DIR}}"
+    ignore_error: true
+    internal: true
+
+  default:
+    cmds:
+      - pyenv install --skip-existing "{{.PYTHON_VERSION}}"
+      - pip install --upgrade "pip=={{.PIP_VERSION}}"
+      - pip install --ignore-installed "poetry=={{.POETRY_VERSION}}"
+      - poetry env use "{{.PYTHON_VERSION}}"
+      - poetry install --with dev
+      - echo "ROOT_DIR={{.ROOT_DIR}}"
+      - echo "USER_WORKING_DIR={{.USER_WORKING_DIR}}"
+      - echo "TASKFILE_DIR={{.TASKFILE_DIR}}"
+      - echo "DIR_LOCAL={{.DIR_LOCAL}}"
+      - echo "DIR_VENV={{.DIR_VENV}}"
+      - echo "PYTHON_VERSION={{.PYTHON_VERSION}}"
+      - echo "POETRY_VERSION={{.POETRY_VERSION}}"
+    desc: "setup developer's toolchain: Pyenv, Python, Poetry, venv"
+    dir: "{{.USER_WORKING_DIR}}"
+
+  run-server-dev:
+    cmds:
+      - >
+        poetry run
+        uvicorn webapp.asgi:application
+        --host 0.0.0.0
+        --lifespan off
+        --loop asyncio
+        --port ${PORT:-8000}
+        --reload
+        --workers 1
+        --ws none
+    desc: run Uvicorn on http://localhost:8000
+    dir: "{{.ROOT_DIR}}"
+    run: once
+
+  run-server-prod:
+    cmds:
+      - >
+        poetry run
+        gunicorn
+        --config="{{.ROOT_DIR}}/config/gunicorn.conf.py"
+        webapp.asgi:application
+    desc: run Gunicorn on http://host:$PORT
+    dir: "{{.ROOT_DIR}}"
+    run: once
+
+  run-tests:
+    cmds:
+      - poetry run pytest {{.CLI_ARGS}} .
+    desc: run tests
+    dir: "{{.USER_WORKING_DIR}}"
+    run: once
+
+  run-tests-coverage:
+    cmds:
+      - poetry run coverage html
+    deps:
+      - task: run-tests
+        vars: { CLI_ARGS: "{{.CLI_ARGS}} --cov-fail-under=0" }
+    desc: calculate tests coverage
+    dir: "{{.USER_WORKING_DIR}}"
+    generates:
+      - "{{.DIR_LOCAL}}/coverage/html/**/*"
+    run: once
+
+vars:
+  DIR_LOCAL:
+    sh: (cd "{{.ROOT_DIR}}"/.local && pwd)
+  DIR_VENV:
+    sh: (cd "$(poetry env info --path)" && pwd) || echo '.venv'
+  PIP_VERSION:
+    sh: cat "{{.ROOT_DIR}}/.pip-version"
+  POETRY_VERSION:
+    sh: cat "{{.ROOT_DIR}}/.poetry-version"
+  PYTHON_VERSION:
+    sh: cat "{{.ROOT_DIR}}/.python-version"
+
+
+env:
+  PYTHONPATH: "{{.ROOT_DIR}}"

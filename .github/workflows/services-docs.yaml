@@ -1,0 +1,36 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+jobs:
+  deploy-docs:
+    name: 📦 Docs are deployed.
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Code is pulled from repo.
+        uses: actions/checkout@v3
+
+      - name: 🐍 Python runtime is set up.
+        uses: actions/setup-python@v4
+        with:
+          architecture: 'x64'
+          python-version: '3.10.10'
+
+      - name: 🔋 Dependencies are installed.
+        run: |
+          pip install pip==23.0.1
+          pip install mkdocs-material==9.0.13
+
+      - name: 🧩 Envs are set up.
+        run: |
+          echo "${GITHUB_WORKSPACE}/.github/bin" >> ${GITHUB_PATH}
+
+      - name: 📦 Documentation is deployed.
+        run: task deploy-github
+        working-directory: services/docs/

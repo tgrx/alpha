@@ -1,0 +1,35 @@
+name: Debug
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+
+jobs:
+  debug:
+    name: 📄 Contexts
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 👉 `github`
+        run: |
+          echo 'github.action: ${{ github.action }}'
+          echo 'github.action_ref: ${{ github.action_ref }}'
+          echo 'github.actor: ${{ github.actor }}'
+          echo 'github.actor_id: ${{ github.actor_id }}'
+          echo 'github.base_ref: ${{ github.base_ref }}'
+          echo 'github.event_name: ${{ github.event_name }}'
+          echo 'github.event_path: ${{ github.event_path }}'
+          echo 'github.head_ref: ${{ github.head_ref }}'
+          echo 'github.ref: ${{ github.ref }}'
+          echo 'github.ref_name: ${{ github.ref_name }}'
+          echo 'github.ref_type: ${{ github.ref_type }}'
+          echo 'github.sha: ${{ github.sha }}'
+
+      - name: 👉 `github.event`
+        run: |
+          echo 'github.event_name: ${{ github.event_name }}'
+          echo 'github.event_path: ${{ github.event_path }}'
+          echo 'github.event: ${{toJSON(github.event)}}'
