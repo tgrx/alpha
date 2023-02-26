@@ -1,4 +1,4 @@
-name: Webapp - Dev - 🐧
+name: Services - Webapp
 
 on:
   pull_request:
