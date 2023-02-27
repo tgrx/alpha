@@ -48,9 +48,9 @@ jobs:
       - name: 🧩 Image traits are set.
         id: image-traits
         run: |
-          echo "artifact=image-db-alpha-ci-${{ github.head_ref }}.tar" >> ${GITHUB_OUTPUT}
-          echo "tag=db.alpha:ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
-          echo "version=ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
+          echo "artifact=image-db-alpha-ci-${{ github.ref_name }}.tar" >> ${GITHUB_OUTPUT}
+          echo "tag=db.alpha:ci-${{ github.ref_name }}" >> ${GITHUB_OUTPUT}
+          echo "version=ci-${{ github.ref_name }}" >> ${GITHUB_OUTPUT}
         working-directory: services/db
 
       - name: 💎 Image is built.
@@ -105,10 +105,10 @@ jobs:
       - name: 🧩 Image traits are set.
         id: image-traits
         run: |
-          echo "artifact=image-docs-alpha-ci-${{ github.head_ref }}.tar" >> ${GITHUB_OUTPUT}
+          echo "artifact=image-docs-alpha-ci-${{ github.ref_name }}.tar" >> ${GITHUB_OUTPUT}
           echo "pip-version=$(cat .pip-version)" >> ${GITHUB_OUTPUT}
-          echo "tag=docs.alpha:ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
-          echo "version=ci-${{ github.head_ref }}" >> ${GITHUB_OUTPUT}
+          echo "tag=docs.alpha:ci-${{ github.ref_name }}" >> ${GITHUB_OUTPUT}
+          echo "version=ci-${{ github.ref_name }}" >> ${GITHUB_OUTPUT}
         working-directory: services/docs
 
       - name: 💎 Image is built.
