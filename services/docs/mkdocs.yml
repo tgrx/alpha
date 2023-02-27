@@ -9,19 +9,30 @@ site_dir: '../.garbage/mkdocs/site/'
 nav:
   - 'About': 'index.md'
   - 'Development':
-      - 'Commits, PRs': 'dev/pr.md'
       - 'Contributing': 'dev/contributing.md'
+      - 'Commits, PRs': 'dev/pr.md'
       - 'Issues': 'dev/issues.md'
       - 'Versioning': 'dev/versioning.md'
-  - 'Usage':
-    - 'Alpha Management Tool': 'usage/alpha-management-tool.md'
-    - 'Envs': 'usage/envs.md'
+      - 'Services': 'dev/services.md'
 
 theme:
   name: 'material'
   palette:
-    primary: 'black'
-    accent: 'green'
+    # Palette toggle for light mode
+    - scheme: default
+      primary: green
+      accent: orange
+      toggle:
+        icon: material/lightbulb
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: teal
+      accent: yellow
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to light mode
   features:
     - 'navigation.instant'
     - 'navigation.sections'
