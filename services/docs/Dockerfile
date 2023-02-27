@@ -15,7 +15,7 @@ RUN go install github.com/go-task/task/v3/cmd/task@latest
 # ~~~~~~~~ Stage 1: docs ~~~~~~~~~~~~~~~~~~~~~~~
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-FROM squidfunk/mkdocs-material:9.0.13
+FROM squidfunk/mkdocs-material:9.0.15
 LABEL description="Alpha :: Docs"
 LABEL org.opencontainers.image.authors="Alexander Sidorov <alexander@sidorov.dev>"
 
