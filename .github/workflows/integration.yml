@@ -8,8 +8,7 @@ on:
 jobs:
   checks:
     name: 🏁 Integration checks are requested?
-    if: >
-      ${{ (github.event_name == 'workflow_dispatch') || ((github.event_name == 'push') && ((github.ref_name == 'main') || contains(github.event.head_commit.message, 'ci:integration')))}}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'main' || contains(github.event.head_commit.message, 'ci:integration')))}}
     runs-on: ubuntu-latest
     steps:
       - name: 🛂 Run is requested.
