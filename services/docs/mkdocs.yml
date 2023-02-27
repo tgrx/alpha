@@ -13,6 +13,7 @@ nav:
       - 'Commits, PRs': 'dev/pr.md'
       - 'Issues': 'dev/issues.md'
       - 'Versioning': 'dev/versioning.md'
+      - 'Services': 'dev/services.md'
 
 theme:
   name: 'material'
